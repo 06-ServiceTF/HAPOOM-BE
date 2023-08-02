@@ -37,11 +37,11 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://hapoombucket/deploy/
+        run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://hapoomnewbucket/deploy/
 
       - name: deploy with AWS CodeDeploy
         run: aws deploy create-deployment
-          --application-name hapoomCodeDeployApplication
+          --application-name hapoomAplication
           --deployment-config-name CodeDeployDefault.OneAtATime
-          --deployment-group-name hapoomCodeDeployApplicationGroup
-          --s3-location bucket=hapoombucket,bundleType=zip,key=deploy/CI.zip
+          --deployment-group-name hapoomNewGroup
+          --s3-location bucket=hapoomnewbucket,bundleType=zip,key=deploy/CI.zip
