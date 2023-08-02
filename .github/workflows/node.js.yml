@@ -77,4 +77,4 @@ jobs:
 # 베포 그룹 이름: 
         --deployment-group-name my-codedeploy-deployment-group
 # CI.zip 파일이 업로드된 S3 버킷에서 배포를 수행한다.
-        --s3-location bucket=house-bucket,bundleType=zip,key=deploy/CI.zip
+        --s3-location bucket=hapoom-cicd-bucket,bundleType=zip,key=deploy/CI.zip
