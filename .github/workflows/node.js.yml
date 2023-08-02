@@ -1,80 +1,47 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
 name: Node.js CI
 
-# 1. 워크플로우 트리거
-# : "main" 브랜치에 push가 발생하거나, "main" 브랜치에서 풀 리퀘스트가 생성될 때 
-# 워크플로우를 실행한다.
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
-# 2. 작업(job) 정의
-# : "build"라는 이름의 작업을 정의한다.
 jobs:
   build:
-
-# 이 작업은 "ubuntu-22.04" 버전의 Ubuntu 환경에서 실행된다.
     runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-# 3. 노드 버전 설정
-# : "node-version"이라는 환경 변수를 18.x 버전으로 설정하였다.
-# : Node.js 18.x 버전을 사용하여 빌드 및 테스트를 수행할 것이다.
         node-version: [18.x]
 
-# 4. 작업 단계(Steps)
     steps:
-# : GitHub 리포지토리를 체크아웃한다.
-# 이 단계에서 워크플로우가 현재 작업할 코드를 가져온다.
-    - uses: actions/checkout@v3
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v3
-# : Node.js 18.x 버전을 설치하고 npm 캐시를 활용하여 종속성을 설치한다.
-# 이 단계에서는 AWS CodeDeploy 에이전트를 설치하는 것이 아니고, 
-# Node.js 및 프로젝트 종속성을 설치합니다.
-      with:
-        node-version: 18.x
-        cache: 'npm'
-    - run: npm ci
-#     - run: npm run build --if-present
-#     - run: npm test
+      - uses: actions/checkout@v3
 
-# : 프로젝트 소스 코드를 압축하여 CI.zip 파일을 생성한다.
-# 이 파일에는 베포할 애플리케이션의 소스 코드와 설정 파일들이 포함된다.
-    - name: zip file
-      run: zip -r CI.zip ./app.js ./config ./src ./scripts ./appspec.yml ./package.json ./package-lock.json
+      - name: Use Node.js ${{ matrix.node-version }} 
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
 
-# : AWS 자격증명을 구성한다.
-# GitHub 리포지토리 Secrets에 설정된 AWS 엑세스 키와 시크릿 키를 사용하여 AWS에 인증한다.
-    - name: AWS configure credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
-        aws-region: ap-northeast-2
+      - name: build server files
+        run: npm ci
 
-# : CI.zip 파일을 S3버킷으로 업로드한다.
-# S3 버킷은 AWS에서 제공하는 객체 스토리지 서비스로, 
-# 애플리케이션의 소스 코드와 설정 파일들을 저장하는 용도로 사용된다.
-    - name: upload to S3
-# : AWS CodeDeploy를 사용하여 애플리케이션을 베포한다.
-# 이 단계에서 AWS CodeDeploy 서비스를 호출하여 S3로부터 CI.zip파일을 가져와 
-# EC2 인스턴스 or 기타 호스팅 서버에 애플리케이션을 베포한다.
-      run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://hapoom-cicd-bucket/deploy/
+      - name: zip files
+        run: zip -r CI.zip ./app.js ./config ./src ./scripts ./appspec.yml ./package.json ./package-lock.json
 
-# 5. AWS CodeDeploy 관련 설정
-    - name: deploy with AWS codeDeploy
-      run: aws deploy create-deployment
-# 애플리케이션 이름: 
-        --application-name my-codedeploy
-# 베포 구성 이름: 
-        --deployment-config-name CodeDeployDefault.OneAtATime
-# 베포 그룹 이름: 
-        --deployment-group-name my-codedeploy-deployment-group
-# CI.zip 파일이 업로드된 S3 버킷에서 배포를 수행한다.
-        --s3-location bucket=hapoom-cicd-bucket,bundleType=zip,key=deploy/CI.zip
+      - name: AWS configure credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_PRIVATE_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://hapoombucket/deploy/
+
+      - name: deploy with AWS CodeDeploy
+        run: aws deploy create-deployment
+          --application-name hapoomCodeDeployApplication \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name hapoomCodeDeployApplicationGroup \
+          --s3-location bucket=hapoombucket,bundleType=zip,key=deploy/CI.zip

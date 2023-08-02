@@ -4,6 +4,7 @@ files:
   - source: /
     destination: /home/ubuntu/HAPOOM-BE
     overwrite: yes
+
 file_exists_behavior: OVERWRITE
 
 permissions:
@@ -14,9 +15,9 @@ permissions:
 
 hooks:
   BeforeInstall:
-    - location: scripts/before-deploy.sh
+    - location: scripts/before_deploy.sh
       runas: ubuntu
   AfterInstall:
-    - location: scripts/after-deploy.sh
+    - location: scripts/after_deploy.sh
       timeout: 300
       runas: ubuntu
