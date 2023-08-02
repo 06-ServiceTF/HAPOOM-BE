@@ -65,7 +65,7 @@ jobs:
 # : AWS CodeDeploy를 사용하여 애플리케이션을 베포한다.
 # 이 단계에서 AWS CodeDeploy 서비스를 호출하여 S3로부터 CI.zip파일을 가져와 
 # EC2 인스턴스 or 기타 호스팅 서버에 애플리케이션을 베포한다.
-      run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://house-bucket/deploy/
+      run: aws s3 cp --region ap-northeast-2 ./CI.zip s3://hapoom-cicd-bucket/deploy/
 
 # 5. AWS CodeDeploy 관련 설정
     - name: deploy with AWS codeDeploy
