@@ -8,8 +8,8 @@ class MainController {
       const mainPage = await this.mainService.getMain();
 
       res.status(200).json({
-        getPosts: mainPage.getPosts,
-        getLikedPosts: mainPage.getLikedPosts,
+        posts: mainPage.getPosts,
+        likedPosts: mainPage.getLikedPosts,
       });
     } catch (error) {
       console.log(error);
