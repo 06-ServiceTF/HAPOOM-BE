@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
-  likes.init(
+  Likes.init(
     {
       likeId: {
         allowNull: false,
