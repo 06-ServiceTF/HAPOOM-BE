@@ -1,26 +1,16 @@
-const { Posts, Likes, sequelize } = require('../models');
+const { Posts, Likes, sequelize, Sequelize } = require('../models');
 
 class MainRepository {
-  // 메인 게시글 랜덤 9개
+  // 메인 게시글 랜덤 9개 조회
   getMain = async () => {
-    // const totalCount = await Posts.count();
-    // const randomIndexes = [];
-    // while (randomIndexes.length < 9) {
-    //   const randomIndex = Math.floor(Math.random() * totalCount);
-    //   if (!randomIndexes.includes(randomIndex)) {
-    //     randomIndexes.push(randomIndex);
-    //   }
-    // }
-
     const getPosts = await Posts.findAll({
       limit: 9,
-      // 이전에 가져온 게시글을 건너뛰고, 그 다음부터 새로운 결과를 가져오게 함.
-      // offset: randomIndexes,
+      order: Sequelize.literal('RAND()'),
     });
     return getPosts;
   };
 
-  // 좋아요가 많은 게시글 내림차순
+  // 좋아요가 많은 게시글 내림차순 조회
   getMainLiked = async () => {
     const likedPosts = await Posts.findAll({
       attributes: {
