@@ -4,7 +4,7 @@ class MainRepository {
   getMain = async () => {
     const getPosts = await Posts.findAll({
       where: { private: false },
-      limit: 9,
+      limit: 12,
       order: Sequelize.literal('RAND()'),
     });
     return getPosts;
