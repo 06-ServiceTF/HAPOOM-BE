@@ -11,18 +11,18 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Users, {
         foreignKey: 'userId',
         targetKey: 'userId',
-        onDelete: 'CASCAED',
-        onUpdate: 'CASCAED',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       });
       this.belongsTo(models.Posts, {
         foreignKey: 'postId',
         targetKey: 'postId',
-        onDelete: 'CASCAED',
-        onUpdate: 'CASCAED',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       });
     }
   }
-  likes.init(
+  Likes.init(
     {
       likeId: {
         allowNull: false,
