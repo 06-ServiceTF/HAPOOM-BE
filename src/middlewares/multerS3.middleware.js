@@ -1,4 +1,4 @@
-const {S3Client} = require('@aws-sdk/client-s3');
+const { S3Client } = require('@aws-sdk/client-s3');
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 require('dotenv').config()
@@ -31,4 +31,23 @@ const multerS3Middleware = multer({
   limits: { fileSize: 5 * 1024 * 1024}
 })
 
-module.exports = multerS3Middleware
+// 트랜잭션을 위해 인수 추가
+const deleteImageFromS3 = async (transaction, imageKey) => {
+  const params = {
+    bucket: 'hapoomimagebucket',
+    key: imageKey
+  };
+
+  try {
+    await s3.deleteObject(params).promise()
+    console.log('S3 버킷에서 이미지 삭제 성공')
+    return true
+  } catch (err) {
+    console.error('S3 버킷에서 이미지 삭제 실패', err)
+  }
+};
+
+module.exports = {
+  multerS3Middleware,
+  deleteImageFromS3
+}
