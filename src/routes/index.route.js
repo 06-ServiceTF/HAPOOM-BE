@@ -4,6 +4,7 @@ const router = express.Router();
 const mainRouter = require('../main/main.route')
 const userprofileRouter = require('../userprofiles/userprofile.route')
 const commentRouter = require('../comments/comment.route')
+const likeRouter = require('../likes/like.route')
 
 // 메인화면 관련
 router.use('/main', mainRouter)
@@ -11,5 +12,7 @@ router.use('/main', mainRouter)
 router.use('/userprofile', userprofileRouter)
 // 댓글 관련
 router.use('/post', commentRouter)
+// 좋아요 관련
+router.use('/post', likeRouter)
 
 module.exports = router;
