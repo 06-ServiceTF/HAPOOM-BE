@@ -14,6 +14,7 @@ class MainRepository {
     const likedPosts = await Posts.findAll({
       where: { private: false },
       attributes: {
+        // Likes 테이블에서 Likes.postId가 Posts 테이블의 postId와 일치하는 항목의 개수를 계산
         include: [
           [
             sequelize.literal(`(
