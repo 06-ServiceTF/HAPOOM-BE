@@ -7,8 +7,6 @@ const likeController = new LikeController();
 
 // 좋아요 and 좋아요 취소
 router.put("/:postId/like", likeController.clickLike);
-
-// // 좋아요 and 좋아요 취소
 // router.put("/:postId/like", authMiddleware, likeController.like);
 
 module.exports = router;
