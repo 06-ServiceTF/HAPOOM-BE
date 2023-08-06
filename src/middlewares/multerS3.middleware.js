@@ -31,8 +31,7 @@ const multerS3Middleware = multer({
   limits: { fileSize: 5 * 1024 * 1024}
 })
 
-// 트랜잭션을 위해 인수 추가
-const deleteImageFromS3 = async (transaction, imageKey) => {
+const deleteImageFromS3 = async (imageKey) => {
   const params = {
     bucket: 'hapoomimagebucket',
     key: imageKey
@@ -41,8 +40,10 @@ const deleteImageFromS3 = async (transaction, imageKey) => {
   try {
     await s3.deleteObject(params).promise()
     console.log('S3 버킷에서 이미지 삭제 성공')
+    // await transaction.commit()
     return true
   } catch (err) {
+    // await transaction.rollback()
     console.error('S3 버킷에서 이미지 삭제 실패', err)
   }
 };

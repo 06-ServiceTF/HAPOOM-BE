@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 
 class PostRepository {
 
+  //* 상세 페이지 생성(완료)
   createPost = async (
     userId,
     content,
@@ -37,7 +38,7 @@ class PostRepository {
   };
 
 
-  // 게시글 상세 조회: postId만 있을 경우
+  //* 게시글 상세 조회(완료): postId만 있을 경우
   findPostWithImage = async (postId, userId) => {
 
     try {
@@ -89,33 +90,48 @@ class PostRepository {
     }
   }
 
-    // 게시글 수정 part
+    //* 게시글 수정 part(완료)
     // 게시글 수정 시, 기존 이미지를 빼면 DB는 CASCADE로 인해 자동 삭제
-    //! DB의 Images 테이블의 url은 삭제가 되나 S3 버킷에 있는 이미지는 삭제가 안됨
     updatePostWithImage = async (
+      postId,
       content,
       latitude,
       longitude,
       placeName,
-      images,
+      updatedImage, // ['url1', 'url2', ...]
       userId
     ) => {
-      
 
-        const updatePost = await Posts.update({});
+        // 상세 페이지 수정
+        const updatePost = await Posts.update({
+          where: {[Op.and]: [{ postId }, { userId }]}
+        }, {
+          content,
+          latitude,
+          longitude,
+          placeName
+        }, { transaction })
 
-        const updateImage = await Images.update();
+        // 이미지 수정
+        const updateImage = await Promise.all(updatedImage.map( async (image) => {
+          return await Image.update({
+            where: { [Op.and]: [{ postId }, { userId }]}
+          },
+          { updatedImage }, 
+          { transaction })
+        }))
 
+        return {updatePost, updateImage}
     };
 
-    // 게시글 삭제 part
+    //* 게시글 삭제 part(완료)
     findImageUrl = async (postId, userId, transaction) => {
-      const findImageUrl = await Images.findOne({
+      const findImageUrl = await Images.findAll({
         where: { [Op.and]: [ { postId }, { userId }]},
         attributes: ['url']
       }, { transaction })
 
-      return findImageUrl
+      return findImageUrl // [{url: '첫 번째 이미지 url'}, {url: '두 번째 이미지 url'}]
     };
 
     deletePostWithImage = async (postId, userId, transaction) => {
@@ -136,9 +152,6 @@ class PostRepository {
     }
 
 };
-
-
-
 
 
 module.exports = PostRepository;

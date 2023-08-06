@@ -35,10 +35,10 @@ class PostService {
 
       // imgages에서 location 속성 추출
       // [ '...', '...', '...' ]
-      const imageLocation = images.map((image) => {
-        return image[0].location 
-      })
-
+      const imageLocation = []
+      for (const image in images) {
+        imageLocation.push(images[image][0].location)
+      }
 
       const image = await this.postRepository.createImage(
         userId,
@@ -81,7 +81,10 @@ class PostService {
   };
 
    //* 게시글 수정 part
+   // images 분해해서 location 속성 꺼내야 함
+   // transaction 적용 필요
    updatePostWithImage = async (
+    postId,
     content, 
     latitude, 
     longitude, 
@@ -89,17 +92,65 @@ class PostService {
     images, 
     userId
     ) => {
-      const updatePostWithImage = this.postRepository.updatePostWithImage(
-        content, 
-        latitude, 
-        longitude, 
-        placeName, 
-        images, 
-        userId
-      )
+      const transaction = sequelize.transaction()
+
+      try {
+        // images = req.files url과 location 배열로 가공
+        let image1 = []
+        let image2 = []
+
+        for (const image in images) {
+          image1.push(images[image][0].url)
+        }
+
+        for (const image in images) {
+          image2.push(images[image][0].location)
+        }
+
+        const totalImage = image1.concat(image2)
+        const updatedImage = totalImage.filter(item => Boolean(item) == true)
+
+        // findImages // 배열값 [{url: '첫 번째 이미지 url'}, {url: '두 번째 이미지 url'}]
+        const findImageUrl = await this.postRepository(postId, userId, transaction)
+
+        let image3 = []
+
+        for (const image of findImageUrl) {
+          image3.push(image.url)
+        }
+
+        let deleteImageFromS3 = []
+        for (let i = 0; i < image3.length; i++) {
+          if ( updatedImage.indexOf(image3[i]) == -1) {
+            deleteImageFromS3.push(image3[i])
+          }
+        }
+        // update 로직
+        const updatePostWithImage = this.postRepository.updatePostWithImage(
+          postId,
+          content, 
+          latitude, 
+          longitude, 
+          placeName, 
+          updatedImage, // 배열 ['url1', 'url2', ...]
+          userId,
+          transaction
+        )
+        
+        // S3 버킷 삭제
+        await Promise.all(deleteImageFromS3.map( async (image) => {
+          await deleteImageFromS3( image )
+        }))
+        
+        await transaction.commit()
+
+        return updatePostWithImage
+      } catch (err) {
+        await transaction.rollback()
+        next(err)
+      }
+     
     }
-
-
 
   //* 게시글 삭제 part
   // S3버킷과 DB의 이미지를 동시에 삭제하기 위해 트랜잭션 적용
@@ -118,7 +169,7 @@ class PostService {
       
       // 2. S3 버킷 이미지 삭제
       await Promise.all(findImageUrl.map( async (image) => {
-        await deleteImageFromS3( transaction, image.url )
+        await deleteImageFromS3( image.url )
       }));
 
       // 3. DB 이미지 삭제
@@ -140,5 +191,6 @@ class PostService {
   }
 
 };
+
 
 module.exports = PostService

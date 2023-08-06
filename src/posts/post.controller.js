@@ -12,7 +12,7 @@ class PostController {
 
     const images = req.files
     // images가 어떻게 생겼는지 확인 필요
-    // {
+    // req.files = {
     //   image1: [
     //     {
     //       fieldname: 'image1',
@@ -31,8 +31,7 @@ class PostController {
     //       location: 'https://your-bucket-name.s3.amazonaws.com/uploads/image1_1.jpg', // S3 주소
     //       etag: '"abcdefgh1234567890"',
     //       versionId: undefined
-    //     },
-    //     // 다른 이미지 정보들도 동일한 형식으로 들어갈 것입니다.
+    //     }
     //   ],
     //   image2: [...], // 이하 동일한 구조로 나머지 이미지들이 배열에 담겨 있을 것입니다.
     //   image3: [...]
@@ -57,7 +56,7 @@ class PostController {
     }
   };
 
-  // 상세 게시글 조회(완료)
+  //* 상세 게시글 조회(완료)
   findPostWithImage = async (req, res, next) => {
     const { postId } = req.params
     try {
@@ -77,14 +76,16 @@ class PostController {
     }
   };
 
-  // 상세 게시글 수정
+  //* 상세 게시글 수정
   updatePostWithImage = async (req, res, next) => {
     const { content, latitude, longitude, placeName } = req.body
+    const { postId } = req.params
     const images = req.files
     const { userId } = res.locals.user
 
     try {
-      const updatePostWithImage = this.postService.updatePostWithImage(
+      const updatePostWithImage = this.postService.updatePostWithImage( // {updatePost, updateImage}
+        postId,
         content,
         latitude,
         longitude,
@@ -92,14 +93,18 @@ class PostController {
         images,
         userId
       )
-      // 결과값 어떻게 나와야 하지..?
 
+      if(!updatePostWithImage.updatePost.length) {
+        res.status(500).json({ errorMessage: '수정에 실패하였습니다.'})
+      }
+
+      res.status(200).json({ message: '게시글이 수정되었습니다.'})
     } catch (err) {
       next(err)
     }
   };
 
-  // 상세 게시글 삭제(완료)
+  //* 상세 게시글 삭제(완료)
   deletePostWithImage = async (req, res, next) => {
     const { userId } = res.locals.user
     const { postId } = req.params
