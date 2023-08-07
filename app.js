@@ -24,6 +24,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT || 3000, (req, res) => {
-  console.log(`${process.env.PORT || 3000} 포트에 접속 되었습니다.`);
+app.listen(process.env.PORT || 3001, (req, res) => {
+  console.log(`${process.env.PORT || 3001} 포트에 접속 되었습니다.`);
 });
