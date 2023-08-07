@@ -4,9 +4,9 @@ require("dotenv").config();
 
 module.exports = async (req, res, next) => {
   try {
-    const { Cowdog } = req.headers;
+    const { Hapoom } = req.headers;
 
-    const [type, token] = (Cowdog ?? "").split(" ");
+    const [type, token] = (Hapoom ?? "").split(" ");
 
     if (!type || !token || type !== "Bearer") {
       return res

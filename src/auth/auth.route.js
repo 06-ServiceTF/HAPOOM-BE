@@ -8,14 +8,14 @@ const LoginInstance = new LoginController();
 
 const router = express.Router();
 
-router.post("/", RegisterInstance.registerUser, LoginInstance.loginUser);
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+router.post("/register", RegisterInstance.registerUser);
+router.post("/login", LoginInstance.loginUser);
+
+
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get(
   "/google/callback",
-  passport.authenticate("google"),
+  passport.authenticate("google", { failureRedirect : "/login"}),
   (req, res) => {
     const user = req.user;
 
@@ -24,7 +24,7 @@ router.get(
       expiresIn: "1h",
     })
 
-    res.cookie("lala", `Bearer ${token}`);
+    res.cookie("skycookie", `Bearer ${token}`);
 
     return res.status(200).json({ message: "로그인 성공", token });
   }
@@ -33,7 +33,7 @@ router.get(
 router.get("/naver", passport.authenticate("naver")); // Naver로 변경
 router.get(
   "/naver/callback",
-  passport.authenticate("naver"),
+  passport.authenticate("naver", { failureRedirect : "/login"}),
   (req, res) => {
     const user = req.user;
 
@@ -42,13 +42,13 @@ router.get(
       expiresIn: "1h",
     })
 
-    res.cookie("lala", `Bearer ${token}`);
+    res.cookie("skycookie", `Bearer ${token}`);
 
     return res.status(200).json({ message: "로그인 성공", token });
   }
 );
 
-router.get("/kakao", passport.authenticate("kakao"));
+router.get("kakao", passport.authenticate("kakao"));
 router.get(
   "/kakao/callback",
   passport.authenticate("kakao", { failureRedirect : "/login"}),
@@ -60,7 +60,7 @@ router.get(
       expiresIn: "1h",
     })
 
-    res.cookie("lala", `Bearer ${token}`);
+    res.cookie("skycookie", `Bearer ${token}`);
 
     return res.status(200).json({ message: "로그인 성공", token });
   }
