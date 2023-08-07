@@ -6,6 +6,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const routes = require('./src/routes/index.route');
+const testRouter = require('./src/test/test.route');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/api', routes);
+app.use('/test', testRouter)
 
 //에러 핸들러
 app.use((err, req, res, next) => {
