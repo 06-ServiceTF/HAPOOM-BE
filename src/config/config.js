@@ -13,6 +13,15 @@ const development = {
     typeCast: true,
   },
 };
+
+// const development = {
+//   username: 'root',
+//   password: '1234',
+//   database: 'hapoom-be',
+//   host: '127.0.0.1',
+//   dialect: 'mysql',
+// };
+
 const test = {
   username: 'root',
   password: null,
