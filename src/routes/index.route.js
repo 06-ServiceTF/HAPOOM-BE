@@ -6,9 +6,9 @@ const userprofileRouter = require('../userprofiles/userprofile.route');
 const commentRouter = require('../comments/comment.route');
 const likeRouter = require('../likes/like.route');
 const reportRouter = require('../models/reports');
-const authRouter = require('./auth/auth.route');
+const authRouter = require('../auth/auth.route');
 
-app.use('/auth', authRouter);
+router.use('/auth', authRouter);
 // 메인화면 관련
 router.use('/main', mainRouter);
 // 유저프로필 관련
