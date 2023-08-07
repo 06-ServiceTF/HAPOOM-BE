@@ -3,6 +3,7 @@ const router = express.Router();
 
 const mainRouter = require('../main/main.route')
 const userprofileRouter = require('../userprofiles/userprofile.route')
+const postRouter = require('../posts/post.route')
 const commentRouter = require('../comments/comment.route')
 const likeRouter = require('../likes/like.route')
 const reportRouter = require('../models/reports')
@@ -11,8 +12,8 @@ const reportRouter = require('../models/reports')
 router.use('/main', mainRouter)
 // 유저프로필 관련
 router.use('/userprofile', userprofileRouter)
-// 댓글 관련
-router.use('/post', commentRouter)
+// 게시글, 댓글 관련
+router.use('/post', [postRouter, commentRouter])
 // 좋아요 관련
 router.use('/post', likeRouter)
 // 신고 관련
