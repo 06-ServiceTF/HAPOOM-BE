@@ -4,7 +4,8 @@ const { Users } = require("../models");
 
 require("dotenv").config();
 
-passport.use(
+module.exports = function initializeNaverPassport (passport) {
+  passport.use(
   new NaverStrategy(
     {
       clientID: process.env.NAVER_CLIENT_ID,
@@ -44,5 +45,4 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
-
-module.exports = passport;
+}

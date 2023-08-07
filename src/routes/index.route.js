@@ -5,7 +5,7 @@ const mainRouter = require('../main/main.route');
 const userprofileRouter = require('../userprofiles/userprofile.route');
 const commentRouter = require('../comments/comment.route');
 const likeRouter = require('../likes/like.route');
-const reportRouter = require('../models/reports');
+const reportRouter = require('../reports/report.route');
 const authRouter = require('../auth/auth.route');
 const postRouter = require('../posts/post.route');
 
