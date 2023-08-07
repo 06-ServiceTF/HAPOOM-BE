@@ -1,9 +1,24 @@
-const express = require("express")
+const express = require('express');
+const router = express.Router();
 
-const authRouter = require("./auth/auth.route")
+const authRouter = require("../auth/auth.route")
+const mainRouter = require('../main/main.route')
+const userprofileRouter = require('../userprofiles/userprofile.route')
+const commentRouter = require('../comments/comment.route')
+const likeRouter = require('../likes/like.route')
+const reportRouter = require('../models/reports')
 
-const router = express.Router()
+// 회원가입, 로그인 관련
+router.use("/auth", authRouter);
+// 메인화면 관련
+router.use('/main', mainRouter)
+// 유저프로필 관련
+router.use('/userprofile', userprofileRouter)
+// 댓글 관련
+router.use('/post', commentRouter)
+// 좋아요 관련
+router.use('/post', likeRouter)
+// 신고 관련
+router.use('/post', reportRouter)
 
-app.use("/auth", authRouter);
-
-module.exports = router
+module.exports = router;
