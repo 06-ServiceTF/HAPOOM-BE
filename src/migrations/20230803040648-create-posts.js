@@ -12,22 +12,30 @@ module.exports = {
       userId: {
         allowNull: false,
         type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'userId'
+        },
+        onDelete: 'CASCADE'
       },
       content: {
-        allowNull: false,
+        // allowNull: false,
         type: Sequelize.STRING(7000),
       },
       latitude: {
-        allowNull: false,
+        // allowNull: false,
         type: Sequelize.FLOAT,
       },
       longitude: {
-        allowNull: false,
+        // allowNull: false,
         type: Sequelize.FLOAT,
       },
       private: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+      },
+      placeName: {
+        type: Sequelize.STRING(100)
       },
       createdAt: {
         allowNull: false,

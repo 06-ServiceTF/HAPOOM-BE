@@ -51,6 +51,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 3001, (req, res) => {
   console.log(`http://localhost:${process.env.PORT}`);
 });

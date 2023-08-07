@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       userImage: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING,
       },
       createdAt: {

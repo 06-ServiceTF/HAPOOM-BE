@@ -7,14 +7,16 @@ const commentRouter = require('../comments/comment.route');
 const likeRouter = require('../likes/like.route');
 const reportRouter = require('../models/reports');
 const authRouter = require('../auth/auth.route');
+const postRouter = require('../posts/post.route');
 
+// 로그인 회원가입 관련
 router.use('/auth', authRouter);
 // 메인화면 관련
 router.use('/main', mainRouter);
 // 유저프로필 관련
 router.use('/userprofile', userprofileRouter);
-// 댓글 관련
-router.use('/post', commentRouter);
+// 게시글, 댓글 관련
+router.use('/post', [postRouter, commentRouter]);
 // 좋아요 관련
 router.use('/post', likeRouter);
 // 신고 관련
