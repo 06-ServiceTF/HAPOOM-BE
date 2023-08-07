@@ -15,7 +15,7 @@ router.post('/',
     {name: 'image2'},
     {name: 'image3'},
     {name: 'image4'},
-    {name: 'image5'},s
+    {name: 'image5'},
   ]),
   postController.createPostWithImage)
 

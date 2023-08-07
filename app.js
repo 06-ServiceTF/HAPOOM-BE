@@ -12,7 +12,12 @@ const testRouter = require('./src/test/test.route');
 require("dotenv").config();
 
 const app = express();
- 
+const origin = process.env.ORIGIN
+
+app.use(cors({
+  origin:origin,
+  credentials:true,
+}))
 app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(
   session({
@@ -26,8 +31,7 @@ app.use(
     },
   })
 );
-   
-  
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

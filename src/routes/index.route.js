@@ -1,22 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
-const mainRouter = require('../main/main.route')
-const userprofileRouter = require('../userprofiles/userprofile.route')
-const postRouter = require('../posts/post.route')
-const commentRouter = require('../comments/comment.route')
-const likeRouter = require('../likes/like.route')
-const reportRouter = require('../models/reports')
+const mainRouter = require('../main/main.route');
+const userprofileRouter = require('../userprofiles/userprofile.route');
+const commentRouter = require('../comments/comment.route');
+const likeRouter = require('../likes/like.route');
+const reportRouter = require('../models/reports');
+const authRouter = require('../auth/auth.route');
+const postRouter = require('../posts/post.route');
 
+// 로그인 회원가입 관련
+router.use('/auth', authRouter);
 // 메인화면 관련
-router.use('/main', mainRouter)
+router.use('/main', mainRouter);
 // 유저프로필 관련
-router.use('/userprofile', userprofileRouter)
+router.use('/userprofile', userprofileRouter);
 // 게시글, 댓글 관련
-router.use('/post', [postRouter, commentRouter])
+router.use('/post', [postRouter, commentRouter]);
 // 좋아요 관련
-router.use('/post', likeRouter)
+router.use('/post', likeRouter);
 // 신고 관련
-router.use('/post', reportRouter)
+router.use('/post', reportRouter);
 
 module.exports = router;
