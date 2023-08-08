@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const PostController = require('./post.controller')
 const postController = new PostController
-const { multerS3Middleware } = require('../middlewares/multerS3.middleware')
+const { fieldsMulterMiddleware } = require('../middlewares/multerS3.middleware')
 // 사용자 미들웨어
 const authMiddleware = require('../middlewares/auth.middleware')
 
@@ -10,7 +10,7 @@ const authMiddleware = require('../middlewares/auth.middleware')
 // 게시글 작성
 router.post('/', 
   authMiddleware,
-  multerS3Middleware.fields([
+  fieldsMulterMiddleware.fields([
     {name: 'image1'},
     {name: 'image2'},
     {name: 'image3'},

@@ -128,7 +128,7 @@ createPostWithImage = async(
     })
 
     return findImageKey
-  }
+  };
 
   // 게시물 삭제
   deletePostWithImage = async(postId, userId) => {
@@ -138,7 +138,15 @@ createPostWithImage = async(
 
     // console.log(deletePostWithImage) // 성공 시 1
     return deletePostWithImage
-  }
+  };
+
+  //* 게시글 수정 및 삭제 권한 확인 part
+  confirmRight = async(postId, userId) => {
+    await Posts.findOne({
+      where: {[Op.and]: [{ postId }, { userId }]},
+      attributes: ['postId']
+    })
+  };
 };
 
 

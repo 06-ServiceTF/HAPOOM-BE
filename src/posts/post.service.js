@@ -80,7 +80,7 @@ class PostService {
       }
   };
 
-   //* 게시글 수정 part
+   //* 게시글 수정 part <-리팩토링 필요
    // images 분해해서 location 속성 꺼내야 함
    // transaction 적용 필요
    updatePostWithImage = async (
@@ -186,6 +186,13 @@ class PostService {
 
     return deletePostWithImage
   };
+
+  //* 게시글 수정 및 삭제 권한 part
+  confirmRight = async(postId, userId) => {
+    const confirmRight = await this.postRepository(postId, userId)
+    return confirmRight
+  };
+
 };
 
 

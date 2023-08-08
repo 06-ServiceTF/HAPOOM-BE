@@ -12,8 +12,8 @@ const s3 = new S3Client({
   },
 });
 
-
-const multerS3Middleware = multer({
+// Posts용 multerS3 미들웨어 (fields)
+const fieldsMulterMiddleware = multer({
   storage: multerS3({
     s3: s3,
     bucket: 'hapoomimagebucket', // bucket 이름
@@ -28,6 +28,23 @@ const multerS3Middleware = multer({
   limits: { fileSize: 5 * 1024 * 1024}
 })
 
+// userImage용 multerS3 미들웨어 (single)
+const singleMulterMiddleware = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'hapoomimagebucket', // bucket 이름
+    acl: 'public-read', // 이미지를 업로드한 후에도 이미지에 대한 접근 권한을 어떻게 할지 설정
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: function (req, file, cb) {
+      // 파일위치와 파일명을 지정해주는 코드, 시간 순으로 저장을 함
+      cb(null, `userImage/${Date.now().toString()}_${file.originalname}`); 
+    },
+  }),
+  // 5mb 제한
+  limits: { fileSize: 5 * 1024 * 1024}
+})
+
+// S3 버킷 이미지 삭제 함수
 async function deleteImageFromS3( imageKey ) {
   const params = {
     Bucket: 'hapoomimagebucket', // 버킷 이름
@@ -44,6 +61,7 @@ async function deleteImageFromS3( imageKey ) {
 }
 
 module.exports = {
-  multerS3Middleware,
+  fieldsMulterMiddleware,
+  singleMulterMiddleware,
   deleteImageFromS3
 }
