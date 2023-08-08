@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
-const userRepository = require('./userRepository');
+const UserRepository = require('./auth.repository');
 const bcrypt = require('bcrypt');
+const userRepository = new UserRepository();
 
 class AuthService {
+  constructor() {
+  }
   async getUserToken(email) {
     const user = await userRepository.findByEmail(email);
     const userResponse = user.get({ plain: true });
@@ -13,7 +16,7 @@ class AuthService {
   async refreshToken(email) {
     const payload = {
       email,
-      exp: Math.floor(Date.now() / 1000) + (60 * 30),
+      exp: Math.floor(Date.now() / 1000) + (1 * 10),
     };
     return jwt.sign(payload, process.env.JWT_SECRET);
   }
@@ -24,21 +27,22 @@ class AuthService {
       throw new Error("이미 사용중인 아이디입니다");
     }
     const hashedPassword = await bcrypt.hash(body.password, 12);
-    const user = await userRepository.createUser(body.email, body.nickname, hashedPassword, '');
+    console.log(body)
+    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '123');
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return userResponse;
   }
 
   async login(req, user) {
-    await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       req.logIn(user, async (loginErr) => {
         if (loginErr) {
           reject(loginErr);
         }
         const payload = {
           email: user.email,
-          exp: Math.floor(Date.now() / 1000) + (60 * 30),
+          exp: Math.floor(Date.now() / 1000) + (10 * 1),
         };
         const refreshPayload = {
           email: user.email,
@@ -55,4 +59,4 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService();
+module.exports = AuthService;

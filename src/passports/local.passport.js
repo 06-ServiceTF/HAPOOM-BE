@@ -9,8 +9,9 @@ module.exports = function initializeLocalPassport (passport) {
       {
         usernameField: "email",
         passwordField: "password",
+        passReqToCallback: true, // 이 옵션 추가
       },
-      async (email, password, done) => {
+      async (req, email, password, done) => {
         try {
           const user = await Users.findOne({ where: { email } });
           if (!user) {
@@ -27,7 +28,6 @@ module.exports = function initializeLocalPassport (passport) {
             });
             // 찾은 경우 bcrypt.compare로 비밀번호 비교 > 암호 불일치 시 다시 done 함수로 false 반환
           }
-
           return done(null, user);
           // 암호가 일치하면 done 함수로 user 객체를 반환
         } catch (err) {
@@ -37,7 +37,6 @@ module.exports = function initializeLocalPassport (passport) {
       }
     )
   );
-
 
   // 세션에 사용자 정보 저장
   passport.serializeUser((user, done) => {

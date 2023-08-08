@@ -2,35 +2,17 @@ const jwt = require("jsonwebtoken");
 const { Users } = require("../models");
 require("dotenv").config();
 
-module.exports = async (req, res, next) => {
+module.exports = async (req, res, next)=> {
+  // console.log(req)
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  //if (!token) return res.status(501).send('Access denied. No token provided.');
   try {
-    const { Hapoom } = req.headers;
-
-    const [type, token] = (Hapoom ?? "").split(" ");
-
-    if (!type || !token || type !== "Bearer") {
-      return res
-        .status(403)
-        .json({ errorMessage: "로그인이 필요한 기능입니다." });
-    }
-
-    const decodeToken = jwt.verify(token, process.env.JWT_SECRET);
-
-    const userId = decodeToken.userId;
-
-    const findUser = await Users.findOne({ where: { userId } });
-    if (!findUser) {
-      return res
-        .status(403)
-        .json({ errorMessage: "로그인이 필요한 기능입니다." });
-    }
-
-    res.locals.user = findUser;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(403)
-      .json({ errorMessage: "전달된 쿠키에서 오류가 발생했습니다. " });
+  } catch (ex) {
+    //res.cookie('token', '', { expires: new Date(0), httpOnly: true, sameSite: 'None', secure: true });
+    res.status(502).send('Invalid token.');
   }
-};
+}

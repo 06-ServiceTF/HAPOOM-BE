@@ -5,9 +5,9 @@ const cors = require("cors");
 const passport = require("passport");
 const session = require("express-session");
 
-const authRouter = require("./src/auth/auth.route"); // 인증 라우터
 const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
+const initializeLocalPassport = require('./src/passports/local.passport'); // 경로는 해당 모듈의 위치에 따라 달라집니다.
 
 require("dotenv").config();
 
@@ -47,7 +47,7 @@ app.use((err, req, res, next) => {
     errorMessage: err.message || '오류가 발생했습니다',
   });
 });
-
+initializeLocalPassport(passport);
 // express-session 의존, 뒤로
 app.use(passport.initialize()); // req 객체에 passport 설정을 심는다.
 app.use(passport.session()); // req.session 객체에 passport 정보를 저장한다.
