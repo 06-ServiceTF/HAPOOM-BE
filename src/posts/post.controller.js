@@ -125,7 +125,7 @@ class PostController {
 
   //* 상세 게시글 삭제
   // 1차 목표: destroy기능으로 Posts 테이블 삭제, 이미지 테이블은 저절로 삭제 됨(완료)
-  // 2차 목표: 트랜잭션으로 s3버킷 파일 삭제와 destroy 삭제
+  // 2차 목표: 트랜잭션으로 S3버킷 삭제와 destroy가 가능한지 멘토님에게 물어보고 하자
   deletePostWithImage = async(req, res, next) => {
     const { postId } = req.params
     const { userId } = res.locals.user

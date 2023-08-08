@@ -96,35 +96,35 @@ class PostService {
 
       try {
         // images = req.files url과 location 배열로 가공
-        let image1 = []
-        let image2 = []
+        let url = [] // 수정된 이미지들 중 기존 DB에 있던 이미지들
+        let location = [] // 수정된 이미지들 중 추가된 이미지들
 
         for (const image in images) {
-          image1.push(images[image][0].url)
+          url.push(images[image][0].url)
         }
 
         for (const image in images) {
-          image2.push(images[image][0].location)
+          location.push(images[image][0].location)
         }
 
-        const totalImage = image1.concat(image2)
-        // 수정되는 이미지 url
+        const totalImage = url.concat(location)
+        // 수정되는 이미지
         let updateImageArray = totalImage.filter(item => Boolean(item) == true)
 
         // findImages // 배열값 [{url: '첫 번째 이미지 url'}, {url: '두 번째 이미지 url'}]
         const findImageUrl = await this.postRepository(postId, userId, transaction)
 
-        let image3 = []
+        let deleteImageS3 = [] // 기존 DB 이미지들 중, 삭제되는 이미지들
 
         for (const image of findImageUrl) {
-          image3.push(image.url)
+          deleteImageS3.push(image.url)
         }
 
         // S3 버킷 삭제 이미지 url
         let deleteImageFromS3 = []
-        for (let i = 0; i < image3.length; i++) {
-          if ( updateImageArray.indexOf(image3[i]) == -1) {
-            deleteImageFromS3.push(image3[i])
+        for (let i = 0; i < deleteImageS3.length; i++) {
+          if ( updateImageArray.indexOf(deleteImageS3[i]) == -1) {
+            deleteImageFromS3.push(deleteImageS3[i])
           }
         }
 
