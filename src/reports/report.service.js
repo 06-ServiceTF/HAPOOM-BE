@@ -9,9 +9,8 @@ class ReportService {
       postId,
       userId
     );
-    if (existingReport) {
-      throw new Error('이미 신고한 글입니다.');
-    }
+    if (existingReport) throw new CustomError('이미 신고한 글입니다.', 409);
+    
     const addedReport = await this.reportRepository.addReport(postId, userId);
     return addedReport;
   };
