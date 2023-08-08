@@ -1,53 +1,64 @@
-const { RegisterService, LoginService } = require("../auth/auth.service");
-const bcrypt = require("bcrypt");
+const AuthService = require('./auth.service');
 const passport = require("passport");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const authService = new AuthService();
 
-class LoginController {
-  loginUser = async (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-      if (err) {
-        console.log(err);
-        return next(err);
-      }
+class AuthController {
+  constructor() {
+  }
+  async getUserToken(req, res, next) {
+    try {
+      const userResponse = await authService.getUserToken(req.user.email);
+      res.status(200).json(userResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
 
-      if (!user) {
-        return res.status(401).json({ errorMessage: info.errorMessage });
-      }
+  async refreshToken(req, res, next) {
+    try {
+      const token = await authService.refreshToken(req.user.email);
+      res.status(200).json({ token });
+    } catch (error) {
+      next(error);
+    }
+  }
 
-      req.logIn(user, (err) => {
+  async signup(req, res, next) {
+    try {
+      const userResponse = await authService.signup(req.body);
+      res.json(userResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async login(req, res, next) {
+    passport.authenticate('local', async (err, user, info) => {
+      try {
         if (err) {
           console.log(err);
           return next(err);
         }
-
-        next();
-      });
+        if (info) {
+          // 클라이언트에 에러 메시지 전송
+          return res.status(401).send(info.errorMessage);
+        }
+        const { userResponse, token } = await authService.login(req, user);
+        res.status(200).json({ email:userResponse.email,nickname:userResponse.nickname, token });
+      } catch (error) {
+        console.log(error);
+        return next(error);
+      }
     })(req, res, next);
-  };
+  }
+
+  async logout(req, res, next) {
+    req.session.destroy(err => {
+      if (err) return next(err);
+      res.cookie('refreshToken', '', { expires: new Date(0), httpOnly: true, sameSite: 'None', secure: true });
+      res.send("ok");
+    });
+  }
 }
 
-
-class RegisterController {
-  registerService = new RegisterService();
-
-  registerUser = async (req, res, next) => {
-    try {
-      const { email, nickname, password, confirm } = req.body; // registerValidation 정의 필요
-      const existUser = await this.registerService.findUser(email);
-
-      await this.registerService.registerUser(email, nickname, password);
-
-      return res.status(201).json({ message: "회원가입을 완료하였습니다." });
-    } catch (error) {
-      console.log(error);
-      return res.status(409).json({ errorMessage: error.message });
-    }
-  };
-}
-
-module.exports = {
-  RegisterController,
-  LoginController,
-};
+module.exports = AuthController;

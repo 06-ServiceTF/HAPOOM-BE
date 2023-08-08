@@ -6,7 +6,7 @@ class LikeController {
   clickLike = async (req, res, next) => {
     try {
       const { postId } = req.params;
-      const userId = req.user.id;
+      const { userId } = res.locals.user;
       const clickLike = await this.likeService.clickLike(postId, userId);
 
       if (!clickLike) {

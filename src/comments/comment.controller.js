@@ -4,7 +4,7 @@ class CommentController {
   commentService = new CommentService();
 
   createComment = async (req, res, next) => {
-    // const { userId } = res.locals.user;
+    const { userId } = res.locals.user;
     const { postId } = req.params;
     const { comment } = req.body;
     try {
@@ -32,7 +32,7 @@ class CommentController {
   };
 
   updateComment = async (req, res, next) => {
-    // const { userId } = res.locals.user;
+    const { userId } = res.locals.user;
     const { postId, commentId } = req.params;
     const { comment } = req.body;
     try {

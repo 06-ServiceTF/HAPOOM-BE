@@ -6,7 +6,7 @@ class ReportController {
   addReport = async (req, res, next) => {
     try {
       const { postId } = req.params;
-      const userId = req.user.id;
+      const { userId } = res.locals.user;
       const addReport = await this.reportService.addReport(postId, userId);
       return res.status(201).json({ message: '이 글을 신고하였습니다.' });
     } catch (error) {

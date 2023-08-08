@@ -1,45 +1,62 @@
-const { Users } = require('../models');
-const bcrypt = require('bcrypt'); 
+const jwt = require('jsonwebtoken');
+const UserRepository = require('./auth.repository');
+const bcrypt = require('bcrypt');
+const userRepository = new UserRepository();
 
-class RegisterService {
-  async registerUser(email, nickname, password) {
-    try {
-      // 같은 이메일을 가진 사용자
-      const existingUser = await Users.findOne({ where: { email } });
-
-      if (existingUser) {
-        throw new Error('이미 존재하는 이메일입니다.');
-      }
-      const salt = bcrypt.genSaltSync(8);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      const newUser = await Users.create({ email, nickname, password: hashedPassword });
-
-      return newUser;
-    } catch (error) {
-      throw error;
-    }
+class AuthService {
+  constructor() {
+  }
+  async getUserToken(email) {
+    const user = await userRepository.findByEmail(email);
+    const userResponse = user.get({ plain: true });
+    delete userResponse.password;
+    return { email: userResponse.email, nickname: userResponse.nickname };
   }
 
-  async findUser(email) {
-    try {
-      // 사용자 찾기
-      const user = await Users.findOne({ where: { email } });
+  async refreshToken(email) {
+    const payload = {
+      email,
+      exp: Math.floor(Date.now() / 1000) + (1 * 10),
+    };
+    return jwt.sign(payload, process.env.JWT_SECRET);
+  }
 
-      if (!user) {
-        throw new Error('해당 이메일의 사용자를 찾을 수 없습니다.');
-      }
-
-      return user;
-    } catch (error) {
-      throw error;
+  async signup(body) {
+    const exUser = await userRepository.findByEmail(body.email);
+    if (exUser) {
+      throw new Error("이미 사용중인 아이디입니다");
     }
+    const hashedPassword = await bcrypt.hash(body.password, 12);
+    console.log(body)
+    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '123');
+    const userResponse = user.get({ plain: true });
+    delete userResponse.password;
+    return userResponse;
+  }
+
+  async login(req, user) {
+    return new Promise((resolve, reject) => {
+      req.logIn(user, async (loginErr) => {
+        if (loginErr) {
+          reject(loginErr);
+        }
+        const payload = {
+          email: user.email,
+          exp: Math.floor(Date.now() / 1000) + (10 * 1),
+        };
+        const refreshPayload = {
+          email: user.email,
+          exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 1),
+        };
+        const token = jwt.sign(payload, process.env.JWT_SECRET);
+        const refreshToken = jwt.sign(refreshPayload, process.env.JWT_REFRESH_SECRET);
+        req.res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
+        const userResponse = user.get({ plain: true });
+        delete userResponse.password;
+        resolve({ userResponse, token });
+      });
+    });
   }
 }
 
-class LoginService {
-}
-
-module.exports = {
-  RegisterService,
-  LoginService,
-};
+module.exports = AuthService;
