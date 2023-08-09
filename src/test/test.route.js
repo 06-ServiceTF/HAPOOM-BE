@@ -143,7 +143,7 @@ router.get('/user/profile', async (req, res) => {
   }
 });
 
-router.patch('/user', async (req, res) => {
+router.patch('/user',upload.none(), async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -155,6 +155,8 @@ router.patch('/user', async (req, res) => {
     }
 
     const updates = Object.keys(req.body);
+
+    console.log('리퀘스트 바디 값 :',req.body)
 
     updates.forEach((update) => user[update] = req.body[update]);
     await user.save();
