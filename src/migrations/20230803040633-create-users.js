@@ -29,7 +29,11 @@ module.exports = {
       method: {
         allowNull: false,
         type: Sequelize.STRING,
-        defaultValue: "direct",
+        defaultValue: 'direct',
+      },
+      theme: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         allowNull: false,

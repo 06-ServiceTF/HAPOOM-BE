@@ -1,9 +1,10 @@
-const { Posts, Likes, sequelize, Sequelize } = require('../models');
+const { Posts, Images , Likes, sequelize, Sequelize } = require('../models');
 
 class MainRepository {
   getMain = async () => {
     const getPosts = await Posts.findAll({
       where: { private: false },
+      include: { model: Images , attributes: ['url'] },
       limit: 12,
       order: Sequelize.literal('RAND()'),
     });
