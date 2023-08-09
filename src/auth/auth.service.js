@@ -16,7 +16,7 @@ class AuthService {
   async refreshToken(email) {
     const payload = {
       email,
-      exp: Math.floor(Date.now() / 1000) + (1 * 10),
+      exp: Math.floor(Date.now() / 1000) + (60 * 30),//30분
     };
     return jwt.sign(payload, process.env.JWT_SECRET);
   }
@@ -42,7 +42,7 @@ class AuthService {
         }
         const payload = {
           email: user.email,
-          exp: Math.floor(Date.now() / 1000) + (10 * 1),
+          exp: Math.floor(Date.now() / 1000) + (60 * 30),//30분
         };
         const refreshPayload = {
           email: user.email,

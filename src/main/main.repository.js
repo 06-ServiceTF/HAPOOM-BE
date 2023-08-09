@@ -11,7 +11,7 @@ class MainRepository {
 
     const formattedPosts = getPosts.map(post => {
       const formattedPost = {
-        postId: post.postId,
+        id: post.postId,
         userId: post.userId,
         content: post.content,
         latitude: post.latitude,
@@ -26,10 +26,11 @@ class MainRepository {
       };
 
       if (post.Images && post.Images.length > 0) {
-        formattedPost.Image = {
+        formattedPost.image = {
           url: post.Images[0].url
         };
       }
+      console.log(formattedPost);
       return formattedPost;
     });
     return formattedPosts;

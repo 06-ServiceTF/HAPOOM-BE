@@ -6,7 +6,7 @@ const fs = require('fs');
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
-const { Posts, Users, Likes, Images,sequelize, Sequelize } = require('../models');
+const { Posts, Users, Likes, Images,Comments,sequelize, Sequelize } = require('../models');
 
 const uploadDir = './uploads/';
 
@@ -69,6 +69,81 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
   } catch(err) {
     console.error(err);
     res.status(500).send({ error: 'Error creating post' });
+  }
+});
+
+router.get('/user', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({ email: decoded.email }, { password: 0 }); // 패스워드 필드를 제외
+
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    res.send({user});
+
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).send({ error: 'Error getting user' });
+  }
+});
+
+router.patch('/user', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // DB에서 사용자를 찾음
+    const user = await Users.findOne({ email: decoded.email });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const updates = Object.keys(req.body);
+
+    updates.forEach((update) => user[update] = req.body[update]);
+    await user.save();
+
+    res.send({ user });
+
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).send({ error: 'Error updating user' });
+  }
+});
+
+router.get('/post/comments/:postId', async (req, res) => {
+  try {
+    const comments = await Comments.find({ postId: req.params.postId });
+    res.send({ comments });
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
+  }
+});
+
+router.post('/post/comment', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // DB에서 사용자를 찾음
+    const user = await Users.findOne({ email: decoded.email });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const comment = await Comments.create({
+      content: req.body.content,
+      userId: user.dataValues.userId,
+      postId: req.body.postId
+    });
+    res.status(200);
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
   }
 });
 
