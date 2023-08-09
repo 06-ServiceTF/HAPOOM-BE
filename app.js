@@ -7,7 +7,8 @@ const session = require("express-session");
 
 const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
-const initializeLocalPassport = require('./src/passports/local.passport'); // 경로는 해당 모듈의 위치에 따라 달라집니다.
+const initializeLocalPassport = require('./src/passports/local.passport');
+const path = require("path"); // 경로는 해당 모듈의 위치에 따라 달라집니다.
 
 require("dotenv").config();
 
@@ -32,6 +33,8 @@ app.use(
   })
 );
 
+app.use('/uploads', express.static('uploads'));
+app.use('/',express.static(path.join(__dirname, 'uploads')));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
