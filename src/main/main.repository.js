@@ -1,13 +1,40 @@
-const { Posts, Images , Likes, sequelize, Sequelize } = require('../models');
+const { Posts, Images, Likes, sequelize, Sequelize } = require('../models');
 
 class MainRepository {
   getMain = async () => {
     const getPosts = await Posts.findAll({
       where: { private: false },
-      include: { model: Images , attributes: ['url'] },
+      include: { model: Images, attributes: ['url'] },
       limit: 12,
       order: Sequelize.literal('RAND()'),
     });
+
+    const formattedPosts = getPosts.map((post) => {
+      const formattedPost = {
+        postId: post.postId,
+        userId: post.userId,
+        content: post.content,
+        latitude: post.latitude,
+        longitude: post.longitude,
+        private: post.private,
+        tag: post.tag,
+        musicTitle: post.musicTitle,
+        musicUrl: post.musicUrl,
+        placeName: post.placeName,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+      };
+
+      if (post.Images && post.Images.length > 0) {
+        formattedPost.Image = {
+          url: post.Images[0].url,
+        };
+      }
+      return formattedPost;
+    });
+    return formattedPosts;
+  };
+
     // const getPosts = Array.from({ length: 12 }).map((_, id) => ({
     //   id: id + 1,
     //   content: "ㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㅇ",
@@ -25,8 +52,6 @@ class MainRepository {
     //     url: "https://avatars.githubusercontent.com/u/32028454?v=4"
     //   }
     // }));
-    return getPosts;
-  };
 
   getMainLiked = async () => {
     // const likedPosts = Array.from({ length: 5 }).map((_, id) => ({
