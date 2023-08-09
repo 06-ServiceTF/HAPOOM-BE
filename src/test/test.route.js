@@ -6,7 +6,7 @@ const fs = require('fs');
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
-const { Posts, Users, Likes, Images,Comments,sequelize, Sequelize } = require('../models');
+const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
 
 const uploadDir = './uploads/';
 
@@ -232,9 +232,13 @@ router.get('/post/:postId', async (req, res) => {
 
 router.post('/api/post/:postId/like', async (req, res) => {
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
-  const userId = "1";
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
-  const like = await Likes.findOne({ where: { userId, postId } });
+  // DB에서 사용자를 찾음
+  const user = await Users.findOne({ email: decoded.email });
+
+  const like = await Likes.findOne({ where: { userId:user.dataValues.userId, postId } });
 
   if (like) {
     await like.destroy();
@@ -249,9 +253,13 @@ router.post('/api/post/:postId/like', async (req, res) => {
 router.post('/api/report/:postId', async (req, res) => {
   //const { userId } = req.body; // 요청 본문에서 userId를 추출
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
-  const userId = "1";
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
-  const report = await Reports.findOne({ where: { userId, postId } });
+  // DB에서 사용자를 찾음
+  const user = await Users.findOne({ email: decoded.email });
+
+  const report = await Reports.findOne({ where: { userId:user.dataValues.userId, postId } });
 
   if (report) {
     await report.destroy();
