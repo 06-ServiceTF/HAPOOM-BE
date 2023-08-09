@@ -6,7 +6,7 @@ const passport = require("passport");
 const session = require("express-session");
 
 const routes = require('./src/routes/index.route');
-// const testRouter = require('./src/test/test.route');
+const testRouter = require('./src/test/test.route');
 const initializeLocalPassport = require('./src/passports/local.passport'); // 경로는 해당 모듈의 위치에 따라 달라집니다.
 
 require("dotenv").config();
@@ -36,7 +36,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/api', routes);
-// app.use('/test', testRouter)
+app.use('/test', testRouter)
 //app.use("/auth", authRouter);  // 이 부분이 추가되어야 합니다.
 
 //에러 핸들러
@@ -58,3 +58,4 @@ app.use(passport.session()); // req.session 객체에 passport 정보를 저장�
 app.listen(process.env.PORT || 3001, (req, res) => {
   console.log(`http://localhost:${process.env.PORT}`);
 });
+

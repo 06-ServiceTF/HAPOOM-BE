@@ -6,10 +6,9 @@ class MainController {
   getMain = async (req, res, next) => {
     try {
       const mainPage = await this.mainService.getMain();
-
       res.status(200).json({
         posts: mainPage.getPosts,
-        likedPosts: mainPage.getLikedPosts,
+        likePosts: mainPage.getLikedPosts,
       });
     } catch (error) {
       console.log(error);
