@@ -155,20 +155,7 @@ router.patch('/user', upload.single('image'), async (req, res) => {
     }
 
     if (req.file) {
-      await Images.destroy({
-        where: {
-          userId: user.dataValues.userId,
-        },
-      });
-
       const imageUrl = req.protocol + '://' + req.get('host') + '/' + req.file.path; // 파일 경로를 URL로 변환
-
-      await Images.create({
-        url: imageUrl,
-        postId: 10000 + user.dataValues.userId,
-        userId: user.dataValues.userId,
-      });
-
       user.userImage = imageUrl; // userImage 필드에 URL 저장
     }
 
