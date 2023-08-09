@@ -22,8 +22,14 @@ module.exports = {
         type: Sequelize.STRING,
       },
       userImage: {
+        allowNull: true,
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
+      method: {
         allowNull: false,
         type: Sequelize.STRING,
+        defaultValue: "direct",
       },
       createdAt: {
         allowNull: false,

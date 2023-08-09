@@ -61,6 +61,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      tag: {
+        type: DataTypes.STRING
+      },
+      musicTitle: {
+        type: DataTypes.STRING
+      },
+      musicUrl: {
+        type: DataTypes.STRING
+      },
       placeName: {
         type: DataTypes.STRING
       },

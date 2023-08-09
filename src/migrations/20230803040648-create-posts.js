@@ -37,6 +37,15 @@ module.exports = {
       placeName: {
         type: Sequelize.STRING(100)
       },
+      tag: {
+        type: Sequelize.STRING(100)
+      },
+      musicTitle: {
+        type: Sequelize.STRING(100)
+      },
+      musicUrl: {
+        type: Sequelize.STRING(200)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
