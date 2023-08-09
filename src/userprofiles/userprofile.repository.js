@@ -16,8 +16,8 @@ class UserprofileRepository {
         private: false, // public 게시글만 가져오기
       },
       include: [
-        { model: Users, attributes: ['nickname', 'userImage'] },
-        { model: Images, attributes: ['url'] },
+        { model: Users, attributes: ['nickname'] },
+        { model: Images, attributes: ['url'], limit: 1 },
       ],
     });
 
@@ -29,30 +29,13 @@ class UserprofileRepository {
           private: true,
         },
         include: [
-          { model: Images, attributes: ['url'] },
+          { model: Users, attributes: ['nickname'] },
+          { model: Images, attributes: ['url'], limit: 1 },
         ],
       });
       userPosts.push(...privatePosts);
     }
-
-    const formattedUserPosts = userPosts.map((post) => {
-      const formattedPost = {
-        postId: post.postId,
-        userId: post.userId,
-        content: post.content,
-        private: post.private,
-        tag: post.tag,
-        user: {
-          nickname: post.Users ? post.Users.nickname : null,
-          userImage: post.Users ? post.Users.userImage : null,
-        },
-        images: post.Images.map((image) => ({
-          url: image.url,
-        })),
-      };
-      return formattedPost;
-    });
-    return formattedUserPosts;
+    return userPosts;
   };
 
   // 유저가 좋아요를 누른 게시글 가져오기
@@ -63,8 +46,8 @@ class UserprofileRepository {
           model: Likes,
           where: { userId },
         },
-        { model: Images, attributes: ['url'] },
-        { model: Users, attributes: ['nickname', 'userImage'] },
+        { model: Users, attributes: ['nickname'] },
+        { model: Images, attributes: ['url'], limit: 1 },
       ],
     });
 
@@ -72,24 +55,7 @@ class UserprofileRepository {
     // likedPosts 배열을 순회 -> private = false인 경우만 filteredLikedPosts 배열에 남김
     // !post.private 부분은 private 값이 false인 경우 true를 반환, private 값이 true인 경우 false를 반환
     const filteredLikedPosts = likedPosts.filter((post) => !post.private);
-
-    const formattedLikedPosts = filteredLikedPosts.map((post) => {
-      const formattedPost = {
-        postId: post.postId,
-        userId: post.userId,
-        content: post.content,
-        private: post.private,
-        tag: post.tag,
-      };
-
-      if (post.Images && post.Images.length > 0) {
-        formattedPost.Image = {
-          url: post.Images[0].url,
-        };
-      }
-      return formattedPost;
-    });
-    return formattedLikedPosts;
+    return filteredLikedPosts;
   };
 }
 
