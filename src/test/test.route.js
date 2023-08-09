@@ -90,6 +90,59 @@ router.get('/user', async (req, res) => {
   }
 });
 
+router.get('/user/profile', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({ email: decoded.email }, { password: 0 }); // 패스워드 필드를 제외
+
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const posts = Array.from({ length: 12 }).map((_, id) => ({
+      id: id + 1,
+      content: "ㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㅇ",
+      musicTitle: "버즈(Buzz) - 가시 [가사/Lyrics]",
+      musicUrl: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss",
+      tag: "도라에몽, 펀치",
+      placeName: "전라남도 완도군 완도읍 신기길 56 3 ",
+      latitude: 126.742,
+      longitude: 34.3275,
+      private: false,
+      createdAt: "2023-08-03T07:51:46.000Z",
+      updatedAt: "2023-08-03T07:51:46.000Z",
+      userId: 1,
+      image: {
+        url: "https://avatars.githubusercontent.com/u/32028454?v=4"
+      }
+    }));
+    const likePosts = Array.from({ length: 5 }).map((_, id) => ({
+      id: id + 1,
+      content: "ㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㅇ",
+      musicTitle: "버즈(Buzz) - 가시 [가사/Lyrics]",
+      musicUrl: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss",
+      tag: "도라에몽, 펀치",
+      placeName: "전라남도 완도군 완도읍 신기길 56 3 ",
+      latitude: 126.742,
+      longitude: 34.3275,
+      private: false,
+      createdAt: "2023-08-03T07:51:46.000Z",
+      updatedAt: "2023-08-03T07:51:46.000Z",
+      userId: 1,
+      image: {
+        url: "https://avatars.githubusercontent.com/u/32028454?v=4"
+      }
+    }));
+
+    res.send({user,posts,likePosts});
+
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).send({ error: 'Error getting user' });
+  }
+});
+
 router.patch('/user', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
