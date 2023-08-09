@@ -116,7 +116,7 @@ router.patch('/user', async (req, res) => {
 
 router.get('/post/comments/:postId', async (req, res) => {
   try {
-    const comments = await Comments.find({ postId: req.params.postId });
+    const comments = await Comments.findAll({ postId: req.params.postId });
     res.send({ comments });
   } catch (error) {
     console.error('Error get comments:', error);
