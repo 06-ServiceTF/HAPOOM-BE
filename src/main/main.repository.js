@@ -1,4 +1,4 @@
-const { Posts, Images, Likes, sequelize, Sequelize } = require('../models');
+const { Posts, Images , Likes, sequelize, Sequelize } = require('../models');
 
 class MainRepository {
   getMain = async () => {
@@ -9,7 +9,7 @@ class MainRepository {
       order: Sequelize.literal('RAND()'),
     });
 
-    const formattedPosts = getPosts.map((post) => {
+    const formattedPosts = getPosts.map(post => {
       const formattedPost = {
         postId: post.postId,
         userId: post.userId,
@@ -27,7 +27,7 @@ class MainRepository {
 
       if (post.Images && post.Images.length > 0) {
         formattedPost.Image = {
-          url: post.Images[0].url,
+          url: post.Images[0].url
         };
       }
       return formattedPost;
@@ -35,42 +35,7 @@ class MainRepository {
     return formattedPosts;
   };
 
-    // const getPosts = Array.from({ length: 12 }).map((_, id) => ({
-    //   id: id + 1,
-    //   content: "ㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㅇ",
-    //   musicTitle: "버즈(Buzz) - 가시 [가사/Lyrics]",
-    //   musicUrl: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss",
-    //   tag: "도라에몽, 펀치",
-    //   placeName: "전라남도 완도군 완도읍 신기길 56 3 ",
-    //   latitude: 126.742,
-    //   longitude: 34.3275,
-    //   private: false,
-    //   createdAt: "2023-08-03T07:51:46.000Z",
-    //   updatedAt: "2023-08-03T07:51:46.000Z",
-    //   userId: 1,
-    //   image: {
-    //     url: "https://avatars.githubusercontent.com/u/32028454?v=4"
-    //   }
-    // }));
-
   getMainLiked = async () => {
-    // const likedPosts = Array.from({ length: 5 }).map((_, id) => ({
-    //   id: id + 1,
-    //   content: "ㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㅇ",
-    //   musicTitle: "버즈(Buzz) - 가시 [가사/Lyrics]",
-    //   musicUrl: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss",
-    //   tag: "도라에몽, 펀치",
-    //   placeName: "전라남도 완도군 완도읍 신기길 56 3 ",
-    //   latitude: 126.742,
-    //   longitude: 34.3275,
-    //   private: false,
-    //   createdAt: "2023-08-03T07:51:46.000Z",
-    //   updatedAt: "2023-08-03T07:51:46.000Z",
-    //   userId: 1,
-    //   image: {
-    //     url: "https://avatars.githubusercontent.com/u/32028454?v=4"
-    //   }
-    // }));
     const likedPosts = await Posts.findAll({
       where: { private: false },
       attributes: {
