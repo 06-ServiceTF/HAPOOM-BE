@@ -28,7 +28,7 @@ class AuthService {
     }
     const hashedPassword = await bcrypt.hash(body.password, 12);
     console.log(body)
-    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '6');
+    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '');
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return userResponse;

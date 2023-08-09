@@ -143,7 +143,7 @@ router.get('/user/profile', async (req, res) => {
   }
 });
 
-router.patch('/user',upload.none(), async (req, res) => {
+router.patch('/user', upload.single('image'), async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -154,15 +154,31 @@ router.patch('/user',upload.none(), async (req, res) => {
       return res.status(404).send({ error: 'User not found' });
     }
 
+    if (req.file) {
+      await Images.destroy({
+        where: {
+          userId: user.dataValues.userId,
+        },
+      });
+
+      const imageUrl = req.protocol + '://' + req.get('host') + '/' + req.file.path; // 파일 경로를 URL로 변환
+
+      await Images.create({
+        url: imageUrl,
+        postId: 10000 + user.dataValues.userId,
+        userId: user.dataValues.userId,
+      });
+
+      user.userImage = imageUrl; // userImage 필드에 URL 저장
+    }
+
+    console.log('리퀘스트 바디 값 :', req.body);
+
     const updates = Object.keys(req.body);
-
-    console.log('리퀘스트 바디 값 :',req.body)
-
-    updates.forEach((update) => user[update] = req.body[update]);
+    updates.forEach((update) => (user[update] = req.body[update]));
     await user.save();
 
     res.send({ user });
-
   } catch (error) {
     console.error('Error updating user:', error);
     res.status(500).send({ error: 'Error updating user' });
