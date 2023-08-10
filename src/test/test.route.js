@@ -233,7 +233,7 @@ router.get('/post/:postId', async (req, res) => {
   }
 });
 
-router.post('/api/post/:postId/like', async (req, res) => {
+router.post('/post/:postId/like', async (req, res) => {
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
   const token = req.cookies.refreshToken;
   const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -253,7 +253,7 @@ router.post('/api/post/:postId/like', async (req, res) => {
 });
 
 // 신고 토글 API
-router.post('/api/report/:postId', async (req, res) => {
+router.post('/report/:postId', async (req, res) => {
   //const { userId } = req.body; // 요청 본문에서 userId를 추출
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
   const token = req.cookies.refreshToken;

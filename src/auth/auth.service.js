@@ -10,7 +10,8 @@ class AuthService {
     const user = await userRepository.findByEmail(email);
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
-    return { email: userResponse.email, nickname: userResponse.nickname };
+    return { email: userResponse.email, nickname: userResponse.nickname,
+      userImage: userResponse.userImage,preset: userResponse.preset };
   }
 
   async refreshToken(email) {
