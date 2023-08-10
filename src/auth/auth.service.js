@@ -10,13 +10,14 @@ class AuthService {
     const user = await userRepository.findByEmail(email);
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
-    return { email: userResponse.email, nickname: userResponse.nickname };
+    return { email: userResponse.email, nickname: userResponse.nickname,
+      userImage: userResponse.userImage,preset: userResponse.preset };
   }
 
   async refreshToken(email) {
     const payload = {
       email,
-      exp: Math.floor(Date.now() / 1000) + (1 * 10),
+      exp: Math.floor(Date.now() / 1000) + (60 * 30),//30분
     };
     return jwt.sign(payload, process.env.JWT_SECRET);
   }
@@ -28,7 +29,7 @@ class AuthService {
     }
     const hashedPassword = await bcrypt.hash(body.password, 12);
     console.log(body)
-    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '123');
+    const user = await userRepository.createUser(body.email,hashedPassword, body.nickname, '');
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return userResponse;
@@ -42,7 +43,7 @@ class AuthService {
         }
         const payload = {
           email: user.email,
-          exp: Math.floor(Date.now() / 1000) + (10 * 1),
+          exp: Math.floor(Date.now() / 1000) + (60 * 30),//30분
         };
         const refreshPayload = {
           email: user.email,
