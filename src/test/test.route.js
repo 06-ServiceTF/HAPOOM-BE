@@ -30,6 +30,7 @@ const upload = multer({storage: storage});
 
 dotenv.config();
 
+//게시글 쓰기
 router.post('/post', upload.array('image', 5), async (req, res) => {
   const images = req.files;
   const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
@@ -72,6 +73,7 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
   }
 });
 
+//유저정보 가져오기
 router.get('/user', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -90,6 +92,7 @@ router.get('/user', async (req, res) => {
   }
 });
 
+//유저 프로필 페이지
 router.get('/user/profile', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -143,6 +146,7 @@ router.get('/user/profile', async (req, res) => {
   }
 });
 
+//유저 정보 수정[세팅페이지]
 router.patch('/user', upload.single('image'), async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -172,6 +176,7 @@ router.patch('/user', upload.single('image'), async (req, res) => {
   }
 });
 
+//postId의 모든 댓글 들고오기
 router.get('/post/comments/:postId', async (req, res) => {
   try {
     const comments = await Comments.findAll({ postId: req.params.postId });
@@ -182,6 +187,7 @@ router.get('/post/comments/:postId', async (req, res) => {
   }
 });
 
+//postId 게시글에 댓글 작성하기
 router.post('/post/comment', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -205,6 +211,7 @@ router.post('/post/comment', async (req, res) => {
   }
 });
 
+//게시글 상세보기
 router.get('/post/:postId', async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -233,6 +240,7 @@ router.get('/post/:postId', async (req, res) => {
   }
 });
 
+// 좋아요 토글 api
 router.post('/post/:postId/like', async (req, res) => {
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
   const token = req.cookies.refreshToken;
@@ -273,6 +281,7 @@ router.post('/report/:postId', async (req, res) => {
   }
 });
 
+// 게시글 수정기능
 router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
   const images = req.files;
   const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
@@ -323,6 +332,7 @@ router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
   }
 });
 
+// youtube api
 router.get('/youtube/search', async (req, res) => {
   const { term } = req.query;
   try {
@@ -351,6 +361,7 @@ router.get('/youtube/search', async (req, res) => {
   }
 });
 
+// 지도 api
 router.get('/map/reversegeocode', async (req, res) => {
   const { x, y } = req.query;
   try {
