@@ -1,4 +1,5 @@
 const CommentRepository = require('./comment.repository');
+const CustomError = require('../middlewares/error.middleware')
 
 class CommentService {
   commentRepository = new CommentRepository();

@@ -32,7 +32,7 @@ module.exports = {
         defaultValue: 'direct',
       },
       theme: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.INTEGER,
       },
       createdAt: {

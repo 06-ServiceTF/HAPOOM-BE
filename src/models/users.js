@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
       },
       theme: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       createdAt: {

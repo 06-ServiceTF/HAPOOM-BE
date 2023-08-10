@@ -6,37 +6,56 @@ const {
   sequelize,
   Sequelize,
 } = require('../models');
+const CustomError = require('../middlewares/error.middleware')
 
 class UserprofileRepository {
-  // 유저가 작성한 게시글 가져오기
+  // // 유저가 작성한 게시글 가져오기
+  // userPosts = async (userId, loggedInUserId) => {
+  //   const userPosts = await Posts.findAll({
+  //     where: {
+  //       userId,
+  //       private: false, // public 게시글만 가져오기
+  //     },
+  //     include: [
+  //       { model: Users, attributes: ['nickname'] },
+  //       { model: Images, attributes: ['url'], limit: 1 },
+  //     ],
+  //   });
+
+  //   // 프로필 주인인 경우, private 게시글도 가져오기
+  //   if (userId === loggedInUserId) {
+  //     const privatePosts = await Posts.findAll({
+  //       where: {
+  //         userId,
+  //         private: true,
+  //       },
+  //       include: [
+  //         { model: Users, attributes: ['nickname'] },
+  //         { model: Images, attributes: ['url'], limit: 1 },
+  //       ],
+  //     });
+  //     userPosts.push(...privatePosts);
+  //   }
+  //   return userPosts;
+  // };
+
   userPosts = async (userId, loggedInUserId) => {
+    const whereCondition = {
+      userId,
+      private: loggedInUserId === userId ? [true, false] : false,
+    };
+  
     const userPosts = await Posts.findAll({
-      where: {
-        userId,
-        private: false, // public 게시글만 가져오기
-      },
+      where: whereCondition,
       include: [
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
     });
-
-    // 프로필 주인인 경우, private 게시글도 가져오기
-    if (userId === loggedInUserId) {
-      const privatePosts = await Posts.findAll({
-        where: {
-          userId,
-          private: true,
-        },
-        include: [
-          { model: Users, attributes: ['nickname'] },
-          { model: Images, attributes: ['url'], limit: 1 },
-        ],
-      });
-      userPosts.push(...privatePosts);
-    }
+  
     return userPosts;
   };
+  
 
   // 유저가 좋아요를 누른 게시글 가져오기
   userLikedPosts = async (userId) => {

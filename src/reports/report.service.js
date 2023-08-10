@@ -1,4 +1,5 @@
 const ReportRepository = require('./report.repository');
+const CustomError = require('../middlewares/error.middleware')
 
 class ReportService {
   reportRepository = new ReportRepository();
