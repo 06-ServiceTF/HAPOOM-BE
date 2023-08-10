@@ -10,9 +10,9 @@ class LikeController {
       const clickLike = await this.likeService.clickLike(postId, userId);
 
       if (!clickLike) {
-        return res.status(200).json({ message: '좋아요 등록 취소' });
+        return res.status(200).json({ message: '이 게시물에 대한 좋아요를 취소했습니다.' });
       }
-      return res.status(200).json({ message: '좋아요 등록 완료' });
+      return res.status(200).json({ message: '이 게시물에 좋아요를 누르셨습니다.' });
     } catch (error) {
       console.log(error);
       next(error);

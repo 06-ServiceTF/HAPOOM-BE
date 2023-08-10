@@ -6,7 +6,7 @@ const LikeController = require("./like.controller");
 const likeController = new LikeController();
 
 // 좋아요 and 좋아요 취소
-router.put("/:postId/like", likeController.clickLike);
+router.post("/:postId/like", likeController.clickLike);
 // router.put("/:postId/like", authMiddleware, likeController.clickLike);
 
 module.exports = router;

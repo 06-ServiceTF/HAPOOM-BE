@@ -1,10 +1,14 @@
 const CommentRepository = require('./comment.repository');
-const CustomError = require('../middlewares/error.middleware')
+const CustomError = require('../middlewares/error.middleware');
 
 class CommentService {
   commentRepository = new CommentRepository();
 
   createComment = async (postId, userId, comment) => {
+    // 게시글 존재 여부 확인
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) throw new CustomError('존재하지 않는 게시글입니다.', 404);
+
     const createComment = await this.commentRepository.createComment(
       postId,
       userId,

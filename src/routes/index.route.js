@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const mainRouter = require('../main/main.route');
-const userprofileRouter = require('../userprofiles/userprofile.route');
+const userRouter = require('../profiles/profile.route');
 const commentRouter = require('../comments/comment.route');
 const likeRouter = require('../likes/like.route');
 const reportRouter = require('../reports/report.route');
@@ -13,13 +13,11 @@ const postRouter = require('../posts/post.route');
 router.use('/auth', authRouter);
 // 메인화면 관련
 router.use('/main', mainRouter);
-// 유저프로필 관련
-router.use('/userprofile', userprofileRouter);
-// 게시글, 댓글 관련
-router.use('/post', [postRouter, commentRouter]);
-// 좋아요 관련
-router.use('/post', likeRouter);
+// 유저 프로필 관련
+router.use('/user', userRouter);
+// 게시글, 댓글, 좋아요 관련
+router.use('/post', [postRouter, commentRouter, likeRouter]);
 // 신고 관련
-router.use('/post', reportRouter);
+router.use('/report', reportRouter);
 
 module.exports = router;
