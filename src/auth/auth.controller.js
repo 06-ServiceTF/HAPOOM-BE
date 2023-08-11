@@ -43,7 +43,7 @@ class AuthController {
           // 클라이언트에 에러 메시지 전송
           return res.status(401).send(info.errorMessage);
         }
-        const { userResponse, token } = await authService.login(req, user);
+        const { userResponse, token } = await authService.login(req,res, user);
         res.status(200).json({ email:userResponse.email,nickname:userResponse.nickname, token });
       } catch (error) {
         console.log(error);
