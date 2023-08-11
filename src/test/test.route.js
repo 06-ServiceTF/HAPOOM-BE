@@ -38,7 +38,7 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await Users.findOne({ email: decoded.email });
+    const user = await Users.findOne({ where: { email: decoded.email } });
 
     console.log(tag)
 
@@ -149,8 +149,10 @@ router.patch('/user', upload.single('image'), async (req, res) => {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
+    console.log(decoded.email)
+
     // DB에서 사용자를 찾음
-    const user = await Users.findOne({ email: decoded.email });
+    const user = await Users.findOne({ where: { email: decoded.email } });
     if (!user) {
       return res.status(404).send({ error: 'User not found' });
     }
@@ -163,7 +165,15 @@ router.patch('/user', upload.single('image'), async (req, res) => {
     console.log('리퀘스트 바디 값 :', req.body);
 
     const updates = Object.keys(req.body);
-    updates.forEach((update) => (user[update] = req.body[update]));
+    for (const update of updates) {
+      if (update === 'password') {
+        const hashedPassword = await bcrypt.hash(req.body[update], 10); // 비밀번호 해싱
+        console.log('Hashed password:', hashedPassword); // 로그로 출력
+        user[update] = hashedPassword;
+      } else {
+        user[update] = req.body[update];
+      }
+    }
     await user.save();
 
     res.send({ user });
@@ -176,7 +186,7 @@ router.patch('/user', upload.single('image'), async (req, res) => {
 //postId의 모든 댓글 들고오기
 router.get('/post/comments/:postId', async (req, res) => {
   try {
-    const comments = await Comments.findAll({ postId: req.params.postId });
+    const comments = await Comments.findAll({where:{ postId: req.params.postId }});
     res.send({ comments });
   } catch (error) {
     console.error('Error get comments:', error);
@@ -191,7 +201,7 @@ router.post('/post/comment', async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
     // DB에서 사용자를 찾음
-    const user = await Users.findOne({ email: decoded.email });
+    const user = await Users.findOne({ where: { email: decoded.email } });
     if (!user) {
       return res.status(404).send({ error: 'User not found' });
     }
@@ -244,7 +254,7 @@ router.post('/post/:postId/like', async (req, res) => {
   const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
   // DB에서 사용자를 찾음
-  const user = await Users.findOne({ email: decoded.email });
+  const user = await Users.findOne({ where: { email: decoded.email } });
   const userId = user.dataValues.userId; // userId 값을 추출
 
   const like = await Likes.findOne({ where: { userId, postId } });
@@ -266,7 +276,7 @@ router.post('/report/:postId', async (req, res) => {
   const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
 
   // DB에서 사용자를 찾음
-  const user = await Users.findOne({ email: decoded.email });
+  const user = await Users.findOne({ where: { email: decoded.email } });
   const userId = user.dataValues.userId; // userId 값을 추출
 
   const report = await Reports.findOne({ where: { userId, postId } });
