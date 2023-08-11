@@ -17,9 +17,6 @@ class CommentService {
   };
 
   getComments = async (postId) => {
-    const postExists = await this.commentRepository.checkPostExists(postId);
-    if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
-
     const getComments = await this.commentRepository.getComments(postId);
     const commentList = getComments.map((comment) => {
       return {
