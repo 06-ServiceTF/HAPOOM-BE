@@ -4,7 +4,6 @@ const multer = require('multer');
 const axios = require("axios");
 const fs = require('fs');
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 
 const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
 const bcrypt = require("bcrypt");
@@ -28,7 +27,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({storage: storage});
-
+const dotenv = require("dotenv");
 dotenv.config();
 
 //게시글 쓰기
@@ -71,6 +70,34 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
   } catch(err) {
     console.error(err);
     res.status(500).send({ error: 'Error creating post' });
+  }
+});
+
+//게시글 삭제
+router.delete('/post/:postId', async (req, res) => {
+  const { postId } = req.params;
+  try {
+
+    // 해당 게시물을 찾고 삭제합니다.
+    const post = await Posts.findOne({ where: { postId: postId } });
+    if (!post) {
+      return res.status(404).send({ message: 'Post not found' });
+    }
+
+    // 해당 게시물의 모든 이미지를 찾아 삭제합니다.
+    const images = await Images.findAll({ where: { postId: post.postId } });
+    const imageDeletePromises = images.map((image) => {
+      return image.destroy();
+    });
+    await Promise.all(imageDeletePromises);
+
+    // 게시물을 삭제합니다.
+    await post.destroy();
+
+    res.status(200).send({ message: 'Post and associated images deleted' });
+  } catch(err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error deleting post' });
   }
 });
 

@@ -8,6 +8,7 @@ const likeRouter = require('../likes/like.route');
 const reportRouter = require('../reports/report.route');
 const authRouter = require('../auth/auth.route');
 const postRouter = require('../posts/post.route');
+const utilRouter = require('../util/util.route');
 
 // 로그인 회원가입 관련
 router.use('/auth', authRouter);
@@ -19,5 +20,7 @@ router.use('/user', userRouter);
 router.use('/post', [postRouter, commentRouter, likeRouter]);
 // 신고 관련
 router.use('/report', reportRouter);
+// 유틸 관련 [api관련]
+router.use('/util', utilRouter);
 
 module.exports = router;
