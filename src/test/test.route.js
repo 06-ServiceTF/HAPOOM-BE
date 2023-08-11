@@ -406,7 +406,7 @@ router.get('/dummy', async (req, res) => {
       // 생성된 유저당 2개의 게시물 생성
       for (let j = 0; j < 2; j++) {
         const randomMusic = musicData[Math.floor(Math.random() * musicData.length)];
-        await Posts.create({
+        const post = await Posts.create({
           userId: user.userId,
           content: `Test Post ${j} by user${i}`,
           private: false,
@@ -416,6 +416,13 @@ router.get('/dummy', async (req, res) => {
           longitude:34.3245,
           placeName:`전라남도 완도군 완도읍 장보고대로 103  해남소방서 완도119안전센터`,
           tag:"",
+        });
+
+        console.log(post.id,post.dataValues)
+        await Images.create({
+          url: 'https://avatars.githubusercontent.com/u/32028454?v=4',
+          postId: post.postId, // 여기를 올바르게 참조
+          userId: post.dataValues.userId
         });
       }
     }
