@@ -4,7 +4,6 @@ const multer = require('multer');
 const axios = require("axios");
 const fs = require('fs');
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 
 const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
 const bcrypt = require("bcrypt");
@@ -28,7 +27,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({storage: storage});
-
+const dotenv = require("dotenv");
 dotenv.config();
 
 //게시글 쓰기
