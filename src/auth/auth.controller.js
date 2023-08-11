@@ -1,5 +1,6 @@
 const AuthService = require('./auth.service');
 const passport = require("passport");
+const {Users} = require("../models");
 const authService = new AuthService();
 
 class AuthController {
@@ -44,6 +45,13 @@ class AuthController {
           return res.status(401).send(info.errorMessage);
         }
         const { userResponse, token } = await authService.login(req, user);
+        const user = await Users.findOne({ where: { email: userResponse.email } });
+        if (user) {
+          res.locals.user = user;
+          next();
+        } else {
+          res.status(404).send('User not found.');
+        }
         res.status(200).json({ email:userResponse.email,nickname:userResponse.nickname, token });
       } catch (error) {
         console.log(error);
