@@ -5,7 +5,6 @@ class CommentService {
   commentRepository = new CommentRepository();
 
   createComment = async (postId, userId, comment) => {
-    // 게시글 존재 여부 확인
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
 
@@ -18,6 +17,9 @@ class CommentService {
   };
 
   getComments = async (postId) => {
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
+
     const getComments = await this.commentRepository.getComments(postId);
     const commentList = getComments.map((comment) => {
       return {
@@ -34,16 +36,36 @@ class CommentService {
   };
 
   updateComment = async (postId, userId, commentId, comment) => {
-    const updateComment = await this.commentRepository.updateComment(
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(commentId);
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const updatedComment = await this.commentRepository.updateComment(
       postId,
       userId,
       commentId,
       comment
     );
-    return updateComment;
+    return updatedComment;
   };
 
   deleteComment = async (postId, userId, commentId) => {
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(commentId);
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
     const deleteComment = await this.commentRepository.deleteComment(
       postId,
       userId,

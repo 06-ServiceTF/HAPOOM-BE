@@ -3,8 +3,13 @@ const { Op } = require('sequelize');
 
 class CommentRepository {
   checkPostExists = async (postId) => {
-    const postExists = await Posts.findOne({ where: { postId } });
+    const postExists = await Comments.findOne({ where: { postId } });
     return postExists;
+  };
+
+  checkCommentExists = async (commentId) => {
+    const commentExists = await Comments.findOne({ where: { commentId } });
+    return commentExists;
   };
 
   createComment = async (postId, userId, comment) => {
