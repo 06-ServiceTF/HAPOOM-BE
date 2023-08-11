@@ -2,17 +2,24 @@ const jwt = require("jsonwebtoken");
 const { Users } = require("../models");
 require("dotenv").config();
 
-module.exports = async (req, res, next)=> {
-  // console.log(req)
+module.exports = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  //if (!token) return res.status(501).send('Access denied. No token provided.');
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-    next();
+
+    // 이메일로 사용자 찾기
+    const user = await Users.findOne({ where: { email: decoded.email } });
+
+    // 찾은 사용자를 res.locals.user에 등록
+    if (user) {
+      res.locals.user = user;
+      next();
+    } else {
+      res.status(404).send('User not found.');
+    }
   } catch (ex) {
-    //res.cookie('token', '', { expires: new Date(0), httpOnly: true, sameSite: 'None', secure: true });
     res.status(502).send('Invalid token.');
   }
 }

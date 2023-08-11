@@ -30,7 +30,6 @@ class MainRepository {
           url: post.Images[0].url
         };
       }
-      console.log(formattedPost);
       return formattedPost;
     });
     return formattedPosts;
