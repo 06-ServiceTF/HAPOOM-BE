@@ -12,6 +12,8 @@ const path = require("path"); // 경로는 해당 모듈의 위치에 따라 달
 
 require("dotenv").config();
 
+const routes = require('./src/routes/index.route')
+
 const app = express();
 const origin = process.env.ORIGIN
 
