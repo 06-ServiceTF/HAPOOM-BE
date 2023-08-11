@@ -1,157 +1,157 @@
-const { Posts, Images, Comments, Likes } = require("../models");
+// post.repository
+const { Posts, Images, Comments, Likes, Users } = require("../models");
 const { Op } = require("sequelize");
 
 class PostRepository {
 
-  //* 상세 페이지 생성(완료)
-  createPost = async (
+//* 게시글 생성 part (검토 완료)
+createPostWithImage = async(
+  userId, 
+  imageLocation, 
+  content, 
+  latitude, 
+  longitude, 
+  placeName,
+  transaction
+) => {
+
+  const createPost = await Posts.create({
     userId,
     content,
     latitude,
     longitude,
-    placeName,
+    placeName
+  }, {transaction})
+
+  const createImage = imageLocation.map( async(image) => {
+    return await Images.create({
+      userId,
+      postId: createPost.dataValues.postId,
+      url: image
+    })
+  }, {transaction})
+
+  };
+
+  //* 게시글 조회 part (검토 완료)
+  findPostWithImage = async(postId, userId) => {
+    const findPostWithImage = await Posts.findOne({
+      where: { postId},
+      attributes: [
+        'userId',
+        'postId',
+        'content',
+        'latitude',
+        'longitude',
+        'private'
+      ],
+      include: [
+        {
+          model: Images,
+          attributes: ['url']
+        },
+        {
+          model: Likes,
+          attributes: ['userId']
+        },
+        {
+          model: Users,
+          attributes: ['nickname', 'userImage']
+        },
+        {
+          model: Comments,
+          attributes: ['userId', 'comment', 'createdAt']
+        }
+      ],
+      // raw: true
+    })
+    
+    // '좋아요'가 아무것도 없으면 빈 배열 만들기
+    const userLike = findPostWithImage["Likes.userId"] ?? Array()
+
+    // console.log('userLike =>', userLike)
+    userLike.push(1)
+    userLike.push(2)
+
+    // 좋아요 여부 확인
+    const isLiked = userLike.some((like) => {
+      return like == userId
+    })
+    findPostWithImage.isLiked = isLiked
+
+    // 좋아요 count 조회
+    const likeCount = userLike.length
+    findPostWithImage.likeCount = likeCount
+
+    // console.log('result', findPostWithImage)
+    return findPostWithImage
+  };
+
+  //* 게시글 수정 part
+  updatePostWithImage = async(
+    postId,
+    userId,
+    content, 
+    latitude, 
+    longitude, 
+    placeName, 
+    updateImageArray, // 배열 ['url1', 'url2', ...]
     transaction
   ) => {
-    const post = await Posts.create({
-      userId,
+    const updatePost = await Posts.update({
+      where: {[Op.and]: [{ postId}, {userId}]}
+    },
+    {
       content,
       latitude,
       longitude,
       placeName
-    }, {transaction})
+    },
+    { transaction }
+    )
 
-    return post
+    const updatedImage = await updateImageArray.map(async(image) => {
+      return await Images.update({
+        where: { [Op.and]: [{ postId }, { userId }]}
+      },
+      { url: image },
+      { transaction }
+      )
+    });
   };
 
-  // [ '...', '...', '...' ]
-  createImage = async (userId, imageLocation, transaction) => {
+  //* 게시글 삭제 part
+  // Images 테이블 url 찾기
+  findImageKey = async(postId, userId) => {
+    const findImageKey = await Images.findAll({
+      where: {[Op.and]: [{postId}, {userId}]},
+      attributes: ['url']
+    })
 
-    const images = await Promise.all(imageLocation.map(async (image) => {
-      return await Images.create({
-        userId,
-        postId,
-        url: image
-      }, { transaction })
-    }))
-
-    return images
+    return findImageKey
   };
 
+  // 게시물 삭제
+  deletePostWithImage = async(postId, userId) => {
+    const deletePostWithImage = await Posts.destroy({
+      where: {[Op.and]: [{ postId }, { userId }]}
+    })
 
-  //* 게시글 상세 조회(완료): postId만 있을 경우
-  findPostWithImage = async (postId, userId) => {
+    // console.log(deletePostWithImage) // 성공 시 1
+    return deletePostWithImage
+  };
 
-    try {
-      const postWithImage = await Posts.findOne({
-        where: { postId },
-        attributes: [
-          "postId",
-          "userId",
-          "content",
-          // 'tag',
-          "latitude",
-          "longitue",
-          "private",
-        ],
-        include: [
-          {
-            model: Images,
-            attributes: ["url"],
-          },
-          {
-            model: Likes,
-            attributes: ["userId"],
-          },
-          {
-            model: Comments,
-            attributes: ["commentId", "comment", "createdAt"],
-          },
-          {
-            model: Users,
-            attributes: ["nickname", "userImage"],
-          },
-        ],
-        raw: true,
-      });
-
-      // 좋아요 여부 확인
-      const userLiked = postWithImage.Likes.some(
-        (like) => like.userId === userId
-      );
-      postWithImage.userLiked = userLiked;
-
-      // 좋아요 count 조회
-      const likeCount = postWithImage.Likes.length;
-      postWithImage.likeCount = likeCount;
-
-      return postWithImage;
-    } catch (err) {
-      next(err);
-    }
-  }
-
-    //* 게시글 수정 part(완료)
-    // 게시글 수정 시, 기존 이미지를 빼면 DB는 CASCADE로 인해 자동 삭제
-    updatePostWithImage = async (
-      postId,
-      content,
-      latitude,
-      longitude,
-      placeName,
-      updatedImage, // ['url1', 'url2', ...]
-      userId
-    ) => {
-
-        // 상세 페이지 수정
-        const updatePost = await Posts.update({
-          where: {[Op.and]: [{ postId }, { userId }]}
-        }, {
-          content,
-          latitude,
-          longitude,
-          placeName
-        }, { transaction })
-
-        // 이미지 수정
-        const updateImage = await Promise.all(updatedImage.map( async (image) => {
-          return await Image.update({
-            where: { [Op.and]: [{ postId }, { userId }]}
-          },
-          { updatedImage }, 
-          { transaction })
-        }))
-
-        return {updatePost, updateImage}
-    };
-
-    //* 게시글 삭제 part(완료)
-    findImageUrl = async (postId, userId, transaction) => {
-      const findImageUrl = await Images.findAll({
-        where: { [Op.and]: [ { postId }, { userId }]},
-        attributes: ['url']
-      }, { transaction })
-
-      return findImageUrl // [{url: '첫 번째 이미지 url'}, {url: '두 번째 이미지 url'}]
-    };
-
-    deletePostWithImage = async (postId, userId, transaction) => {
-
-      const deletePostWithImage = await Posts.destroy({
-        where: { [Op.and]: [{ postId: postId }, { userId: userId }] },
-      }, { transaction });
-
-      return deletePostWithImage
-    };
-
-    findPostUserId = async (userId) => {
-      const findPostUserId = await Posts.findOne({
-        where: {userId},
-        attributes: ['postId', 'userId']
-      })
-      return findPostUserId
-    }
-
+  //* 게시글 수정 및 삭제 권한 확인 part
+  confirmRight = async(postId, userId) => {
+    await Posts.findOne({
+      where: {[Op.and]: [{ postId }, { userId }]},
+      attributes: ['postId']
+    })
+  };
 };
 
+    return confirmUser
+   }
+}
 
 module.exports = PostRepository;

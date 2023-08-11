@@ -9,6 +9,7 @@ const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
 const initializeLocalPassport = require('./src/passports/local.passport');
 const path = require("path"); // 경로는 해당 모듈의 위치에 따라 달라집니다.
+const PORT = 2023
 
 require("dotenv").config();
 
@@ -60,7 +61,7 @@ app.use(passport.session()); // req.session 객체에 passport 정보를 저장�
 // passport.session()이 실행되면, 세션쿠키 정보 바탕으로 passport의 deserializeUser 메서드가 실행된다.
 
 
-app.listen(process.env.PORT || 3001, (req, res) => {
-  console.log(`http://localhost:${process.env.PORT}`);
+app.listen(PORT || 3001, (req, res) => {
+  console.log(`http://localhost:${PORT}`);
 });
 

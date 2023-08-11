@@ -19,8 +19,8 @@ router.use('/user', userRouter);
 // 게시글, 댓글, 좋아요 관련
 router.use('/post', [postRouter, commentRouter, likeRouter]);
 // 신고 관련
-router.use('/report', reportRouter);
-// 유틸 관련 [api관련]
+router.use('/post', reportRouter);
+// 유틸 관련 API
 router.use('/util', utilRouter);
 
 module.exports = router;
