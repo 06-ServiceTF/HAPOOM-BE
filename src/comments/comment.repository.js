@@ -12,6 +12,11 @@ class CommentRepository {
     return commentExists;
   };
 
+  findComment = async (userId, commentId) => {
+    const comment = await Comments.findOne({ where: { commentId, userId } });
+    return comment;
+  };
+
   createComment = async (postId, userId, comment) => {
     const createComment = await Comments.create({ postId, userId, comment });
     return createComment;

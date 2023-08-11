@@ -41,9 +41,19 @@ class CommentService {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
     }
 
-    const commentExists = await this.commentRepository.checkCommentExists(commentId);
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
     if (!commentExists) {
       throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      userId,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 수정 권한이 없습니다.', 403);
     }
 
     const updatedComment = await this.commentRepository.updateComment(
@@ -61,9 +71,19 @@ class CommentService {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
     }
 
-    const commentExists = await this.commentRepository.checkCommentExists(commentId);
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
     if (!commentExists) {
       throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      userId,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 삭제 권한이 없습니다.', 403);
     }
 
     const deleteComment = await this.commentRepository.deleteComment(
