@@ -5,8 +5,8 @@ class CommentService {
   commentRepository = new CommentRepository();
 
   createComment = async (postId, userId, comment) => {
-    const postExists = await this.commentRepository.checkPostExists(postId);
-    if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    // const postExists = await this.commentRepository.checkPostExists(postId);
+    // if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
 
     const createComment = await this.commentRepository.createComment(
       postId,
