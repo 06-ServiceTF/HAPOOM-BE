@@ -1,9 +1,13 @@
 const CommentRepository = require('./comment.repository');
+const CustomError = require('../middlewares/error.middleware');
 
 class CommentService {
   commentRepository = new CommentRepository();
 
   createComment = async (postId, userId, comment) => {
+    // const postExists = await this.commentRepository.checkPostExists(postId);
+    // if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
+
     const createComment = await this.commentRepository.createComment(
       postId,
       userId,
@@ -29,16 +33,56 @@ class CommentService {
   };
 
   updateComment = async (postId, userId, commentId, comment) => {
-    const updateComment = await this.commentRepository.updateComment(
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      userId,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 수정 권한이 없습니다.', 403);
+    }
+
+    const updatedComment = await this.commentRepository.updateComment(
       postId,
       userId,
       commentId,
       comment
     );
-    return updateComment;
+    return updatedComment;
   };
 
   deleteComment = async (postId, userId, commentId) => {
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      userId,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 삭제 권한이 없습니다.', 403);
+    }
+
     const deleteComment = await this.commentRepository.deleteComment(
       postId,
       userId,

@@ -31,10 +31,14 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: 'direct',
       },
-      // theme: {
-      //   allowNull: true, // false로 나중에 바꿔주기
-      //   type: Sequelize.INTEGER,
-      // },
+      theme: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+      },
+      preset: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -4,13 +4,14 @@ class CommentController {
   commentService = new CommentService();
 
   createComment = async (req, res, next) => {
-    const { userId } = res.locals.user;
+    // const { userId } = res.locals.user;
+    console.log(res.locals)
     const { postId } = req.params;
     const { comment } = req.body;
     try {
       const createComment = await this.commentService.createComment(
         postId,
-        userId,
+        // userId,
         comment
       );
       return res.status(201).json({ message: '댓글을 작성하였습니다.' });

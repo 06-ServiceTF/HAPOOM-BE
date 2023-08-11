@@ -7,34 +7,43 @@ const {
   Sequelize,
 } = require('../models');
 
-class UserprofileRepository {
+class ProfileRepository {
+  findUser = async (userId) => {
+    const user = await Users.findOne({
+      where: { userId },
+      attributes: { exclude: ['preset', 'password', 'createdAt', 'updatedAt'] },
+    });
+    return user;
+  };
+
+  postsCount = async (userId) => {
+    const postsCount = await Posts.count({
+      where: { userId },
+    });
+    return postsCount;
+  };
+
+  likePostsCount = async (userId) => {
+    const likePostsCount = await Likes.count({
+      where: { userId },
+    });
+    return likePostsCount;
+  };
+
   // 유저가 작성한 게시글 가져오기
   userPosts = async (userId, loggedInUserId) => {
+    const whereCondition = {
+      userId,
+      private: loggedInUserId === userId ? [true, false] : false,
+    };
+
     const userPosts = await Posts.findAll({
-      where: {
-        userId,
-        private: false, // public 게시글만 가져오기
-      },
+      where: whereCondition,
       include: [
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
     });
-
-    // 프로필 주인인 경우, private 게시글도 가져오기
-    if (userId === loggedInUserId) {
-      const privatePosts = await Posts.findAll({
-        where: {
-          userId,
-          private: true,
-        },
-        include: [
-          { model: Users, attributes: ['nickname'] },
-          { model: Images, attributes: ['url'], limit: 1 },
-        ],
-      });
-      userPosts.push(...privatePosts);
-    }
     return userPosts;
   };
 
@@ -59,4 +68,4 @@ class UserprofileRepository {
   };
 }
 
-module.exports = UserprofileRepository;
+module.exports = ProfileRepository;

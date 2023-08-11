@@ -1,7 +1,12 @@
-const { Likes } = require('../models');
+const { Posts, Likes } = require('../models');
 const { Op } = require('sequelize');
 
 class LikeRepository {
+  checkPostExists = async (postId) => {
+    const postExists = await Posts.findOne({ where: { postId } });
+    return postExists;
+  };
+
   existLike = async (postId, userId) => {
     const existLike = await Likes.findOne({
       where: {

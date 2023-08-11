@@ -4,9 +4,9 @@ const multer = require('multer');
 const axios = require("axios");
 const fs = require('fs');
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
 
-const { Posts, Users, Likes, Images,sequelize, Sequelize } = require('../models');
+const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
+const bcrypt = require("bcrypt");
 
 const uploadDir = './uploads/';
 
@@ -27,16 +27,17 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({storage: storage});
-
+const dotenv = require("dotenv");
 dotenv.config();
 
+//게시글 쓰기
 router.post('/post', upload.array('image', 5), async (req, res) => {
   const images = req.files;
   const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await Users.findOne({ email: decoded.email });
+    const user = await Users.findOne({ where: { email: decoded.email } });
 
     console.log(tag)
 
@@ -72,6 +73,179 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
   }
 });
 
+//게시글 삭제
+router.delete('/post/:postId', async (req, res) => {
+  const { postId } = req.params;
+  try {
+
+    // 해당 게시물을 찾고 삭제합니다.
+    const post = await Posts.findOne({ where: { postId: postId } });
+    if (!post) {
+      return res.status(404).send({ message: 'Post not found' });
+    }
+
+    // 해당 게시물의 모든 이미지를 찾아 삭제합니다.
+    const images = await Images.findAll({ where: { postId: post.postId } });
+    const imageDeletePromises = images.map((image) => {
+      return image.destroy();
+    });
+    await Promise.all(imageDeletePromises);
+
+    // 게시물을 삭제합니다.
+    await post.destroy();
+
+    res.status(200).send({ message: 'Post and associated images deleted' });
+  } catch(err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error deleting post' });
+  }
+});
+
+//유저정보 가져오기
+router.get('/user', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({
+      where: { email: decoded.email },
+      attributes: { exclude: ['password'] }, // 패스워드 필드를 제외
+    });
+
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    res.send({user});
+
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).send({ error: 'Error getting user' });
+  }
+});
+
+//유저 프로필 페이지
+router.get('/user/profile', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({
+      where: { email: decoded.email },
+      attributes: { exclude: ['password'] }, // 패스워드 필드를 제외
+    });
+
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    // user의 userId를 가진 모든 post들을 찾음
+    const posts = await Posts.findAll({
+      where: { userId: user.userId },
+    });
+
+    // user가 like한 모든 post들을 찾음
+    // Likes 테이블에서 userId가 일치하는 모든 postId를 찾고, 그 postId들을 가진 post들을 찾아옴
+    const likePostIds = await Likes.findAll({
+      where: { userId: user.userId },
+      attributes: ['postId'],
+    });
+    const likePosts = await Posts.findAll({
+      where: { postId: likePostIds.map(lp => lp.postId) },
+    });
+
+    // 해당 유저가 작성한 게시물의 수
+    const postsCount = await Posts.count({
+      where: { userId: user.userId },
+    });
+
+    // 해당 유저가 좋아요를 누른 게시물의 수
+    const likePostsCount = await Likes.count({
+      where: { userId: user.userId },
+    });
+
+    res.send({ user, posts, likePosts , postsCount , likePostsCount});
+
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).send({ error: 'Error getting user' });
+  }
+});
+
+//유저 정보 수정[세팅페이지]
+router.patch('/user', upload.single('image'), async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    console.log(decoded.email)
+
+    // DB에서 사용자를 찾음
+    const user = await Users.findOne({ where: { email: decoded.email } });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    if (req.file) {
+      const imageUrl = req.protocol + '://' + req.get('host') + '/' + req.file.path; // 파일 경로를 URL로 변환
+      user.userImage = imageUrl; // userImage 필드에 URL 저장
+    }
+
+    console.log('리퀘스트 바디 값 :', req.body);
+
+    const updates = Object.keys(req.body);
+    for (const update of updates) {
+      if (update === 'password') {
+        const hashedPassword = await bcrypt.hash(req.body[update], 10); // 비밀번호 해싱
+        console.log('Hashed password:', hashedPassword); // 로그로 출력
+        user[update] = hashedPassword;
+      } else {
+        user[update] = req.body[update];
+      }
+    }
+    await user.save();
+
+    res.send({ user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).send({ error: 'Error updating user' });
+  }
+});
+
+//postId의 모든 댓글 들고오기
+router.get('/post/comments/:postId', async (req, res) => {
+  try {
+    const comments = await Comments.findAll({where:{ postId: req.params.postId }});
+    res.send({ comments });
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
+  }
+});
+
+//postId 게시글에 댓글 작성하기
+router.post('/post/comment', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // DB에서 사용자를 찾음
+    const user = await Users.findOne({ where: { email: decoded.email } });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const comment = await Comments.create({
+      content: req.body.content,
+      userId: user.dataValues.userId,
+      postId: req.body.postId
+    });
+    res.status(200);
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
+  }
+});
+
+//게시글 상세보기
 router.get('/post/:postId', async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -100,9 +274,15 @@ router.get('/post/:postId', async (req, res) => {
   }
 });
 
-router.post('/api/post/:postId/like', async (req, res) => {
+// 좋아요 토글 api
+router.post('/post/:postId/like', async (req, res) => {
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
-  const userId = "1";
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+  // DB에서 사용자를 찾음
+  const user = await Users.findOne({ where: { email: decoded.email } });
+  const userId = user.dataValues.userId; // userId 값을 추출
 
   const like = await Likes.findOne({ where: { userId, postId } });
 
@@ -116,10 +296,15 @@ router.post('/api/post/:postId/like', async (req, res) => {
 });
 
 // 신고 토글 API
-router.post('/api/report/:postId', async (req, res) => {
+router.post('/report/:postId', async (req, res) => {
   //const { userId } = req.body; // 요청 본문에서 userId를 추출
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
-  const userId = "1";
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+  // DB에서 사용자를 찾음
+  const user = await Users.findOne({ where: { email: decoded.email } });
+  const userId = user.dataValues.userId; // userId 값을 추출
 
   const report = await Reports.findOne({ where: { userId, postId } });
 
@@ -132,6 +317,7 @@ router.post('/api/report/:postId', async (req, res) => {
   }
 });
 
+// 게시글 수정기능
 router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
   const images = req.files;
   const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
@@ -182,6 +368,7 @@ router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
   }
 });
 
+// youtube api
 router.get('/youtube/search', async (req, res) => {
   const { term } = req.query;
   try {
@@ -210,6 +397,7 @@ router.get('/youtube/search', async (req, res) => {
   }
 });
 
+// 지도 api
 router.get('/map/reversegeocode', async (req, res) => {
   const { x, y } = req.query;
   try {
@@ -228,6 +416,61 @@ router.get('/map/reversegeocode', async (req, res) => {
   } catch (error) {
     console.error('Error getting geocode:', error);
     res.status(500).send({ error: 'Error getting geocode' });
+  }
+});
+
+//더미생성 api
+router.get('/dummy', async (req, res) => {
+  try {
+    // 10명의 유저 생성
+    const hashedPassword = await bcrypt.hash('testtest1', 12);
+    const musicData = [
+      { url: "https://www.youtube.com/watch?v=rgms0zs6SZc", title: "남자를몰라" },
+      { url: "https://www.youtube.com/watch?v=q0Bc1lmn5fA", title: "onelove" },
+      { url: "https://www.youtube.com/watch?v=FwbEtCtz8Qk", title: "please dont happy" },
+      { url: "https://www.youtube.com/watch?v=4oQ2-b89a0w", title: "hello" },
+      { url: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss", title: "버즈(Buzz) - 가시 [가사/Lyrics]" }
+    ];
+
+    for (let i = 0; i < 10; i++) {
+      const user = await Users.create({
+        email: `test${i}@example.com`,
+        password: hashedPassword,
+        nickname: `user${i}`,
+        userImage:'',
+        theme:1,
+        preset:5,
+        method:"direct"
+      });
+
+      // 생성된 유저당 2개의 게시물 생성
+      for (let j = 0; j < 2; j++) {
+        const randomMusic = musicData[Math.floor(Math.random() * musicData.length)];
+        const post = await Posts.create({
+          userId: user.userId,
+          content: `Test Post ${j} by user${i}`,
+          private: false,
+          musicTitle: randomMusic.title,
+          musicUrl: randomMusic.url,
+          latitude:126.742,
+          longitude:34.3245,
+          placeName:`전라남도 완도군 완도읍 장보고대로 103  해남소방서 완도119안전센터`,
+          tag:"",
+        });
+
+        console.log(post.id,post.dataValues)
+        await Images.create({
+          url: 'https://avatars.githubusercontent.com/u/32028454?v=4',
+          postId: post.postId, // 여기를 올바르게 참조
+          userId: post.dataValues.userId
+        });
+      }
+    }
+
+    res.status(200).send('Test Data Created Successfully');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while creating test data');
   }
 });
 

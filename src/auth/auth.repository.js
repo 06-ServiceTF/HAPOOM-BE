@@ -20,6 +20,9 @@ class AuthRepository {
       password,
       nickname,
       userImage,
+      theme:1,
+      preset:5,
+      method:"direct"
     });
 
     return user;
