@@ -7,7 +7,7 @@ class ReportService {
   addReport = async (postId, userId) => {
     // 게시글 존재 여부 확인
     const postExists = await this.reportRepository.checkPostExists(postId);
-    if (!postExists) throw new CustomError('존재하지 않는 게시글입니다.', 404);
+    if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
 
     // 중복 신고 여부 확인
     const existingReport = await this.reportRepository.getReport(
