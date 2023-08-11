@@ -79,7 +79,10 @@ router.get('/user', async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await Users.findOne({ email: decoded.email }, { password: 0 }); // 패스워드 필드를 제외
+    const user = await Users.findOne({
+      where: { email: decoded.email },
+      attributes: { exclude: ['password'] }, // 패스워드 필드를 제외
+    });
 
     if (!user) {
       return res.status(404).send({ error: 'User not found' });
