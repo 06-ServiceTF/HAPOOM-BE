@@ -42,7 +42,7 @@ class AuthService {
         }
         const payload = {
           email: user.email,
-          exp: Math.floor(Date.now() / 1000) + (10 * 1),
+          exp: Math.floor(Date.now() / 1000) + (60 * 1),
         };
         const refreshPayload = {
           email: user.email,

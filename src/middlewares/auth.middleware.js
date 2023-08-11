@@ -13,6 +13,7 @@ module.exports = async (req, res, next)=> {
     next();
   } catch (ex) {
     //res.cookie('token', '', { expires: new Date(0), httpOnly: true, sameSite: 'None', secure: true });
+    console.log(ex)
     res.status(502).send('Invalid token.');
   }
 }

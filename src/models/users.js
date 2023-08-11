@@ -58,10 +58,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         type: DataTypes.STRING,
       },
-      theme: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
+      // theme: {
+      //   allowNull: true,
+      //   type: DataTypes.INTEGER,
+      // },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
