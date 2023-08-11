@@ -1,29 +1,31 @@
-const express = require('express')
-const router = express.Router()
-const PostController = require('./post.controller')
-const postController = new PostController
-const { fieldsMulterMiddleware } = require('../middlewares/multerS3.middleware')
-// 사용자 미들웨어
-const authMiddleware = require('../middlewares/auth.middleware')
+const express = require('express');
+const router = express.Router();
+const { multerMiddleware } = require('../middlewares/multer.middleware');
+// 여기다 사용자 인증 미들웨어를 추가
+const authMiddleware = require('../middlewares/auth.middleware');
+const PostController = require('./post.controller');
+const postController = new PostController();
 
-
-// 게시글 작성
-router.post('/', 
+// 게시글 생성
+router.post(
+  '/post',
   authMiddleware,
-  fieldsMulterMiddleware.fields([
-    {name: 'image1'},
-    {name: 'image2'},
-    {name: 'image3'},
-    {name: 'image4'},
-    {name: 'image5'},
-  ]),
-  postController.createPostWithImage)
+  multerMiddleware.array('image'),
+  postController.createPostImage
+);
 
-// 게시글 상세조회
-router.get('/:postId', authMiddleware, postController.findPostWithImage)
+// 게시글 조회
+router.get('/post/:postId', authMiddleware, postController.readPost);
 
 // 게시글 수정
-router.put('/:postId', authMiddleware, postController.updatePostWithImage)
+router.put(
+  '/post/:postId',
+  authMiddleware,
+  multerMiddleware.array('image'),
+  postController.updatePostImage
+);
 
 // 게시글 삭제
-router.delete('/:postId', authMiddleware, postController.deletePostWithImage)
+router.delete('/post/:postId', authMiddleware, postController.deletePostImage);
+
+module.exports = router;

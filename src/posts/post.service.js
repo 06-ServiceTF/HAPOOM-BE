@@ -1,199 +1,171 @@
-const PostRepository = require('./post.repository')
-const { sequelize } = require('../models')
-const { deleteImageFromS3 } = require('../middlewares/multerS3.middleware')
-
+const PostRepository = require('./post.repository');
+const CustomError = require('../middlewares/error.middleware');
+const { sequelize } = require('../models');
+const { deleteImage } = require('../middlewares/multer.middleware');
 class PostService {
+  postRepository = new PostRepository();
 
-  postRepository = new PostRepository()
-
-  //* 게시글 생성 part( 검토 완료 )
-  createPostWithImage = async (
-    userId,
-    images,
-    content,
-    // musicTitle,
-    // musicUrl,
-    // tag,
-    latitude,
-    longitude,
-    placeName
-  ) => {
-    
-    const transaction = await sequelize.transaction()
+  //* 게시글 생성
+  createPostImage = async (req) => {
+    const { email } = req.user;
+    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } =
+      req.body;
+    const images = req.files;
+    const transaction = await sequelize.transaction();
 
     try {
-      let imageLocation = []
-
-      for (const image in images) {
-        imageLocation.push(images[image][0].location)
+      // image.path 추출
+      let imageUrl = [];
+      for (let image of images) {
+        imageUrl.push(image.path);
+        // multer-s3용
+        // imageUrl.push(req.protocol + req.get('host') + image.path)
       }
-    
-      // // 1
-      // imageLocation = [
-      //   'https://hapoomimagebucket.s3.ap-northeast-2.amazonaws.com/images/1691342208912_multer.png'
-      // ]
 
-      // // 2
-      // imageLocation = [
-      //   'https://hapoomimagebucket.s3.ap-northeast-2.amazonaws.com/images/1691374525807_CI%3ACD.png',
-      //   'https://hapoomimagebucket.s3.ap-northeast-2.amazonaws.com/images/1691374525808_Docker.png'
-      // ]
-
-      // console.log('imageUrl', imageLocation)
-      const createPostWithImage
-      = await this.postRepository.createPostWithImage(
-        userId, 
-        imageLocation, 
-        content, 
-        latitude, 
-        longitude, 
+      // 게시물 및 이미지 생성
+      const createPostImage = await this.postRepository.createPostImage(
+        email,
+        content,
+        musicTitle,
+        musicUrl,
+        tag,
+        latitude,
+        longitude,
         placeName,
+        imageUrl,
         transaction
-        )
+      );
 
-      await transaction.commit()
+      await transaction.commit();
+      return createPostImage;
     } catch (err) {
-      await transaction.rollback()
-      console.log('createPostWithImage', err)
+      await transaction.rollback();
+      console.log(err);
     }
   };
 
-    //* 게시글 상세 조회 part (검토 완료)
-    findPostWithImage = async (postId, userId) => {
-  
-      const item = await this.postRepository.findPostWithImage(postId, userId)
-      
-      return {
-        userId: item.userId,
-        postId: item.postId,
-        content: item.content,
-        latitude: item.latitude,
-        longitude: item.longitude,
-        private: item.private,
-        url: item['Images.url'],
-        nickname: item["User.nickname"],
-        userImage: item["User.userImage"],
-        isLiked: item.isLiked,
-        likeCount: item.likeCount,
-        // comments를 객체형태로 줘보자
-        comment: item.Comments
-      }
-  };
+  //* 게시글 상세보기
+  readPost = async (req) => {
+    const { email } = req.user;
+    const { postId } = req.params;
 
-   //* 게시글 수정 part <-리팩토링 필요
-   // images 분해해서 location 속성 꺼내야 함
-   // transaction 적용 필요
-   updatePostWithImage = async (
-    postId,
-    userId,
-    content,
-    latitude,
-    longitude,
-    placeName,
-    images
-    ) => {
-      const transaction = await sequelize.transaction()
+    const readPost = await this.postRepository.readPost(email, postId);
 
-      try {
-        // images = req.files url과 location 배열로 가공
-        let url = [] // 수정된 이미지들 중 기존 DB에 있던 이미지들
-        let location = [] // 수정된 이미지들 중 추가된 이미지들
-
-        for (const image in images) {
-          url.push(images[image][0].url)
-        }
-
-        for (const image in images) {
-          location.push(images[image][0].location)
-        }
-
-        const totalImage = url.concat(location)
-        // 수정되는 이미지
-        let updateImageArray = totalImage.filter(item => Boolean(item) == true)
-
-        // findImages // 배열값 [{url: '첫 번째 이미지 url'}, {url: '두 번째 이미지 url'}]
-        const findImageUrl = await this.postRepository(postId, userId, transaction)
-
-        let deleteImageS3 = [] // 기존 DB 이미지들 중, 삭제되는 이미지들
-
-        for (const image of findImageUrl) {
-          deleteImageS3.push(image.url)
-        }
-
-        // S3 버킷 삭제 이미지 url
-        let deleteImageFromS3 = []
-        for (let i = 0; i < deleteImageS3.length; i++) {
-          if ( updateImageArray.indexOf(deleteImageS3[i]) == -1) {
-            deleteImageFromS3.push(deleteImageS3[i])
-          }
-        }
-
-        // S3 버킷 삭제
-        const deleteS3 = deleteImageFromS3.map(async(image) => {
-          return await deleteImageFromS3(image)
-        })
-
-        // update 로직
-        const updatePostWithImage = this.postRepository.updatePostWithImage(
-          postId,
-          userId,
-          content, 
-          latitude, 
-          longitude, 
-          placeName, 
-          updateImageArray, // 배열 ['url1', 'url2', ...]
-          transaction
-        )
-
-        await transaction.commit()
-
-        return updatePostWithImage
-      } catch (err) {
-        await transaction.rollback()
-        console.log('updatePostWithImage', err)
-      }
-     
+    return {
+      userId: readPost.dataValues.userId,
+      postId: readPost.dataValues.postId,
+      content: readPost.dataValues.content,
+      latitude: readPost.dataValues.latitude,
+      longitude: readPost.dataValues.longitude,
+      private: readPost.dataValues.private,
+      images: readPost.dataValues.Images,
+      nickname: readPost.User.nickname,
+      userImage: readPost.User.userImage,
+      isLiked: readPost.isLiked,
+      likeCount: readPost.likeCount,
     };
-
-  //* 게시글 삭제 part (검토 완료)
-  deletePostWithImage = async(postId, userId) => {
-    // Images테이블 url 찾기
-    const findImageKey = await this.postRepository.findImageKey(
-      postId,
-      userId
-    )
-    
-    // S3 버킷 삭제할 image.path 추출
-    let filePath = []
-    findImageKey.forEach(image => {
-      // URL()에서 파일 경로 추출
-      const urlParts = new URL(image["dataValues"]["url"]) // new URL(url)
-      const decodedPath = decodeURIComponent(urlParts.pathname.substring(1)); // 디코딩된 문자열 다시 인코딩
-      filePath.push(decodedPath);
-    })
-    // console.log('filePath', filePath)
-
-    // S3버킷 삭제 ( 재검토 필요)
-    const deleteS3 = filePath.map( async(url) => {
-      return await deleteImageFromS3(url)
-    })
-
-    // 게시글 삭제
-    const deletePostWithImage = await this.postRepository.deletePostWithImage(
-      postId,
-      userId
-    )
-
-    return deletePostWithImage
   };
 
-  //* 게시글 수정 및 삭제 권한 part
-  confirmRight = async(postId, userId) => {
-    const confirmRight = await this.postRepository(postId, userId)
-    return confirmRight
+  //* 게시글 수정하기
+  updatePostImage = async (req, email) => {
+    const { postId } = req.params;
+    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } =
+      req.body;
+    const images = req.files;
+    const transaction = await sequelize.transaction();
+
+    try {
+      // 이미지 데이터 가공
+
+      // 1. update용 이미지 url
+      // : update 시, 프론트에서 url에 image.path를 담아서 준다.
+      let imageUrl = [];
+      for (let image of images) {
+        imageUrl.push(image.url);
+        // multer-s3용
+        // imageUrl.push(req.protocol + req.get('host') + image.path)
+      }
+
+      // DB에서 기존 이미지 url 찾기
+      const findUrl = await this.postRepository.findUrl(
+        email,
+        postId,
+        transaction
+      );
+
+      // multer 이미지 삭제
+      const multerDelete = await sequelize.transaction(async (t) => {
+        return findUrl.map((image) => {
+          return deleteImage(image.dataValues.url);
+        });
+      });
+
+      // 게시글 수정
+      const updatePostImage = await this.postRepository.updatePostImage(
+        email,
+        postId,
+        content,
+        musicTitle,
+        musicUrl,
+        tag,
+        latitude,
+        longitude,
+        placeName,
+        imageUrl,
+        transaction
+      );
+
+      await transaction.commit();
+      return updatePostImage;
+    } catch (err) {
+      await transaction.rollback();
+      console.log(err);
+    }
   };
 
-};
+  //* 게시글 삭제하기
+  deletePostImage = async (req, email) => {
+    const { postId } = req.params;
+    const transaction = await sequelize.transaction();
 
+    try {
+      // DB에서 기존 이미지 url 찾기
+      const findUrl = await this.postRepository.findUrl(
+        email,
+        postId,
+        transaction
+      );
 
-module.exports = PostService
+      // multer 이미지 삭제
+      const multerDelete = await sequelize.transaction(async (t) => {
+        return findUrl.map((image) => {
+          return deleteImage(image.dataValues.url);
+        });
+      });
+
+      // 게시글 삭제
+      const deletePostImage = await this.postRepository.deletePostImage(
+        email,
+        postId,
+        transaction
+      );
+
+      await transaction.commit();
+      return deletePostImage;
+    } catch (err) {
+      await transaction.rollback();
+      console.log(err);
+    }
+  };
+
+  //* 로그인 권한 유무 확인
+  confirmUser = async (req, email) => {
+    const { postId } = req.params;
+
+    const confirmUser = await this.postRepository.confirmUser(email, postId);
+
+    return confirmUser;
+  };
+}
+
+module.exports = PostService;
