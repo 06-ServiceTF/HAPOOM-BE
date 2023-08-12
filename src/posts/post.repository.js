@@ -135,16 +135,14 @@ class PostRepository {
 
       return readPost;
     }
-    // console.log('readPost', readPost)
-    // console.log('readPost.LIkes', readPost.dataValues.Likes) // 값이 없다면 빈 배열
-
-    // 좋아요가 아무것도 없다면 에러가 발생하니까 에러가 안나게 처리를 해줘야 함
-    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0])// undefined
-    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0].dataValues.likeCount)
+    // 게시글 작성자 userId와 사용자 email userId 비교 필요
+    const user = Users.findOne({
+      where: { email: email}
+    })
 
     // 좋아요 유무 확인
     const isLiked = readPost.dataValues.Likes.some((like) => {
-      return like.dataValues.userId == readPost.dataValues.userId;
+      return like.dataValues.userId == user.dataValues.userId;
     });
     readPost.isLiked = isLiked;
 
@@ -153,6 +151,13 @@ class PostRepository {
     readPost.likeCount = likeCount;
 
     return readPost;
+
+    // console.log('readPost', readPost)
+    // console.log('readPost.LIkes', readPost.dataValues.Likes) // 값이 없다면 빈 배열
+
+    // 좋아요가 아무것도 없다면 에러가 발생하니까 에러가 안나게 처리를 해줘야 함
+    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0])// undefined
+    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0].dataValues.likeCount)
   };
 
   //* 게시글 수정하기

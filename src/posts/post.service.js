@@ -16,9 +16,9 @@ class PostService {
       // image.path 추출
       let imageUrl = [];
       for (let image of images) {
-        imageUrl.push(image.path);
+        // imageUrl.push(image.path);
         // multer-s3용
-        // imageUrl.push(req.protocol + req.get('host') + image.path)
+        imageUrl.push(req.protocol + req.get('host') + image.path)
       }
 
       // 게시물 및 이미지 생성
@@ -45,7 +45,7 @@ class PostService {
 
   //* 게시글 상세보기
   readPost = async (req) => {
-    const { email } = req.user;
+    const { email } = req.user
     const { postId } = req.params;
 
     const readPost = await this.postRepository.readPost(email, postId);
