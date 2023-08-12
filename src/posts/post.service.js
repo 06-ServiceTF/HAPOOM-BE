@@ -8,8 +8,7 @@ class PostService {
   //* 게시글 생성
   createPostImage = async (req) => {
     const { email } = req.user;
-    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } =
-      req.body;
+    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
     const images = req.files;
     const transaction = await sequelize.transaction();
 
@@ -69,8 +68,7 @@ class PostService {
   //* 게시글 수정하기
   updatePostImage = async (req, email) => {
     const { postId } = req.params;
-    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } =
-      req.body;
+    let { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
     const images = req.files;
     const transaction = await sequelize.transaction();
 
@@ -85,6 +83,7 @@ class PostService {
         // multer-s3용
         // imageUrl.push(req.protocol + req.get('host') + image.path)
       }
+
 
       // DB에서 기존 이미지 url 찾기
       const findUrl = await this.postRepository.findUrl(
@@ -141,7 +140,7 @@ class PostService {
         return findUrl.map((image) => {
           return deleteImage(image.dataValues.url);
         });
-      });
+      }); // 트랜잭션을 빼기, 강제로 에러를 발생 시켜서 테스트 해보기, throw문과 파일명을 일부러 다르게 해보기 음...
 
       // 게시글 삭제
       const deletePostImage = await this.postRepository.deletePostImage(

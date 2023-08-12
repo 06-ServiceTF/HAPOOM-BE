@@ -6,20 +6,25 @@ module.exports = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // req.user = decoded;
+    req.user = { email: 'test@naver.com'}
 
-    // 이메일로 사용자 찾기
-    const user = await Users.findOne({ where: { email: decoded.email } });
+    // // 이메일로 사용자 찾기
+    // const user = await Users.findOne({ where: { email: decoded.email } });
 
-    // 찾은 사용자를 res.locals.user에 등록
-    if (user) {
-      res.locals.user = user;
-      next();
-    } else {
-      res.status(404).send('User not found.');
-    }
+    // // 찾은 사용자를 res.locals.user에 등록
+    // if (user) {
+    //   res.locals.user = user;
+    //   next();
+    // } else {
+    //   res.status(404).send('User not found.');
+    // }
+
+    res.locals.user = { userId: 2 }
+    next()
   } catch (ex) {
+    console.log(ex)
     res.status(502).send('Invalid token.');
   }
 }

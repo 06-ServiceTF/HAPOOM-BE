@@ -6,6 +6,7 @@ class PostController {
 
   //* 게시글 생성(완료)
   createPostImage = async (req, res, next) => {
+    console.log(1)
     try {
       const createPostImage = await this.postService.createPostImage(req);
 
