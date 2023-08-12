@@ -8,41 +8,41 @@ const {
 } = require('../models');
 
 class ProfileRepository {
-  userInfo = async (userId) => {
+  userInfo = async (email) => {
     const user = await Users.findOne({
-      where: { userId },
+      where: { email },
       attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
     });
     return user;
   };
 
-  findUser = async (userId) => {
+  findUser = async (email) => {
     const user = await Users.findOne({
-      where: { userId },
+      where: { email },
       attributes: { exclude: ['preset', 'password', 'createdAt', 'updatedAt'] },
     });
     return user;
   };
 
-  postsCount = async (userId) => {
+  postsCount = async (email) => {
     const postsCount = await Posts.count({
-      where: { userId },
+      where: { email },
     });
     return postsCount;
   };
 
-  likePostsCount = async (userId) => {
+  likePostsCount = async (email) => {
     const likePostsCount = await Likes.count({
-      where: { userId },
+      where: { email },
     });
     return likePostsCount;
   };
 
   // 유저가 작성한 게시글 가져오기
-  userPosts = async (userId, loggedInUserId) => {
+  userPosts = async (email, loggedInUserId) => {
     const whereCondition = {
-      userId,
-      private: loggedInUserId === userId ? [true, false] : false,
+      email,
+      private: loggedInUserId === email ? [true, false] : false,
     };
 
     const userPosts = await Posts.findAll({
@@ -56,12 +56,12 @@ class ProfileRepository {
   };
 
   // 유저가 좋아요를 누른 게시글 가져오기
-  userLikedPosts = async (userId) => {
+  userLikedPosts = async (email) => {
     const likedPosts = await Posts.findAll({
       include: [
         {
           model: Likes,
-          where: { userId },
+          where: { email },
         },
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },

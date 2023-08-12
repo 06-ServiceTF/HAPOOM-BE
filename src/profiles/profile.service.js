@@ -5,13 +5,13 @@ const bcrypt = require('bcrypt');
 class ProfileService {
   profileRepository = new ProfileRepository();
 
-  userInfo = async (userId) => {
-    const user = await this.profileRepository.userInfo(userId);
+  userInfo = async (email) => {
+    const user = await this.profileRepository.userInfo(email);
     return user;
   };
 
-  updateInfo = async (userId, updateData, imageUrl) => {
-    const user = await this.profileRepository.userInfo(userId);
+  updateInfo = async (email, updateData, imageUrl) => {
+    const user = await this.profileRepository.userInfo(email);
 
     if (!user) throw new Error('유저를 찾을 수 없습니다.', 404);
 
@@ -33,21 +33,21 @@ class ProfileService {
     return user;
   };
 
-  userprofile = async (userId, loggedInUserId) => {
-    const findUser = await this.profileRepository.findUser(userId);
+  userprofile = async (email, loggedInUserId) => {
+    const findUser = await this.profileRepository.findUser(email);
     if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
-    const postsCount = await this.profileRepository.postsCount(userId);
-    const likePostsCount = await this.profileRepository.likePostsCount(userId);
+    const postsCount = await this.profileRepository.postsCount(email);
+    const likePostsCount = await this.profileRepository.likePostsCount(email);
 
     const findPosts = await this.profileRepository.userPosts(
-      userId,
+      email,
       loggedInUserId
     );
     const userPosts = findPosts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.userId,
+        email: post.email,
         nickname: post.User.nickname,
         // content: post.content,
         // latitude: post.latitude,
@@ -65,11 +65,11 @@ class ProfileService {
 
     // const userLikedPosts = await this.userprofileRepository.userLikedPosts(userId);
 
-    const findLikedPosts = await this.profileRepository.userLikedPosts(userId);
+    const findLikedPosts = await this.profileRepository.userLikedPosts(email);
     const userLikedPosts = findLikedPosts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.userId,
+        email: post.email,
         nickname: post.User.nickname,
         // content: post.content,
         // latitude: post.latitude,

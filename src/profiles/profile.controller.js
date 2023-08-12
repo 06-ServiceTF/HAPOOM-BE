@@ -5,8 +5,8 @@ class ProfileController {
 
   userInfo = async (req, res, next) => {
     try {
-      const { userId } = res.locals.user;
-      const user = await this.profileService.userInfo(userId);
+      const { email } = res.locals.user;
+      const user = await this.profileService.userInfo(email);
       return res.status(200).json({ user });
     } catch (error) {
       console.log(error);
@@ -16,13 +16,13 @@ class ProfileController {
 
   updateInfo = async (req, res, next) => {
     try {
-      const { userId } = res.locals.user;
+      const { email } = res.locals.user;
       const imageUrl = req.file
         ? req.protocol + '://' + req.get('host') + '/' + req.file.path
         : null;
 
       const updateInfo = await this.profileService.updateInfo(
-        userId,
+        email,
         req.body,
         imageUrl
       );
