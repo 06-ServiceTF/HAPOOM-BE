@@ -9,14 +9,53 @@ const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
 const initializeLocalPassport = require('./src/passports/local.passport');
 const path = require("path"); // 경로는 해당 모듈의 위치에 따라 달라집니다.
+const http = require('http');
+const socketIo = require('socket.io');
 
 require("dotenv").config();
 
+
 const app = express();
+const server = http.createServer(app);
+const io = socketIo(server,{
+  cors:{
+    origin:['http://localhost:3000','http://localhost:3001']
+  }
+});
+app.set('io', io);
 const origin = process.env.ORIGIN
 
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  // 클라이언트에서 "post-created" 이벤트를 수신하면, 모든 클라이언트에게 알림을 보냅니다.
+  socket.on('post-created', (data) => {
+    io.emit('notify-post', { user: data.user, message: 'New post created!' });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+const posts = [
+  { title: 'Post 1', content: 'Content 1' },
+  { title: 'Post 2', content: 'Content 2' },
+  { title: 'Post 3', content: 'Content 3' },
+];
+
+// 모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
+setInterval(() => {
+  const randomPosts = [];
+  for (let i = 0; i < 3; i++) {
+    const randomIndex = Math.floor(Math.random() * posts.length);
+    randomPosts.push(posts[randomIndex]);
+  }
+  io.emit('random-posts', randomPosts);
+}, 12000);
+
 app.use(cors({
-  origin:origin,
+  origin:['http://localhost:3000','http://localhost:3001'],
   credentials:true,
 }))
 app.use(cookieParser(process.env.SESSION_SECRET));
@@ -58,7 +97,7 @@ app.use(passport.session()); // req.session 객체에 passport 정보를 저장�
 // passport.session()이 실행되면, 세션쿠키 정보 바탕으로 passport의 deserializeUser 메서드가 실행된다.
 
 
-app.listen(process.env.PORT || 3001, (req, res) => {
+server.listen(process.env.PORT || 3001, (req, res) => {
   console.log(`http://localhost:${process.env.PORT}`);
 });
 
