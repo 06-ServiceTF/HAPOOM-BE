@@ -18,7 +18,7 @@ class PostService {
       for (let image of images) {
         // imageUrl.push(image.path);
         // multer-s3용
-        imageUrl.push(req.protocol + req.get('host') + image.path)
+        imageUrl.push(req.protocol + '://' + req.get('host') + '/' +image.path)
       }
 
       // 게시물 및 이미지 생성
