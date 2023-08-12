@@ -38,8 +38,7 @@ app.use('/',express.static(path.join(__dirname, 'uploads')));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/server', routes)
-// app.use('/api', routes);
+app.use('/api', routes);
 // app.use('/test', testRouter)
 //app.use("/auth", authRouter);  // 이 부분이 추가되어야 합니다.
 
