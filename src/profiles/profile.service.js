@@ -13,14 +13,12 @@ class ProfileService {
   updateInfo = async (userId, updateData, imageUrl) => {
     const user = await this.profileRepository.userInfo(userId);
 
-    if (!user) {
-      throw new Error('User not found');
-    }
-  
+    if (!user) throw new Error('유저를 찾을 수 없습니다.', 404);
+
     if (imageUrl) {
       user.userImage = imageUrl;
     }
-  
+
     const updates = Object.keys(updateData);
     for (const update of updates) {
       if (update === 'password') {
@@ -30,7 +28,7 @@ class ProfileService {
         user[update] = updateData[update];
       }
     }
-  
+
     await user.save();
     return user;
   };
