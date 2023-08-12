@@ -1,8 +1,37 @@
 const ProfileRepository = require('./profile.repository');
 const CustomError = require('../middlewares/error.middleware');
+const bcrypt = require('bcrypt');
 
 class ProfileService {
   profileRepository = new ProfileRepository();
+
+  userInfo = async (userId) => {
+    const user = await this.profileRepository.userInfo(userId);
+    return user;
+  };
+
+  updateInfo = async (userId, updateData, imageUrl) => {
+    const user = await this.profileRepository.userInfo(userId);
+
+    if (!user) throw new Error('유저를 찾을 수 없습니다.', 404);
+
+    if (imageUrl) {
+      user.userImage = imageUrl;
+    }
+
+    const updates = Object.keys(updateData);
+    for (const update of updates) {
+      if (update === 'password') {
+        const hashedPassword = await bcrypt.hash(updateData[update], 10);
+        user[update] = hashedPassword;
+      } else {
+        user[update] = updateData[update];
+      }
+    }
+
+    await user.save();
+    return user;
+  };
 
   userprofile = async (userId, loggedInUserId) => {
     const findUser = await this.profileRepository.findUser(userId);

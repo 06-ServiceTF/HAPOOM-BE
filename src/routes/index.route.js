@@ -16,8 +16,10 @@ router.use('/auth', authRouter);
 router.use('/main', mainRouter);
 // 유저 프로필 관련
 router.use('/user', userRouter);
-// 게시글, 댓글, 좋아요 신고 관련
-router.use('/post', [postRouter, commentRouter, likeRouter, reportRouter]);
+// 게시글, 댓글, 좋아요 관련
+router.use('/post', [postRouter, commentRouter, likeRouter]);
+// 신고 관련
+router.use('/report', reportRouter);
 // 유틸 관련 API
 router.use('/util', utilRouter);
 

@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const UserprofileController = require('./profile.controller');
-const userprofileController = new UserprofileController();
+const ProfileController = require('./profile.controller');
+const profileController = new ProfileController();
 
-router.get('/profile/:userId', userprofileController.userprofile);
+router.get('/', profileController.userInfo)
+router.patch('/', profileController.updateInfo)
+router.get('/profile/:userId', profileController.userprofile);
 
 module.exports = router;

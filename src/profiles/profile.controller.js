@@ -3,6 +3,36 @@ const ProfileService = require('./profile.service');
 class ProfileController {
   profileService = new ProfileService();
 
+  userInfo = async (req, res, next) => {
+    try {
+      const { userId } = res.locals.user;
+      const user = await this.profileService.userInfo(userId);
+      return res.status(200).json({ user });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
+  updateInfo = async (req, res, next) => {
+    try {
+      const { userId } = res.locals.user;
+      const imageUrl = req.file
+        ? req.protocol + '://' + req.get('host') + '/' + req.file.path
+        : null;
+
+      const updateInfo = await this.profileService.updateInfo(
+        userId,
+        req.body,
+        imageUrl
+      );
+      return res.status(200).json({ updateInfo });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
   userprofile = async (req, res, next) => {
     try {
       // const req = { params: { userId: 5 }, user: { id: 5 } }; // 테스트용
