@@ -8,6 +8,14 @@ const {
 } = require('../models');
 
 class ProfileRepository {
+  userInfo = async (userId) => {
+    const user = await Users.findOne({
+      where: { userId },
+      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+    });
+    return user;
+  };
+
   findUser = async (userId) => {
     const user = await Users.findOne({
       where: { userId },
