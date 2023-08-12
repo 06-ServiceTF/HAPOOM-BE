@@ -4,6 +4,7 @@ const multer = require('multer');
 const axios = require("axios");
 const fs = require('fs');
 const jwt = require("jsonwebtoken");
+const authMiddleWare = require('../middlewares/auth.middleware');
 
 const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
 const bcrypt = require("bcrypt");
