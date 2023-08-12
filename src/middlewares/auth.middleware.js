@@ -3,7 +3,7 @@ const { Users } = require("../models");
 require("dotenv").config();
 
 module.exports = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers['Authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

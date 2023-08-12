@@ -16,7 +16,6 @@ class PostService {
       // image.path 추출
       let imageUrl = [];
       for (let image of images) {
-        // imageUrl.push(image.path);
         // multer-s3용
         imageUrl.push(req.protocol + '://' + req.get('host') + '/' +image.path)
       }
