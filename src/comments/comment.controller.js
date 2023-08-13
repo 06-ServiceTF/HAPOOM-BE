@@ -4,7 +4,7 @@ class CommentController {
   commentService = new CommentService();
 
   createComment = async (req, res, next) => {
-    const { email } = res.locals.user;
+    const { email } = req.user;
     const { postId } = req.params;
     const { comment } = req.body;
     try {
@@ -32,7 +32,7 @@ class CommentController {
   };
 
   updateComment = async (req, res, next) => {
-    const { email } = res.locals.user;
+    const { email } = req.user;
     const { postId, commentId } = req.params;
     const { comment } = req.body;
     try {
@@ -52,7 +52,7 @@ class CommentController {
   deleteComment = async (req, res, next) => {
     try {
       const { postId, commentId } = req.params;
-      const { email } = res.locals.user;
+      const { email } = req.user;
       const deleteComment = await this.commentService.deleteComment(
         postId,
         email,
