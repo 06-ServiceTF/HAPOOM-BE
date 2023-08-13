@@ -44,7 +44,6 @@ class AuthService {
         }
         const payload = {
           email: user.email,
-          userId: user.userId,
           exp: Math.floor(Date.now() / 1000) + (60 * 30),//30분
         };
         const refreshPayload = {

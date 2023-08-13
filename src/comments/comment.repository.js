@@ -12,13 +12,13 @@ class CommentRepository {
     return commentExists;
   };
 
-  findComment = async (userId, commentId) => {
-    const comment = await Comments.findOne({ where: { commentId, userId } });
+  findComment = async (email, commentId) => {
+    const comment = await Comments.findOne({ where: { commentId, email } });
     return comment;
   };
 
-  createComment = async (postId, userId, comment) => {
-    const createComment = await Comments.create({ postId, userId, comment });
+  createComment = async (postId, email, comment) => {
+    const createComment = await Comments.create({ postId, email, comment });
     return createComment;
   };
 
@@ -31,17 +31,17 @@ class CommentRepository {
     return getComments;
   };
 
-  updateComment = async (postId, userId, commentId, comment) => {
+  updateComment = async (postId, email, commentId, comment) => {
     const updateComment = await Comments.update(
       { comment },
-      { where: { [Op.and]: [{ postId }, { userId }, { commentId }] } }
+      { where: { [Op.and]: [{ postId }, { email }, { commentId }] } }
     );
     return updateComment;
   };
 
-  deleteComment = async (postId, userId, commentId) => {
+  deleteComment = async (postId, email, commentId) => {
     const deleteComment = await Comments.destroy({
-      where: { [Op.and]: [{ postId }, { userId }, { commentId }] },
+      where: { [Op.and]: [{ postId }, { email }, { commentId }] },
     });
     return deleteComment;
   };

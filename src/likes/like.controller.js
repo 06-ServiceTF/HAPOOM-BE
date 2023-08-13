@@ -6,8 +6,8 @@ class LikeController {
   clickLike = async (req, res, next) => {
     try {
       const { postId } = req.params;
-      const { userId } = res.locals.user;
-      const clickLike = await this.likeService.clickLike(postId, userId);
+      const { email } = res.locals.user;
+      const clickLike = await this.likeService.clickLike(postId, email);
 
       if (!clickLike) {
         return res.status(200).json({ message: '이 게시물에 대한 좋아요를 취소했습니다.' });

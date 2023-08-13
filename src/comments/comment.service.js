@@ -4,13 +4,10 @@ const CustomError = require('../middlewares/error.middleware');
 class CommentService {
   commentRepository = new CommentRepository();
 
-  createComment = async (postId, userId, comment) => {
-    // const postExists = await this.commentRepository.checkPostExists(postId);
-    // if (!postExists) throw new CustomError('게시글이 존재하지 않습니다.', 404);
-
+  createComment = async (postId, email, comment) => {
     const createComment = await this.commentRepository.createComment(
       postId,
-      userId,
+      email,
       comment
     );
     return createComment;
@@ -21,7 +18,7 @@ class CommentService {
     const commentList = getComments.map((comment) => {
       return {
         commentId: comment.commentId,
-        userId: comment.userId,
+        email: comment.email,
         nickname: comment.User.nickname,
         userImage: comment.User.userImage,
         comment: comment.comment,
@@ -32,7 +29,7 @@ class CommentService {
     return commentList;
   };
 
-  updateComment = async (postId, userId, commentId, comment) => {
+  updateComment = async (postId, email, commentId, comment) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
@@ -46,7 +43,7 @@ class CommentService {
     }
 
     const validateComment = await this.commentRepository.findComment(
-      userId,
+      email,
       commentId
     );
     if (!validateComment) {
@@ -55,14 +52,14 @@ class CommentService {
 
     const updatedComment = await this.commentRepository.updateComment(
       postId,
-      userId,
+      email,
       commentId,
       comment
     );
     return updatedComment;
   };
 
-  deleteComment = async (postId, userId, commentId) => {
+  deleteComment = async (postId, email, commentId) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
@@ -76,7 +73,7 @@ class CommentService {
     }
 
     const validateComment = await this.commentRepository.findComment(
-      userId,
+      email,
       commentId
     );
     if (!validateComment) {
@@ -85,7 +82,7 @@ class CommentService {
 
     const deleteComment = await this.commentRepository.deleteComment(
       postId,
-      userId,
+      email,
       commentId
     );
     return deleteComment;
