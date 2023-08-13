@@ -6,7 +6,7 @@ const passport = require("passport");
 const session = require("express-session");
 
 const routes = require('./src/routes/index.route');
-const testRouter = require('./src/test/test.route');
+// const testRouter = require('./src/test/test.route');
 const initializeLocalPassport = require('./src/passports/local.passport');
 const path = require("path"); // 경로는 해당 모듈의 위치에 따라 달라집니다.
 
@@ -39,7 +39,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/api', routes);
-app.use('/test', testRouter)
+// app.use('/test', testRouter)
 //app.use("/auth", authRouter);  // 이 부분이 추가되어야 합니다.
 
 //에러 핸들러
