@@ -1,6 +1,7 @@
 const ProfileRepository = require('./profile.repository');
 const CustomError = require('../middlewares/error.middleware');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 class ProfileService {
   profileRepository = new ProfileRepository();
@@ -10,30 +11,29 @@ class ProfileService {
     return user;
   };
 
-  updateInfo = async (email, updateData, imageUrl) => {
-    const user = await this.profileRepository.userInfo(email);
-
-    if (!user) throw new Error('유저를 찾을 수 없습니다.', 404);
-
-    if (imageUrl) {
-      user.userImage = imageUrl;
+  updateUser = async (token, file, body) => {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await this.profileRepository.findByEmail(decoded.email);
+    if (!user) {
+      throw new Error('User not found');
     }
-
-    const updates = Object.keys(updateData);
+    if (file) {
+      user.userImage =
+        file.protocol + '://' + file.get('host') + '/' + file.path;
+    }
+    const updates = Object.keys(body);
     for (const update of updates) {
       if (update === 'password') {
-        const hashedPassword = await bcrypt.hash(updateData[update], 10);
-        user[update] = hashedPassword;
+        user[update] = await bcrypt.hash(body[update], 10);
       } else {
-        user[update] = updateData[update];
+        user[update] = body[update];
       }
     }
-
-    await user.save();
+    await this.profileRepository.save(user);
     return user;
   };
 
-  userprofile = async (email, loggedInUserId) => {
+  userProfile = async (email, loggedInUserId) => {
     const findUser = await this.profileRepository.findUser(email);
     if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
@@ -49,15 +49,8 @@ class ProfileService {
         postId: post.postId,
         email: post.email,
         nickname: post.User.nickname,
-        // content: post.content,
-        // latitude: post.latitude,
-        // longitude: post.longitude,
         private: post.private,
         tag: post.tag,
-        // musicTitle: post.musicTitle,
-        // musicUrl: post.musicUrl,
-        // placeName: post.placeName,
-        // createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
@@ -71,15 +64,8 @@ class ProfileService {
         postId: post.postId,
         email: post.email,
         nickname: post.User.nickname,
-        // content: post.content,
-        // latitude: post.latitude,
-        // longitude: post.longitude,
         private: post.private,
         tag: post.tag,
-        // musicTitle: post.musicTitle,
-        // musicUrl: post.musicUrl,
-        // placeName: post.placeName,
-        // createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };

@@ -24,6 +24,13 @@ class ProfileRepository {
     return user;
   };
 
+  findByEmail = (email) => {
+    return Users.findOne({ where: { email: email } });
+  };
+  save = (user) => {
+    return user.save();
+  };
+
   postsCount = async (email) => {
     const postsCount = await Posts.count({
       where: { email },

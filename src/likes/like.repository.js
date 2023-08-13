@@ -1,4 +1,4 @@
-const { Posts, Likes } = require('../models');
+const { Posts, Likes, Users } = require('../models');
 const { Op } = require('sequelize');
 
 class LikeRepository {
@@ -8,23 +8,38 @@ class LikeRepository {
   };
 
   existLike = async (postId, email) => {
+    const user = await Users.findOne({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
     const existLike = await Likes.findOne({
       where: {
-        [Op.and]: [{ postId }, { email }],
+        [Op.and]: [{ postId }, { userId: user.userId }],
       },
     });
     return existLike;
   };
 
   addLike = async (postId, email) => {
-    const addLike = await Likes.create({ postId, email });
+    const user = await Users.findOne({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
+    const addLike = await Likes.create({ postId, userId: user.userId });
     return addLike;
   };
 
   removeLike = async (postId, email) => {
+    const user = await Users.findOne({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
     const removeLike = await Likes.destroy({
       where: {
-        [Op.and]: [{ postId }, { email }],
+        [Op.and]: [{ postId }, { userId: user.userId }],
       },
     });
     return removeLike;
