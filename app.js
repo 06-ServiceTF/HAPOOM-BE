@@ -45,14 +45,14 @@ const posts = [
 ];
 
 // 모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
-setInterval(() => {
-  const randomPosts = [];
-  for (let i = 0; i < 3; i++) {
-    const randomIndex = Math.floor(Math.random() * posts.length);
-    randomPosts.push(posts[randomIndex]);
-  }
-  io.emit('random-posts', randomPosts);
-}, 12000);
+// setInterval(() => {
+//   const randomPosts = [];
+//   for (let i = 0; i < 3; i++) {
+//     const randomIndex = Math.floor(Math.random() * posts.length);
+//     randomPosts.push(posts[randomIndex]);
+//   }
+//   io.emit('random-posts', randomPosts);
+// }, 12000);
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001'],
@@ -72,6 +72,8 @@ app.use(
   })
 );
 
+app.use('/publicMusic', express.static('publicMusic'));
+app.use('/',express.static(path.join(__dirname, 'publicMusic')));
 app.use('/uploads', express.static('uploads'));
 app.use('/',express.static(path.join(__dirname, 'uploads')));
 app.use(morgan("dev"));
