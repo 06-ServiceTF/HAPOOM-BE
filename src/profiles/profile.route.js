@@ -35,6 +35,6 @@ router.get('/', authMiddleware, profileController.userInfo);
 // router.patch('/', authMiddleware, profileController.updateInfo);
 router.patch('/', upload, profileController.updateUser);
 // router.get('/profile', authMiddleware, profileController.myProfile);
-router.get('/profile/:userId', profileController.userProfile);
+router.get('/profile/:userId', authMiddleware, profileController.userProfile);
 
 module.exports = router;

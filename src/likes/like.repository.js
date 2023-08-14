@@ -37,12 +37,11 @@ class LikeRepository {
       return null;
     }
 
-    const removeLike = await Likes.destroy({
+    await Likes.destroy({
       where: {
         [Op.and]: [{ postId }, { userId: user.userId }],
       },
     });
-    return removeLike;
   };
 }
 

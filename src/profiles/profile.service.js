@@ -56,8 +56,6 @@ class ProfileService {
       };
     });
 
-    // const userLikedPosts = await this.userprofileRepository.userLikedPosts(email);
-
     const findLikedPosts = await this.profileRepository.userLikedPosts(email);
     const userLikedPosts = findLikedPosts.map((post) => {
       return {

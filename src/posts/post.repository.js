@@ -136,10 +136,10 @@ class PostRepository {
       return readPost;
     }
     // 게시글 작성자 userId와 사용자 email userId 비교 필요
-    const user = Users.findOne({
+    const user = await Users.findOne({
       where: { email: email}
     })
-
+    console.log(user)
     // 좋아요 유무 확인
     const isLiked = readPost.dataValues.Likes.some((like) => {
       return like.dataValues.userId == user.dataValues.userId;
