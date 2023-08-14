@@ -3,6 +3,7 @@ const CommentService = require('./comment.service');
 class CommentController {
   commentService = new CommentService();
 
+  // 댓글 생성
   createComment = async (req, res, next) => {
     const { email } = req.user;
     const { postId } = req.params;
@@ -20,6 +21,7 @@ class CommentController {
     }
   };
 
+  // 게시글의 댓글 전체 조회
   getComments = async (req, res, next) => {
     const { postId } = req.params;
     try {
@@ -31,6 +33,7 @@ class CommentController {
     }
   };
 
+  // 댓글 수정
   updateComment = async (req, res, next) => {
     const { email } = req.user;
     const { postId, commentId } = req.params;
@@ -49,6 +52,7 @@ class CommentController {
     }
   };
 
+  // 댓글 삭제
   deleteComment = async (req, res, next) => {
     try {
       const { postId, commentId } = req.params;

@@ -4,7 +4,11 @@ const CustomError = require('../middlewares/error.middleware');
 class CommentService {
   commentRepository = new CommentRepository();
 
+  // 댓글 생성
   createComment = async (postId, email, comment) => {
+    if (!comment || comment.trim() === '') {
+      throw new Error('Comment cannot be empty');
+    }
     const createComment = await this.commentRepository.createComment(
       postId,
       email,
@@ -13,12 +17,13 @@ class CommentService {
     return createComment;
   };
 
+  // 게시글의 댓글 전체 조회
   getComments = async (postId) => {
     const getComments = await this.commentRepository.getComments(postId);
     const commentList = getComments.map((comment) => {
       return {
         commentId: comment.commentId,
-        email: comment.email,
+        email: comment.User.email,
         nickname: comment.User.nickname,
         userImage: comment.User.userImage,
         comment: comment.comment,
@@ -29,6 +34,7 @@ class CommentService {
     return commentList;
   };
 
+  // 댓글 수정
   updateComment = async (postId, email, commentId, comment) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {
@@ -59,6 +65,7 @@ class CommentService {
     return updatedComment;
   };
 
+  // 댓글 삭제
   deleteComment = async (postId, email, commentId) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {

@@ -7,7 +7,7 @@ const commentController = new CommentController();
 
 // 댓글 생성
 router.post('/:postId/comment', authMiddleware, commentController.createComment);
-// 게시글에 달린 댓글 조회
+// 게시글의 댓글 전체 조회
 router.get('/:postId/comment', commentController.getComments);
 // 댓글 수정
 router.put('/:postId/comment/:commentId', authMiddleware, commentController.updateComment);

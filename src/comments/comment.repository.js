@@ -2,25 +2,8 @@ const { Users, Posts, Comments } = require('../models');
 const { Op } = require('sequelize');
 
 class CommentRepository {
-  checkPostExists = async (postId) => {
-    const postExists = await Comments.findOne({ where: { postId } });
-    return postExists;
-  };
-
-  checkCommentExists = async (commentId) => {
-    const commentExists = await Comments.findOne({ where: { commentId } });
-    return commentExists;
-  };
-
-  findComment = async (email, commentId) => {
-    const comment = await Comments.findOne({ where: { commentId, email } });
-    return comment;
-  };
-
+  // 댓글 생성
   createComment = async (postId, email, comment) => {
-    if (!comment || comment.trim() === "") {
-      throw new Error("Comment cannot be empty");
-    }  
     const user = await Users.findOne({
       where: { email },
       attributes: ['userId'],
@@ -33,6 +16,7 @@ class CommentRepository {
     return createComment;
   };
 
+  // 게시글의 댓글 전체 조회
   getComments = async (postId) => {
     const getComments = await Comments.findAll({
       where: { postId },
@@ -42,6 +26,7 @@ class CommentRepository {
     return getComments;
   };
 
+  // 댓글 수정
   updateComment = async (postId, email, commentId, comment) => {
     const user = await Users.findOne({
       where: { email },
@@ -58,6 +43,7 @@ class CommentRepository {
     return updateComment;
   };
 
+  // 댓글 삭제
   deleteComment = async (postId, email, commentId) => {
     const user = await Users.findOne({
       where: { email },
@@ -71,5 +57,29 @@ class CommentRepository {
     return deleteComment;
   };
 }
+
+// 게시글 존재 여부
+checkPostExists = async (postId) => {
+  const postExists = await Comments.findOne({ where: { postId } });
+  return postExists;
+};
+
+// 댓글 존재 여부
+checkCommentExists = async (commentId) => {
+  const commentExists = await Comments.findOne({ where: { commentId } });
+  return commentExists;
+};
+
+// 권한 여부
+findComment = async (email, commentId) => {
+  const user = await Users.findOne({
+    where: { email },
+    attributes: ['userId'],
+  });
+  const comment = await Comments.findOne({
+    where: { commentId, userId: user.userId },
+  });
+  return comment;
+};
 
 module.exports = CommentRepository;
