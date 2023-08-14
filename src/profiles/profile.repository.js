@@ -78,7 +78,7 @@ class ProfileRepository {
       attributes: ['postId'],
     });
     const myLikedPosts = await Posts.findAll({
-      where: { postId: likePostIds.map((lp) => lp.postId) },
+      where: { postId: likePostIds.map((like) => like.postId) },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
     });
     return myLikedPosts;

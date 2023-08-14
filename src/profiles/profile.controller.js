@@ -32,7 +32,6 @@ class ProfileController {
   myProfile = async (req, res, next) => {
     try {
       const { email } = req.user;
-      // const email = 'qwer@gmail.com'
       const myProfile = await this.profileService.myProfile(email);
       res.status(200).json({
         user: myProfile.findUser,
