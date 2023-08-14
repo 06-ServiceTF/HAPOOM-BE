@@ -24,14 +24,6 @@ class PostRepository {
     imageUrl,
     transaction
   ) => {
-    // 게시글 test
-    content = "test"
-    musicTitle = "test"
-    musicUrl = "test"
-    tag = "[#test, #test, #test]"
-    latitude = 11.222
-    longitude = 11.222
-    placeName = "test"
 
     // email로 userId 찾기
     const user = await Users.findOne(
@@ -139,7 +131,6 @@ class PostRepository {
     const user = await Users.findOne({
       where: { email: email}
     })
-    console.log(user)
     // 좋아요 유무 확인
     const isLiked = readPost.dataValues.Likes.some((like) => {
       return like.dataValues.userId == user.dataValues.userId;

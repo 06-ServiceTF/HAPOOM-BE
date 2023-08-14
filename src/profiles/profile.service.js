@@ -33,22 +33,19 @@ class ProfileService {
     return user;
   };
 
-  userProfile = async (email, loggedInUserId) => {
+  myProfile = async (email) => {
     const findUser = await this.profileRepository.findUser(email);
     if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
     const postsCount = await this.profileRepository.postsCount(email);
     const likePostsCount = await this.profileRepository.likePostsCount(email);
 
-    const findPosts = await this.profileRepository.userPosts(
-      email,
-      loggedInUserId
-    );
+    const findPosts = await this.profileRepository.myPosts(email);
     const userPosts = findPosts.map((post) => {
       return {
         postId: post.postId,
         email: post.email,
-        nickname: post.User.nickname,
+        // nickname: post.User.nickname,
         private: post.private,
         tag: post.tag,
         updatedAt: post.updatedAt,
@@ -56,12 +53,12 @@ class ProfileService {
       };
     });
 
-    const findLikedPosts = await this.profileRepository.userLikedPosts(email);
+    const findLikedPosts = await this.profileRepository.myLikedPosts(email);
     const userLikedPosts = findLikedPosts.map((post) => {
       return {
         postId: post.postId,
         email: post.email,
-        nickname: post.User.nickname,
+        // nickname: post.User.nickname,
         private: post.private,
         tag: post.tag,
         updatedAt: post.updatedAt,
@@ -77,6 +74,51 @@ class ProfileService {
       userLikedPosts,
     };
   };
+
+  // userProfile = async (email, loggedInUserId) => {
+  //   // const findUser = await this.profileRepository.findUser(email);
+  //   // if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
+
+  //   const postsCount = await this.profileRepository.postsCount(email);
+  //   const likePostsCount = await this.profileRepository.likePostsCount(email);
+
+  //   const findPosts = await this.profileRepository.userPosts(
+  //     email,
+  //     loggedInUserId
+  //   );
+  //   const userPosts = findPosts.map((post) => {
+  //     return {
+  //       postId: post.postId,
+  //       email: post.email,
+  //       nickname: post.User.nickname,
+  //       private: post.private,
+  //       tag: post.tag,
+  //       updatedAt: post.updatedAt,
+  //       image: post.Images[0].url,
+  //     };
+  //   });
+
+  //   const findLikedPosts = await this.profileRepository.userLikedPosts(email);
+  //   const userLikedPosts = findLikedPosts.map((post) => {
+  //     return {
+  //       postId: post.postId,
+  //       email: post.email,
+  //       nickname: post.User.nickname,
+  //       private: post.private,
+  //       tag: post.tag,
+  //       updatedAt: post.updatedAt,
+  //       image: post.Images[0].url,
+  //     };
+  //   });
+
+  //   return {
+  //     findUser,
+  //     postsCount,
+  //     likePostsCount,
+  //     userPosts,
+  //     userLikedPosts,
+  //   };
+  // };
 }
 
 module.exports = ProfileService;
