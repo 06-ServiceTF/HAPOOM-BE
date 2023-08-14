@@ -18,7 +18,15 @@ class CommentRepository {
   };
 
   createComment = async (postId, email, comment) => {
-    const createComment = await Comments.create({ postId, email, comment });
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
+    const createComment = await Comments.create({
+      postId,
+      userId: user.userId,
+      comment,
+    });
     return createComment;
   };
 
@@ -32,16 +40,30 @@ class CommentRepository {
   };
 
   updateComment = async (postId, email, commentId, comment) => {
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
     const updateComment = await Comments.update(
       { comment },
-      { where: { [Op.and]: [{ postId }, { email }, { commentId }] } }
+      {
+        where: {
+          [Op.and]: [{ postId }, { userId: user.userId }, { commentId }],
+        },
+      }
     );
     return updateComment;
   };
 
   deleteComment = async (postId, email, commentId) => {
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
     const deleteComment = await Comments.destroy({
-      where: { [Op.and]: [{ postId }, { email }, { commentId }] },
+      where: {
+        [Op.and]: [{ postId }, { userId: user.userId }, { commentId }],
+      },
     });
     return deleteComment;
   };
