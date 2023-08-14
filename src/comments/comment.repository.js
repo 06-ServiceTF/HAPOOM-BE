@@ -18,6 +18,9 @@ class CommentRepository {
   };
 
   createComment = async (postId, email, comment) => {
+    if (!comment || comment.trim() === "") {
+      throw new Error("Comment cannot be empty");
+    }  
     const user = await Users.findOne({
       where: { email },
       attributes: ['userId'],
