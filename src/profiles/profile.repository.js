@@ -1,13 +1,7 @@
-const {
-  Posts,
-  Users,
-  Images,
-  Likes,
-  sequelize,
-  Sequelize,
-} = require('../models');
+const { Posts, Users, Images, Likes } = require('../models');
 
 class ProfileRepository {
+  // 유저 정보 조회
   userInfo = async (email) => {
     const user = await Users.findOne({
       where: { email },
@@ -16,14 +10,13 @@ class ProfileRepository {
     return user;
   };
 
+  // 유저 확인 (에러처리용)
   findUser = async (email) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: { exclude: ['preset', 'password', 'createdAt', 'updatedAt'] },
-    });
+    const user = await Users.findOne({ where: { email } });
     return user;
   };
 
+  // 유저 정보 수정
   findByEmail = (email) => {
     return Users.findOne({ where: { email: email } });
   };
@@ -31,48 +24,37 @@ class ProfileRepository {
     return user.save();
   };
 
+  // 마이페이지 작성 게시글 수
   postsCount = async (email) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-    });
+    const user = await Users.findOne({ where: { email } });
     const postsCount = await Posts.count({
       where: { userId: user.userId },
     });
     return postsCount;
   };
 
+  // 마이페이지 좋아요 누른 게시글 수
   likePostsCount = async (email) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-    });
+    const user = await Users.findOne({ where: { email } });
     const likePostsCount = await Likes.count({
       where: { userId: user.userId },
     });
     return likePostsCount;
   };
 
-  // 내가 작성한 게시글 가져오기
+  // 마이페이지 게시글 조회
   myPosts = async (email) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-    });
+    const user = await Users.findOne({ where: { email } });
     const myPosts = await Posts.findAll({
       where: { userId: user.userId },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
     });
-    // console.log(myPosts)
     return myPosts;
   };
 
-  // 내가 좋아요를 누른 게시글 가져오기
+  // 마이페이지 좋아요 게시글 조회
   myLikedPosts = async (email) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-    });
+    const user = await Users.findOne({ where: { email } });
     const likePostIds = await Likes.findAll({
       where: { userId: user.userId },
       attributes: ['postId'],
@@ -84,42 +66,55 @@ class ProfileRepository {
     return myLikedPosts;
   };
 
-  // // 유저가 작성한 게시글 가져오기
-  // userPosts = async (email, loggedInUserId) => {
-  //   const whereCondition = {
-  //     email,
-  //     private: loggedInUserId === email ? [true, false] : false,
-  //   };
+  // 유저프로필 유저 확인 (에러처리용)
+  getUser = async (userId) => {
+    const user = await Users.findOne({
+      where: { userId },
+      attributes: { exclude: ['userId','preset','password', 'createdAt', 'updatedAt'] },
+    });
+    return user;
+  };
 
-  //   const userPosts = await Posts.findAll({
-  //     where: whereCondition,
-  //     include: [
-  //       { model: Users, attributes: ['nickname'] },
-  //       { model: Images, attributes: ['url'], limit: 1 },
-  //     ],
-  //   });
-  //   return userPosts;
-  // };
+  // 유저페이지 작성 게시글 수
+  userPostsCount = async (userId) => {
+    const postsCount = await Posts.count({
+      where: { userId },
+    });
+    return postsCount;
+  };
 
-  // // 유저가 좋아요를 누른 게시글 가져오기
-  // userLikedPosts = async (email) => {
-  //   const likedPosts = await Posts.findAll({
-  //     include: [
-  //       {
-  //         model: Likes,
-  //         where: { email },
-  //       },
-  //       { model: Users, attributes: ['nickname'] },
-  //       { model: Images, attributes: ['url'], limit: 1 },
-  //     ],
-  //   });
+  // 유저페이지 좋아요 누른 게시글 수
+  userLikePostsCount = async (userId) => {
+    const likePostsCount = await Likes.count({
+      where: { userId },
+    });
+    return likePostsCount;
+  };
 
-  //   // private(true) 게시글은 제외하여 필터링
-  //   // likedPosts 배열을 순회 -> private = false인 경우만 filteredLikedPosts 배열에 남김
-  //   // !post.private 부분은 private 값이 false인 경우 true를 반환, private 값이 true인 경우 false를 반환
-  //   const filteredLikedPosts = likedPosts.filter((post) => !post.private);
-  //   return filteredLikedPosts;
-  // };
+  // 유저가 작성한 게시글 가져오기
+  userPosts = async (userId) => {
+    const userPosts = await Posts.findAll({
+      where: { userId, private: false },
+      include: [
+        { model: Users, attributes: ['nickname'] },
+        { model: Images, attributes: ['url'], limit: 1 },
+      ],
+    });
+    return userPosts;
+  };
+
+  // 유저가 좋아요를 누른 게시글 가져오기
+  userLikedPosts = async (userId) => {
+    const likedPosts = await Posts.findAll({
+      where: { userId, private: false },
+      include: [
+        { model: Likes, where: { userId } },
+        { model: Users, attributes: ['nickname'] },
+        { model: Images, attributes: ['url'], limit: 1 },
+      ],
+    });
+    return likedPosts;
+  };
 }
 
 module.exports = ProfileRepository;

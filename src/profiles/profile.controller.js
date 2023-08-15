@@ -3,6 +3,7 @@ const ProfileService = require('./profile.service');
 class ProfileController {
   profileService = new ProfileService();
 
+  // 유저 정보 조회
   userInfo = async (req, res, next) => {
     try {
       const { email } = req.user;
@@ -14,6 +15,7 @@ class ProfileController {
     }
   };
 
+  // 유저 정보 수정
   updateUser = async (req, res) => {
     try {
       const userUpdates = await this.profileService.updateUser(
@@ -29,6 +31,7 @@ class ProfileController {
     }
   };
 
+  // 마이페이지 조회
   myProfile = async (req, res, next) => {
     try {
       const { email } = req.user;
@@ -37,8 +40,8 @@ class ProfileController {
         user: myProfile.findUser,
         postsCount: myProfile.postsCount,
         likePostsCount: myProfile.likePostsCount,
-        posts: myProfile.userPosts,
-        likedPosts: myProfile.userLikedPosts,
+        posts: myProfile.myPosts,
+        likedPosts: myProfile.myLikedPosts,
       });
     } catch (error) {
       console.log(error);
@@ -46,28 +49,24 @@ class ProfileController {
     }
   };
 
-  // userProfile = async (req, res, next) => {
-  //   try {
-  //     const targetUserId = req.params.userId;
-  //     const loggedInUserId = req.user ? req.user.id : null;
-  //     // loggedInUserId가 로그인한 사용자의 ID를 가지고 있으면 해당 프로필 페이지를 조회할 때, 로그인하지 않은 경우(null)에는 public 게시글만 보여지도록 설정.
-  //     const profilePage = await this.profileService.userProfile(
-  //       targetUserId,
-  //       loggedInUserId
-  //     );
+  // 유저페이지 조회
+  userProfile = async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const profilePage = await this.profileService.userProfile(userId);
 
-  //     res.status(200).json({
-  //       user: profilePage.findUser,
-  //       postsCount: profilePage.postsCount,
-  //       likePostsCount: profilePage.likePostsCount,
-  //       posts: profilePage.userPosts,
-  //       likedPosts: profilePage.userLikedPosts,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     next(error);
-  //   }
-  // };
+      res.status(200).json({
+        user: profilePage.getUser,
+        postsCount: profilePage.userPostsCount,
+        likePostsCount: profilePage.userLikePostsCount,
+        posts: profilePage.userPosts,
+        likedPosts: profilePage.userLikedPosts,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
 }
 
 module.exports = ProfileController;

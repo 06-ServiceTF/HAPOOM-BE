@@ -31,10 +31,13 @@ const upload = multer({ storage: storage }).fields([
   { name: 'audio', maxCount: 1 },
 ]);
 
+// 유저 정보 조회
 router.get('/', authMiddleware, profileController.userInfo);
-// router.patch('/', authMiddleware, profileController.updateInfo);
+// 유저 정보 수정
 router.patch('/', upload, profileController.updateUser);
+// 마이페이지 조회
 router.get('/profile', authMiddleware, profileController.myProfile);
-// router.get('/profile/:userId', authMiddleware, profileController.userProfile);
+// 유저페이지 조회
+router.get('/profile/:userId', profileController.userProfile);
 
 module.exports = router;
