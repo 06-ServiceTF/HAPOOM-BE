@@ -34,9 +34,9 @@ const upload = multer({ storage: storage }).fields([
 // 유저 정보 조회
 router.get('/', authMiddleware, profileController.userInfo);
 // 유저 정보 수정
-router.patch('/', upload, profileController.updateUser);
+router.patch('/', authMiddleware, upload, profileController.updateUser);
 // 마이페이지 조회
-router.get('/profile', authMiddleware, profileController.myProfile);
+router.get('/myprofile', authMiddleware, profileController.myProfile);
 // 유저페이지 조회
 router.get('/profile/:userId', profileController.userProfile);
 
