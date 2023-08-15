@@ -68,6 +68,9 @@ module.exports = (sequelize, DataTypes) => {
       tag: {
         type: DataTypes.STRING
       },
+      musicType: {
+        type: DataTypes.INTEGER
+      },
       musicTitle: {
         type: DataTypes.STRING
       },

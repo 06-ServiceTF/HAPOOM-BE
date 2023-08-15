@@ -14,61 +14,11 @@ router.post("/signup", authController.signup);
 router.get("/token",authMiddleware, authController.getUserToken);
 router.get("/refreshtoken",reauthMiddleware, authController.refreshToken);
 router.get("/logout", authController.logout);
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-router.get(
-  "/google/callback",
-  passport.authenticate("google"),
-  (req, res) => {
-    const user = req.user;
-
-    //JWT 토큰 생성
-    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    })
-
-    res.cookie("lala", `Bearer ${token}`);
-
-    return res.status(200).json({ message: "로그인 성공", token });
-  }
-);
-
-router.get("/naver", passport.authenticate("naver")); // Naver로 변경
-router.get(
-  "/naver/callback",
-  passport.authenticate("naver"),
-  (req, res) => {
-    const user = req.user;
-
-    //JWT 토큰 생성
-    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    })
-
-    res.cookie("lala", `Bearer ${token}`);
-
-    return res.status(200).json({ message: "로그인 성공", token });
-  }
-);
-
-router.get("/kakao", passport.authenticate("kakao"));
-router.get(
-  "/kakao/callback",
-  passport.authenticate("kakao", { failureRedirect : "/login"}),
-  (req, res) => {
-    const user = req.user;
-
-    //JWT 토큰 생성
-    const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    })
-
-    res.cookie("lala", `Bearer ${token}`);
-
-    return res.status(200).json({ message: "로그인 성공", token });
-  }
-);
+router.get('/kakao', authController.kakaoLogin);
+router.get('/kakao/callback', authController.kakaoCallback);
+router.get('/naver', authController.naverLogin);
+router.get('/naver/callback', authController.naverCallback);
+router.get("/google", authController.googleLogin);
+router.get('/google/callback', authController.googleCallback);
 
 module.exports = router;
