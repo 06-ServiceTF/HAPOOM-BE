@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const axios = require("axios");
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const jwt = require("jsonwebtoken");
@@ -228,6 +228,175 @@ router.post('/post', upload, async (req, res) => {
   }
 });
 
+//postId의 모든 댓글 들고오기
+router.get('/post/comments/:postId', async (req, res) => {
+  try {
+    const comments = await Comments.findAll({where:{ postId: req.params.postId }});
+    res.send({ comments });
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
+  }
+});
+
+//postId 게시글에 댓글 작성하기
+router.post('/post/comment', async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // DB에서 사용자를 찾음
+    const user = await Users.findOne({ where: { email: decoded.email } });
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    const comment = await Comments.create({
+      content: req.body.content,
+      userId: user.dataValues.userId,
+      postId: req.body.postId
+    });
+    res.status(200);
+  } catch (error) {
+    console.error('Error get comments:', error);
+    res.status(500).send({ error: 'Error get comments' });
+  }
+});
+
+
+
+//게시글 상세보기
+router.get('/post/:postId', async (req, res) => {
+  try {
+    const postId = req.params.postId;
+
+    const post = await Posts.findOne({
+      where: {
+        postId: postId
+      }
+    });
+
+    const images = await Images.findAll({
+      where: {
+        postId: postId
+      }
+    });
+
+    if (!post) {
+      return res.status(404).send({ error: 'Post not found' });
+    }
+
+    res.send({post,images});
+
+  } catch (error) {
+    console.error('Error getting post:', error);
+    res.status(500).send({ error: 'Error getting post' });
+  }
+});
+
+// 게시글 수정기능
+router.put('/post/:postId', upload, async (req, res) => {
+  const { content,musicType, tag, latitude, longitude, placeName } = req.body;
+  const {postId} = req.params
+  let {musicUrl,musicTitle} = req.body
+  const images = req.files['image'];
+  const audio = req.files['audio'] ? req.files['audio'][0] : null;
+
+  console.log(req.body,req.params)
+
+  if (musicType==="2") {
+    switch (musicUrl){
+      case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`
+        musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]'
+        break;
+      case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`
+        musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]'
+        break;
+      case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`
+        musicTitle='AX.EL - In Love With a Ghost [NCS Release]'
+        break;
+      case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
+        musicTitle='Idle Days - Over It [NCS Release]'
+        break;
+      case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
+        musicTitle='ROY KNOX - Closer [NCS Release]'
+        break;
+    }
+  }
+
+  if (musicType==="3") {
+    musicTitle='녹음된 음원'
+    musicUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+  }
+
+  try {
+    // Find the existing post
+    const post = await Posts.findByPk(postId);
+
+    if (!post) {
+      return res.status(404).send({ error: 'Post not found' });
+    }
+
+    // Update the post
+    await post.update({
+      content,
+      musicTitle,
+      musicUrl,
+      latitude,
+      longitude,
+      placeName,
+      musicType,
+      private:false,
+      tag,
+    });
+
+    // Delete old images
+    await Records.destroy({
+      where: {
+        postId: postId
+      }
+    });
+
+    // Delete old images
+    await Images.destroy({
+      where: {
+        postId: postId
+      }
+    });
+
+    // Add new images
+    const imagePromises = images.map((image) => {
+      return Images.create({
+        url: req.protocol + '://' + req.get('host') + '/' + image.path, // 파일 경로를 URL로 변환
+        postId: postId,
+        userId: post.dataValues.userId
+      });
+    });
+
+    await Promise.all(imagePromises);
+
+    if (musicType==="3"&&audio) {
+      const audioUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+      try {
+        await Records.create({
+          url: audioUrl,
+          postId: post.dataValues.postId, // 예를 들어 관련 게시물의 ID
+          userId: post.dataValues.userId, // 예를 들어 사용자의 ID
+        });
+
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error uploading audio file' });
+      }
+    }
+
+    res.status(200).send({ message: 'Post updated' });
+  } catch(err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error updating post' });
+  }
+});
+
 //게시글 삭제
 router.delete('/post/:postId', async (req, res) => {
   const { postId } = req.params;
@@ -365,70 +534,6 @@ router.patch('/user', upload, async (req, res) => {
   }
 });
 
-//postId의 모든 댓글 들고오기
-router.get('/post/comments/:postId', async (req, res) => {
-  try {
-    const comments = await Comments.findAll({where:{ postId: req.params.postId }});
-    res.send({ comments });
-  } catch (error) {
-    console.error('Error get comments:', error);
-    res.status(500).send({ error: 'Error get comments' });
-  }
-});
-
-//postId 게시글에 댓글 작성하기
-router.post('/post/comment', async (req, res) => {
-  try {
-    const token = req.cookies.refreshToken;
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-
-    // DB에서 사용자를 찾음
-    const user = await Users.findOne({ where: { email: decoded.email } });
-    if (!user) {
-      return res.status(404).send({ error: 'User not found' });
-    }
-
-    const comment = await Comments.create({
-      content: req.body.content,
-      userId: user.dataValues.userId,
-      postId: req.body.postId
-    });
-    res.status(200);
-  } catch (error) {
-    console.error('Error get comments:', error);
-    res.status(500).send({ error: 'Error get comments' });
-  }
-});
-
-//게시글 상세보기
-router.get('/post/:postId', async (req, res) => {
-  try {
-    const postId = req.params.postId;
-
-    const post = await Posts.findOne({
-      where: {
-        postId: postId
-      }
-    });
-
-    const images = await Images.findAll({
-      where: {
-        postId: postId
-      }
-    });
-
-    if (!post) {
-      return res.status(404).send({ error: 'Post not found' });
-    }
-
-    res.send({post,images});
-
-  } catch (error) {
-    console.error('Error getting post:', error);
-    res.status(500).send({ error: 'Error getting post' });
-  }
-});
-
 // 좋아요 토글 api
 router.post('/post/:postId/like', async (req, res) => {
   const { postId } = req.params; // URL 파라미터에서 postId를 추출
@@ -472,108 +577,6 @@ router.post('/report/:postId', async (req, res) => {
   }
 });
 
-// 게시글 수정기능
-router.put('/post/:postId', upload, async (req, res) => {
-  const { content,musicType, tag, latitude, longitude, placeName } = req.body;
-  const {postId} = req.params
-  let {musicUrl,musicTitle} = req.body
-  const images = req.files['image'];
-  const audio = req.files['audio'] ? req.files['audio'][0] : null;
-
-  console.log(req.body,req.params)
-
-  if (musicType==="2") {
-    switch (musicUrl){
-      case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`
-        musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]'
-        break;
-      case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`
-        musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]'
-        break;
-      case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`
-        musicTitle='AX.EL - In Love With a Ghost [NCS Release]'
-        break;
-      case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
-        musicTitle='Idle Days - Over It [NCS Release]'
-        break;
-      case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
-        musicTitle='ROY KNOX - Closer [NCS Release]'
-        break;
-    }
-  }
-
-  if (musicType==="3") {
-    musicTitle='녹음된 음원'
-    musicUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
-  }
-
-  try {
-    // Find the existing post
-    const post = await Posts.findByPk(postId);
-
-    if (!post) {
-      return res.status(404).send({ error: 'Post not found' });
-    }
-
-    // Update the post
-    await post.update({
-      content,
-      musicTitle,
-      musicUrl,
-      latitude,
-      longitude,
-      placeName,
-      musicType,
-      private:false,
-      tag,
-    });
-
-    // Delete old images
-    await Records.destroy({
-      where: {
-        postId: postId
-      }
-    });
-
-    // Delete old images
-    await Images.destroy({
-      where: {
-        postId: postId
-      }
-    });
-
-    // Add new images
-    const imagePromises = images.map((image) => {
-      return Images.create({
-        url: req.protocol + '://' + req.get('host') + '/' + image.path, // 파일 경로를 URL로 변환
-        postId: postId,
-        userId: post.dataValues.userId
-      });
-    });
-
-    await Promise.all(imagePromises);
-
-    if (musicType==="3"&&audio) {
-      const audioUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
-      try {
-        await Records.create({
-          url: audioUrl,
-          postId: post.dataValues.postId, // 예를 들어 관련 게시물의 ID
-          userId: post.dataValues.userId, // 예를 들어 사용자의 ID
-        });
-
-      } catch (err) {
-        console.error(err);
-        res.status(500).send({ error: 'Error uploading audio file' });
-      }
-    }
-
-    res.status(200).send({ message: 'Post updated' });
-  } catch(err) {
-    console.error(err);
-    res.status(500).send({ error: 'Error updating post' });
-  }
-});
 
 // youtube api
 router.get('/youtube/search', async (req, res) => {
