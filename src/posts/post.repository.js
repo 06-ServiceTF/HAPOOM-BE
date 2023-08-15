@@ -1,279 +1,198 @@
-const {
-  Posts,
-  Users,
-  Likes,
-  Images,
-  Comments,
-  Reports,
-  sequelize,
-  Sequelize,
-} = require('../models');
-const { Op } = require('sequelize');
+// repositories/postRepository.js
+
+const { Posts, Images, Records, Users} = require('../models');
+const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
+const dotenv = require("dotenv");
+dotenv.config();
 
 class PostRepository {
-  //* 게시글 생성
-  createPostImage = async (
-    email,
-    content,
-    musicTitle,
-    musicUrl,
-    tag,
-    latitude,
-    longitude,
-    placeName,
-    imageUrl,
-    transaction
-  ) => {
-    // 게시글 test
-    content = "test"
-    musicTitle = "test"
-    musicUrl = "test"
-    tag = "[#test, #test, #test]"
-    latitude = 11.222
-    longitude = 11.222
-    placeName = "test"
+  constructor() {
+  }
+  getPostById = async (postId) => {
+    try {
+      const post = await Posts.findOne({ where: { postId: postId } });
+      const images = await Images.findAll({ where: { postId: postId } });
 
+      if (!post) {
+        throw { status: 404, message: 'Post not found' };
+      }
 
-    // email로 userId 찾기
-    const user = await Users.findOne(
-      {
-        where: { email },
-        attributes: ['userId'],
-      },
-      { transaction }
-    );
-
-    // 게시물 생성
-    const createPost = await Posts.create(
-      {
-        userId: user.dataValues.userId,
-        content,
-        musicTitle,
-        musicUrl,
-        tag,
-        latitude,
-        longitude,
-        placeName,
-      },
-      { transaction }
-    );
-
-    // 이미지 테이블 생성
-    const createImage = imageUrl.map(
-      async (url) => {
-        return await Images.create({
-          postId: createPost.dataValues.postId,
-          userId: user.dataValues.userId,
-          url: url,
-        });
-      },
-      { transaction }
-    );
-
-    return { createPost, createImage };
-  };
-
-  //* 게시글 상세보기
-  readPost = async (email, postId) => {
-    const readPost = await Posts.findOne({
-      where: { postId },
-      attributes: [
-        'userId',
-        'postId',
-        'content',
-        'latitude',
-        'longitude',
-        'private',
-      ],
-      include: [
-        {
-          model: Images,
-          attributes: [
-            'imageId',
-            'postId',
-            'userId',
-            'url',
-            'createdAt',
-            'updatedAt',
-          ],
-        },
-        {
-          model: Users,
-          attributes: ['nickname', 'userImage'],
-        },
-        {
-          model: Comments,
-          attributes: ['postId', 'userId', 'comment', 'createdAt', 'updatedAt'],
-        },
-        {
-          model: Likes,
-          attributes: ['userId'],
-        },
-        {
-          model: Likes,
-          attributes: [
-            [
-              sequelize.literal(`(
-              SELECT
-                count(*)
-              FROM
-                Likes
-              WHERE
-                Likes.postId  = Posts.postId
-            )`),
-              'likeCount',
-            ],
-          ],
-        },
-      ],
-    });
-    // 좋아요가 하나도 없을 시 return
-    if (!readPost.dataValues.Likes[0]) {
-      const isLiked = 0;
-      const likeCount = 0;
-      readPost.isLiked = isLiked;
-      readPost.likeCount = likeCount;
-
-      return readPost;
+      return { post, images };
+    } catch (error) {
+      console.error('Error getting post:', error);
+      throw { status: 500, message: 'Error getting post' };
     }
-    // 게시글 작성자 userId와 사용자 email userId 비교 필요
-
-    const user = await Users.findOne({
-      where: { email: email}
-    })
-    // 좋아요 유무 확인
-    const isLiked = readPost.dataValues.Likes.some((like) => {
-      return like.dataValues.userId == user.dataValues.userId;
-    });
-    readPost.isLiked = isLiked;
-
-    // 좋아요 카운트
-    const likeCount = readPost.dataValues.Likes[0].dataValues.likeCount;
-    readPost.likeCount = likeCount;
-
-    return readPost;
-
-    // console.log('readPost', readPost)
-    // console.log('readPost.LIkes', readPost.dataValues.Likes) // 값이 없다면 빈 배열
-
-    // 좋아요가 아무것도 없다면 에러가 발생하니까 에러가 안나게 처리를 해줘야 함
-    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0])// undefined
-    // console.log('readPost.LIkes.likeCount', readPost.dataValues.Likes[0].dataValues.likeCount)
   };
 
-  //* 게시글 수정하기
-  updatePostImage = async (
-    email,
-    postId,
-    content,
-    musicTitle,
-    musicUrl,
-    tag,
-    latitude,
-    longitude,
-    placeName,
-    imageUrl,
-    transaction
-  ) => {
-    // userId 찾기
-    const user = await Users.findOne(
-      {
-        where: { email },
-        attributes: ['userId'],
-      },
-      { transaction }
-    );
+  updatePost = async (postId, body, files, host) => {
+    try {
+      // Find the existing post
+      const post = await Posts.findByPk(postId);
 
-    // update Posts
-    const updatePost = await Posts.update(
-      {
-        content,
-        musicTitle,
-        musicUrl,
-        tag,
-        latitude,
-        longitude,
-        placeName,
-        private: false,
-      },
-      {
-        where: {
-          postId,
-          userId: user.dataValues.userId,
-        },
-      },
-      { transaction }
-    );
+      if (!post) {
+        throw { status: 404, message: 'Post not found' };
+      }
 
-    // delete Images
-    await Images.destroy({
-      where: { postId },
-    }, { transaction });
+      // Extract the information
+      let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag } = body;
+      const images = files['image'];
+      const audio = files['audio'] ? files['audio'][0] : null;
 
-    // create Images
-    const createImage = imageUrl.map(
-      async (url) => {
-        return await Images.create({
-          postId: postId,
-          userId: user.dataValues.userId,
-          url: url,
+      if (musicType==="2") {
+        switch (musicUrl){
+          case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`;
+            musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]';
+            break;
+          case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`;
+            musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]';
+            break;
+          case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`;
+            musicTitle='AX.EL - In Love With a Ghost [NCS Release]';
+            break;
+          case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
+            musicTitle='Idle Days - Over It [NCS Release]'
+            break;
+          case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
+            musicTitle='ROY KNOX - Closer [NCS Release]'
+            break;
+        }
+      }
+
+      if (musicType==="3") {
+        musicTitle='녹음된 음원';
+        musicUrl = host + '/' + audio.path;
+      }
+
+      // Update the post
+      await post.update({ content, musicTitle, musicUrl, latitude, longitude, placeName, musicType, private: false, tag });
+
+      // Delete old images and audio
+      await Records.destroy({ where: { postId: postId } });
+      await Images.destroy({ where: { postId: postId } });
+
+      // Add new images
+      const imagePromises = images.map((image) => {
+        return Images.create({ url: host + '/' + image.path, postId: postId, userId: post.dataValues.userId });
+      });
+
+      await Promise.all(imagePromises);
+
+      if (musicType==="3" && audio) {
+        const audioUrl = host + '/' + audio.path;
+        await Records.create({
+          url: audioUrl,
+          postId: post.dataValues.postId,
+          userId: post.dataValues.userId,
         });
-      },
-      { transaction }
-    );
+      }
 
-    return updatePost;
+    } catch (err) {
+      console.error(err);
+      throw { status: 500, message: 'Error updating post' };
+    }
   };
 
-  //* 게시글 삭제
-  deletePostImage = async (email, postId, transaction) => {
-    // userId 찾기
-    const user = await Users.findOne(
-      {
-        where: { email },
-        attributes: ['userId'],
-      },
-      { transaction }
-    );
 
-    const deletePostImage = await Posts.destroy(
-      {
-        where: { [Op.and]: [{ postId }, { userId: user.dataValues.userId }] },
-      },
-      { transaction }
-    );
+  deletePost = async (postId) => {
+    try {
+      // Find and delete the post
+      const post = await Posts.findOne({ where: { postId: postId } });
 
-    return deletePostImage;
+      if (!post) {
+        throw { status: 404, message: 'Post not found' };
+      }
+
+      // Find and delete images
+      const images = await Images.findAll({ where: { postId: post.postId } });
+      const imageDeletePromises = images.map((image) => {
+        return image.destroy();
+      });
+
+      await Promise.all(imageDeletePromises);
+
+      // Delete post
+      await post.destroy();
+    } catch (err) {
+      console.error(err);
+      throw { status: 500, message: 'Error deleting post' };
+    }
+
   };
 
-  //* DB에 저장된 imageUrl 불러오기
-  findUrl = async (email, postId) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: ['userId'],
+  createPost = async (userId,body, files, host) => {
+  try {
+    let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag } = body;
+    const images = files['image'];
+    const audio = files['audio'] ? files['audio'][0] : null;
+
+    if (musicType==="2") {
+      switch (musicUrl){
+        case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`
+          musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]'
+          break;
+        case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`
+          musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]'
+          break;
+        case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`
+          musicTitle='AX.EL - In Love With a Ghost [NCS Release]'
+          break;
+        case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
+          musicTitle='Idle Days - Over It [NCS Release]'
+          break;
+        case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
+          musicTitle='ROY KNOX - Closer [NCS Release]'
+          break;
+      }
+    }
+
+    if (musicType==="3") {
+      musicTitle = '녹음된 음원';
+      musicUrl = host + '/' + audio.path;
+    }
+
+    const post = await Posts.create({
+      content,
+      musicTitle,
+      musicUrl,
+      latitude,
+      longitude,
+      placeName,
+      musicType,
+      private: false,
+      tag,
+      userId
     });
 
-    const findUrl = await Images.findAll({
-      where: { [Op.and]: [{ postId }, { userId: user.dataValues.userId }] },
-      attributes: ['imageId', 'url'],
+    const imagePromises = images.map((image) => {
+      return Images.create({
+        url: host + '/' + image.path,
+        postId: post.dataValues.postId,
+        userId
+      });
     });
 
-    return findUrl;
-  };
+    await Promise.all(imagePromises);
 
-  //* 로그인 권한 유무 확인하기
-  confirmUser = async (email, postId) => {
-    const user = await Users.findOne({
-      where: { email },
-      attributes: ['userId'],
-    });
+    if (musicType === "3" && audio) {
+      const audioUrl = host + '/' + audio.path;
+      try {
+        await Records.create({
+          url: audioUrl,
+          postId: post.dataValues.postId,
+          userId
+        });
+      } catch (err) {
+        console.error(err);
+        throw new Error('Error uploading audio file');
+      }
+    }
 
-    const confirmUser = await Posts.findOne({
-      where: { [Op.and]: [{ postId }, { userId: user.dataValues.userId }] },
-    });
-
-    return confirmUser;
-  };
+    return { message: 'Post received' };
+  }catch (err){
+    console.error(err);
+    throw new Error('Error uploading');
+  }
+  }
 }
 
 module.exports = PostRepository;
