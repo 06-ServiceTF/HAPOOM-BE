@@ -44,6 +44,11 @@ class AuthController {
           return res.status(401).send(info.errorMessage);
         }
         const { userResponse, token } = await authService.login(req,res, user);
+
+        // 로그인 성공 알림 발송
+        const io = req.app.get('io');
+        io.emit('loginSuccess', { email: userResponse.email, nickname: userResponse.nickname });
+
         res.status(200).json({ email:userResponse.email,nickname:userResponse.nickname, token });
       } catch (error) {
         console.log(error);

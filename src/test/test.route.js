@@ -3,9 +3,11 @@ const router = express.Router();
 const multer = require('multer');
 const axios = require("axios");
 const fs = require('fs');
+const path = require('path');
 const jwt = require("jsonwebtoken");
+const authMiddleWare = require('../middlewares/auth.middleware');
 
-const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
+const { Posts,Records, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
 const bcrypt = require("bcrypt");
 
 const uploadDir = './uploads/';
@@ -26,20 +28,160 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({storage: storage});
+const upload = multer({storage: storage}).fields([
+  { name: 'image', maxCount: 5 },
+  { name: 'audio', maxCount: 1 },
+]);
 const dotenv = require("dotenv");
 dotenv.config();
 
+//음원 스트리밍
+router.get('/music/:id', (req, res) => {
+  try {
+    const musicId = req.params.id;
+    const musicFilename = `${musicId}.mp3`;
+    const musicFiles = {
+      '1': '1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3',
+      '2': '2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3',
+      '3': '3.AX.EL - In Love With a Ghost [NCS Release].mp3',
+      '4': '4.Idle Days - Over It [NCS Release].mp3',
+      '5': '5.ROY KNOX - Closer [NCS Release].mp3'
+    };
+
+    const musicPath = path.resolve(__dirname, '..', '..', 'publicMusic', musicFiles[musicId]);
+
+    console.log(musicPath)
+
+    if (!fs.existsSync(musicPath)) {
+      return res.status(404).send('Music not found');
+    }
+
+    // 파일 크기 가져오기
+    const stat = fs.statSync(musicPath);
+    const fileSize = stat.size;
+
+    // 범위 요청 처리
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(musicPath, { start, end });
+
+      console.log(start,end,fileSize)
+
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'audio/mpeg',
+        'Music-Title': musicFiles[musicId].split('.').slice(1).join('.') // 제목 추출
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'audio/mpeg',
+        'Music-Title': musicFiles[musicId].split('.').slice(1).join('.') // 제목 추출
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(musicPath).pipe(res);
+    }
+  } catch (error) {
+    console.error('Error streaming music:', error);
+    res.status(500).send('Error streaming music');
+  }
+});
+
+//녹음파일 스트리밍
+router.get('/stream/:recordId', async (req, res) => {
+  const { recordId } = req.params;
+
+  try {
+    // recordId를 사용해 해당 오디오 레코드 찾기
+    const record = await Records.findOne({ where: { recordId: recordId } });
+    if (!record) {
+      return res.status(404).send({ error: 'Record not found' });
+    }
+
+    // 오디오 파일의 실제 경로 찾기
+    const audioUrl = record.dataValues.url.replace('http://localhost:3001', '');
+    const audioPath = path.join(__dirname, '..', '..', audioUrl.split('/').pop());
+
+    // 파일 크기 가져오기
+    const stat = fs.statSync(audioPath);
+    const fileSize = stat.size;
+
+    // 범위 요청 처리
+    const range = req.headers.range;
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = (end - start) + 1;
+      const file = fs.createReadStream(audioPath, { start, end });
+
+      console.log(start,end,fileSize)
+
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'audio/mpeg',
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'audio/mpeg',
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(audioPath).pipe(res);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Error streaming audio' });
+  }
+});
+
 //게시글 쓰기
-router.post('/post', upload.array('image', 5), async (req, res) => {
-  const images = req.files;
-  const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
+router.post('/post', upload, async (req, res) => {
+  const { content,musicType, tag, latitude, longitude, placeName } = req.body;
+  let {musicUrl,musicTitle} = req.body
+  const images = req.files['image'];
+  const audio = req.files['audio'] ? req.files['audio'][0] : null;
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const user = await Users.findOne({ where: { email: decoded.email } });
 
-    console.log(tag)
+    if (musicType==="2") {
+      switch (musicUrl){
+        case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`
+          musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]'
+          break;
+        case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`
+          musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]'
+          break;
+        case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`
+          musicTitle='AX.EL - In Love With a Ghost [NCS Release]'
+          break;
+        case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
+          musicTitle='Idle Days - Over It [NCS Release]'
+          break;
+        case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
+          musicTitle='ROY KNOX - Closer [NCS Release]'
+          break;
+      }
+    }
+
+    if (musicType==="3") {
+      musicTitle='녹음된 음원'
+      musicUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+    }
 
     const post = await Posts.create({
       content,
@@ -48,13 +190,11 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
       latitude,
       longitude,
       placeName,
+      musicType,
       private:false,
       tag,
       userId: user.dataValues.userId
     });
-    console.log(images)
-
-    console.log(post.dataValues.postId)
 
     const imagePromises = images.map((image) => {
       return Images.create({
@@ -65,6 +205,21 @@ router.post('/post', upload.array('image', 5), async (req, res) => {
     });
 
     await Promise.all(imagePromises);
+
+    if (musicType==="3"&&audio) {
+      const audioUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+      try {
+        await Records.create({
+          url: audioUrl,
+          postId: post.dataValues.postId, // 예를 들어 관련 게시물의 ID
+          userId: user.dataValues.userId, // 예를 들어 사용자의 ID
+        });
+
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error uploading audio file' });
+      }
+    }
 
     res.status(200).send({ message: 'Post received' });
   } catch(err) {
@@ -171,7 +326,7 @@ router.get('/user/profile', async (req, res) => {
 });
 
 //유저 정보 수정[세팅페이지]
-router.patch('/user', upload.single('image'), async (req, res) => {
+router.patch('/user', upload, async (req, res) => {
   try {
     const token = req.cookies.refreshToken;
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -318,10 +473,39 @@ router.post('/report/:postId', async (req, res) => {
 });
 
 // 게시글 수정기능
-router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
-  const images = req.files;
-  const { content, musicTitle, musicUrl, tag, latitude, longitude, placeName } = req.body;
-  const postId = req.params.postId;
+router.put('/post/:postId', upload, async (req, res) => {
+  const { content,musicType, tag, latitude, longitude, placeName } = req.body;
+  const {postId} = req.params
+  let {musicUrl,musicTitle} = req.body
+  const images = req.files['image'];
+  const audio = req.files['audio'] ? req.files['audio'][0] : null;
+
+  console.log(req.body,req.params)
+
+  if (musicType==="2") {
+    switch (musicUrl){
+      case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`
+        musicTitle='Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release]'
+        break;
+      case "2":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/2.Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release].mp3`
+        musicTitle='Arcando & Maazel - To Be Loved (feat. Salvo) [NCS Release]'
+        break;
+      case "3":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/3.AX.EL - In Love With a Ghost [NCS Release].mp3`
+        musicTitle='AX.EL - In Love With a Ghost [NCS Release]'
+        break;
+      case "4":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/4.Idle Days - Over It [NCS Release].mp3`
+        musicTitle='Idle Days - Over It [NCS Release]'
+        break;
+      case "5":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/5.ROY KNOX - Closer [NCS Release].mp3`
+        musicTitle='ROY KNOX - Closer [NCS Release]'
+        break;
+    }
+  }
+
+  if (musicType==="3") {
+    musicTitle='녹음된 음원'
+    musicUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+  }
 
   try {
     // Find the existing post
@@ -339,8 +523,16 @@ router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
       latitude,
       longitude,
       placeName,
+      musicType,
       private:false,
-      tag
+      tag,
+    });
+
+    // Delete old images
+    await Records.destroy({
+      where: {
+        postId: postId
+      }
     });
 
     // Delete old images
@@ -360,6 +552,21 @@ router.put('/post/:postId', upload.array('image', 5), async (req, res) => {
     });
 
     await Promise.all(imagePromises);
+
+    if (musicType==="3"&&audio) {
+      const audioUrl = req.protocol + '://' + req.get('host') + '/' + audio.path;
+      try {
+        await Records.create({
+          url: audioUrl,
+          postId: post.dataValues.postId, // 예를 들어 관련 게시물의 ID
+          userId: post.dataValues.userId, // 예를 들어 사용자의 ID
+        });
+
+      } catch (err) {
+        console.error(err);
+        res.status(500).send({ error: 'Error uploading audio file' });
+      }
+    }
 
     res.status(200).send({ message: 'Post updated' });
   } catch(err) {

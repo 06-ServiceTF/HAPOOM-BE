@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
+      this.hasMany(models.Records, {
+        sourceKey: 'postId',
+        foreignKey: 'postId',
+      });
       this.hasMany(models.Reports, {
         sourceKey: 'postId',
         foreignKey: 'postId',
@@ -63,6 +67,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       tag: {
         type: DataTypes.STRING
+      },
+      musicType: {
+        type: DataTypes.INTEGER
       },
       musicTitle: {
         type: DataTypes.STRING
