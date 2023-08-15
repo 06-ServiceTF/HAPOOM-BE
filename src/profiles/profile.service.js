@@ -9,20 +9,22 @@ class ProfileService {
   // 유저 정보 조회
   userInfo = async (email) => {
     const user = await this.profileRepository.userInfo(email);
+    //console.log('유저정보',user)
     return user;
   };
 
   // 유저 정보 수정
-  updateUser = async (token, file, body) => {
+  updateUser = async (token, file, body,host) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const user = await this.profileRepository.findByEmail(decoded.email);
     if (!user) {
       throw new Error('User not found');
     }
-    if (file) {
+    if (file.image) {
       user.userImage =
-        file.protocol + '://' + file.get('host') + '/' + file.path;
+        host + '/' + file.image[0].path;
     }
+
     const updates = Object.keys(body);
     for (const update of updates) {
       if (update === 'password') {

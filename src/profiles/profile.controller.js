@@ -18,10 +18,13 @@ class ProfileController {
   // 유저 정보 수정
   updateUser = async (req, res) => {
     try {
+      //console.log(req)
+      const host = req.protocol + '://' + req.get('host');
       const userUpdates = await this.profileService.updateUser(
         req.cookies.refreshToken,
-        req.file,
-        req.body
+        req.files,
+        req.body,
+        host
       );
 
       res.send({ user: userUpdates });
