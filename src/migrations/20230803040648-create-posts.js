@@ -40,6 +40,9 @@ module.exports = {
       tag: {
         type: Sequelize.STRING(100)
       },
+      musicType: {
+        type: Sequelize.INTEGER
+      },
       musicTitle: {
         type: Sequelize.STRING(100)
       },

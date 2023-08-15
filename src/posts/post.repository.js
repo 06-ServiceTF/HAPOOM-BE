@@ -24,6 +24,15 @@ class PostRepository {
     imageUrl,
     transaction
   ) => {
+    // 게시글 test
+    content = "test"
+    musicTitle = "test"
+    musicUrl = "test"
+    tag = "[#test, #test, #test]"
+    latitude = 11.222
+    longitude = 11.222
+    placeName = "test"
+
 
     // email로 userId 찾기
     const user = await Users.findOne(
@@ -128,6 +137,7 @@ class PostRepository {
       return readPost;
     }
     // 게시글 작성자 userId와 사용자 email userId 비교 필요
+
     const user = await Users.findOne({
       where: { email: email}
     })
