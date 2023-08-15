@@ -1,21 +1,34 @@
-const { Reports } = require('../models');
+const { Posts, Users, Reports } = require('../models');
 
 class ReportRepository {
-  addReport = async (postId, userId) => {
-    const report = await Reports.create({ postId, userId });
+  checkPostExists = async (postId) => {
+    const postExists = await Posts.findOne({ where: { postId } });
+    return postExists;
+  };
+
+  addReport = async (postId, email) => {
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
+    const report = await Reports.create({ postId, userId: user.userId });
     return report;
   };
 
   // 특정 포스트에 특정 사용자의 신고 여부 조회
-  async getReport(postId, userId) {
+  getReport = async (postId, email) => {
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
     const report = await Reports.findOne({
       where: {
         postId,
-        userId,
+        userId: user.userId,
       },
     });
     return report;
-  }
+  };
 }
 
 module.exports = ReportRepository;

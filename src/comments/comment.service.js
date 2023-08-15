@@ -1,23 +1,29 @@
 const CommentRepository = require('./comment.repository');
+const CustomError = require('../middlewares/error.middleware');
 
 class CommentService {
   commentRepository = new CommentRepository();
 
-  createComment = async (postId, userId, comment) => {
+  // 댓글 생성
+  createComment = async (postId, email, comment) => {
+    if (!comment || comment.trim() === '') {
+      throw new Error('Comment cannot be empty');
+    }
     const createComment = await this.commentRepository.createComment(
       postId,
-      userId,
+      email,
       comment
     );
     return createComment;
   };
 
+  // 게시글의 댓글 전체 조회
   getComments = async (postId) => {
     const getComments = await this.commentRepository.getComments(postId);
     const commentList = getComments.map((comment) => {
       return {
         commentId: comment.commentId,
-        userId: comment.userId,
+        email: comment.User.email,
         nickname: comment.User.nickname,
         userImage: comment.User.userImage,
         comment: comment.comment,
@@ -28,20 +34,62 @@ class CommentService {
     return commentList;
   };
 
-  updateComment = async (postId, userId, commentId, comment) => {
-    const updateComment = await this.commentRepository.updateComment(
+  // 댓글 수정
+  updateComment = async (postId, email, commentId, comment) => {
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      email,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 수정 권한이 없습니다.', 403);
+    }
+
+    const updatedComment = await this.commentRepository.updateComment(
       postId,
-      userId,
+      email,
       commentId,
       comment
     );
-    return updateComment;
+    return updatedComment;
   };
 
-  deleteComment = async (postId, userId, commentId) => {
+  // 댓글 삭제
+  deleteComment = async (postId, email, commentId) => {
+    const postExists = await this.commentRepository.checkPostExists(postId);
+    if (!postExists) {
+      throw new CustomError('게시글이 존재하지 않습니다.', 404);
+    }
+
+    const commentExists = await this.commentRepository.checkCommentExists(
+      commentId
+    );
+    if (!commentExists) {
+      throw new CustomError('해당 댓글이 존재하지 않습니다.', 404);
+    }
+
+    const validateComment = await this.commentRepository.findComment(
+      email,
+      commentId
+    );
+    if (!validateComment) {
+      throw new Error('댓글 삭제 권한이 없습니다.', 403);
+    }
+
     const deleteComment = await this.commentRepository.deleteComment(
       postId,
-      userId,
+      email,
       commentId
     );
     return deleteComment;
