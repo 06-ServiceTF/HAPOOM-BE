@@ -33,6 +33,7 @@ class PostRepository {
     longitude = 11.222
     placeName = "test"
 
+
     // email로 userId 찾기
     const user = await Users.findOne(
       {
@@ -136,10 +137,10 @@ class PostRepository {
       return readPost;
     }
     // 게시글 작성자 userId와 사용자 email userId 비교 필요
-    const user = Users.findOne({
+
+    const user = await Users.findOne({
       where: { email: email}
     })
-
     // 좋아요 유무 확인
     const isLiked = readPost.dataValues.Likes.some((like) => {
       return like.dataValues.userId == user.dataValues.userId;

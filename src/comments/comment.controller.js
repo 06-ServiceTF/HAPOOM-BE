@@ -3,15 +3,15 @@ const CommentService = require('./comment.service');
 class CommentController {
   commentService = new CommentService();
 
+  // 댓글 생성
   createComment = async (req, res, next) => {
-    // const { userId } = res.locals.user;
-    console.log(res.locals)
+    const { email } = req.user;
     const { postId } = req.params;
     const { comment } = req.body;
     try {
       const createComment = await this.commentService.createComment(
         postId,
-        // userId,
+        email,
         comment
       );
       return res.status(201).json({ message: '댓글을 작성하였습니다.' });
@@ -21,6 +21,7 @@ class CommentController {
     }
   };
 
+  // 게시글의 댓글 전체 조회
   getComments = async (req, res, next) => {
     const { postId } = req.params;
     try {
@@ -32,14 +33,15 @@ class CommentController {
     }
   };
 
+  // 댓글 수정
   updateComment = async (req, res, next) => {
-    const { userId } = res.locals.user;
+    const { email } = req.user;
     const { postId, commentId } = req.params;
     const { comment } = req.body;
     try {
       const updateComment = await this.commentService.updateComment(
         postId,
-        userId,
+        email,
         commentId,
         comment
       );
@@ -50,13 +52,14 @@ class CommentController {
     }
   };
 
+  // 댓글 삭제
   deleteComment = async (req, res, next) => {
     try {
       const { postId, commentId } = req.params;
-      const { userId } = res.locals.user;
+      const { email } = req.user;
       const deleteComment = await this.commentService.deleteComment(
         postId,
-        userId,
+        email,
         commentId
       );
       return res.status(200).json({ message: '댓글을 삭제하였습니다.' });
