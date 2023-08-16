@@ -16,7 +16,10 @@ class ProfileService {
   // 유저 정보 수정
   updateUser = async (token, file, body, host) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await this.profileRepository.findByEmail(decoded.email);
+    const user = await this.profileRepository.findByEmail(
+      decoded.email,
+      decoded.method
+    );
     if (!user) {
       throw new Error('User not found');
     }
