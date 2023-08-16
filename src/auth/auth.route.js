@@ -14,11 +14,11 @@ router.post("/signup", authController.signup);
 router.get("/token",authMiddleware, authController.getUserToken);
 router.get("/refreshtoken",reauthMiddleware, authController.refreshToken);
 router.get("/logout", authController.logout);
-// router.get('/kakao', authController.kakaoLogin);
-// router.get('/kakao/callback', authController.kakaoCallback);
-// router.get('/naver', authController.naverLogin);
-// router.get('/naver/callback', authController.naverCallback);
-// router.get("/google", authController.googleLogin);
-// router.get('/google/callback', authController.googleCallback);
+router.get("/kakao", passport.authenticate('kakao', { authType: 'reprompt' }));
+router.get('/kakao/callback', authController.kakaoLogin);
+router.get('/naver', passport.authenticate('naver', { authType: 'reprompt' }));
+router.get('/naver/callback', authController.naverLogin);
+router.get("/google", passport.authenticate("google", { scope: ["email", "profile"] }));
+router.get('/google/callback', authController.googleLogin);
 
 module.exports = router;

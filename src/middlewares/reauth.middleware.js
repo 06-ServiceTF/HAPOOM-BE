@@ -8,8 +8,10 @@ module.exports = async (req, res, next)=> {
   try {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     req.user = decoded;
-    const user = await Users.findOne({ where: { email: decoded.email } });
+    //console.log(req.user)
+    const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
 
+    console.log(user)
     // 찾은 사용자를 res.locals.user에 등록
     if (user) {
       res.locals.user = user;

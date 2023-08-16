@@ -7,8 +7,8 @@ class ProfileService {
   profileRepository = new ProfileRepository();
 
   // 유저 정보 조회
-  userInfo = async (email) => {
-    const user = await this.profileRepository.userInfo(email);
+  userInfo = async (email,method) => {
+    const user = await this.profileRepository.userInfo(email,method);
     //console.log('유저정보',user)
     return user;
   };

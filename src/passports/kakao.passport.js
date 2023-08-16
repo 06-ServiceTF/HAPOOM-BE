@@ -9,7 +9,7 @@ module.exports = function initializeKakaoPassport (passport) {
       new KaKaoStrategy(
         {
           clientID: process.env.KAKAO_CLIENT_ID,
-          callbackURL: `${process.env.ORIGIN_BACK}/user/kakao/callback`,
+          callbackURL: `${process.env.ORIGIN_BACK}/api/auth/kakao/callback`,
           passReqToCallback: true,
         },
         function (request, accessToken, refreshToken, profile, done) {
@@ -17,4 +17,12 @@ module.exports = function initializeKakaoPassport (passport) {
         }
       )
   );
-};
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+}

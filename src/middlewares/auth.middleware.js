@@ -8,9 +8,7 @@ module.exports = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-
-    // 이메일로 사용자 찾기
-    const user = await Users.findOne({ where: { email: decoded.email } });
+    const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
 
     // 찾은 사용자를 res.locals.user에 등록
     if (user) {
