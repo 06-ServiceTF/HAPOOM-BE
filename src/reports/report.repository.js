@@ -6,9 +6,9 @@ class ReportRepository {
     return postExists;
   };
 
-  addReport = async (postId, email) => {
+  addReport = async (postId, email, method) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const report = await Reports.create({ postId, userId: user.userId });
@@ -16,9 +16,9 @@ class ReportRepository {
   };
 
   // 특정 포스트에 특정 사용자의 신고 여부 조회
-  getReport = async (postId, email) => {
+  getReport = async (postId, email, method) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const report = await Reports.findOne({

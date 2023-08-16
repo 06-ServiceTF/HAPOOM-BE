@@ -3,9 +3,9 @@ const { Op } = require('sequelize');
 
 class CommentRepository {
   // 댓글 생성
-  createComment = async (postId, email, comment) => {
+  createComment = async (postId, email, method, comment) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const createComment = await Comments.create({
@@ -27,9 +27,9 @@ class CommentRepository {
   };
 
   // 댓글 수정
-  updateComment = async (postId, email, commentId, comment) => {
+  updateComment = async (postId, email, method, commentId, comment) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const updateComment = await Comments.update(
@@ -44,9 +44,9 @@ class CommentRepository {
   };
 
   // 댓글 삭제
-  deleteComment = async (postId, email, commentId) => {
+  deleteComment = async (postId, email, method, commentId) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const deleteComment = await Comments.destroy({
@@ -56,6 +56,8 @@ class CommentRepository {
     });
     return deleteComment;
   };
+
+
   // 게시글 존재 여부
   checkPostExists = async (postId) => {
     const postExists = await Comments.findOne({ where: { postId } });
@@ -69,9 +71,9 @@ class CommentRepository {
   };
 
   // 권한 여부
-  findComment = async (email, commentId) => {
+  findComment = async (email, method, commentId) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
     const comment = await Comments.findOne({
