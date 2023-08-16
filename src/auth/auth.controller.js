@@ -7,7 +7,7 @@ class AuthController {
   }
   async getUserToken(req, res, next) {
     try {
-      const userResponse = await authService.getUserToken(req.user.email);
+      const userResponse = await authService.getUserToken(req.user);
       res.status(200).json(userResponse);
     } catch (error) {
       next(error);
@@ -16,7 +16,7 @@ class AuthController {
 
   async refreshToken(req, res, next) {
     try {
-      const token = await authService.refreshToken(req.user.email);
+      const token = await authService.refreshToken(req.user);
       res.status(200).json({ token });
     } catch (error) {
       next(error);
@@ -27,6 +27,14 @@ class AuthController {
     try {
       const userResponse = await authService.signup(req.body);
       res.json(userResponse);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async emailAuth(req, res, next) {
+    try {
+      await authService.emailAuth(req.body,res);
     } catch (error) {
       next(error);
     }
@@ -56,6 +64,18 @@ class AuthController {
       }
     })(req, res, next);
   }
+
+  kakaoLogin = (req, res, next) => {
+    authService.socialLogin(req, res, next, 'kakao');
+  };
+
+  naverLogin = (req, res, next) => {
+    authService.socialLogin(req, res, next, 'naver');
+  };
+
+  googleLogin = (req, res, next) => {
+    authService.socialLogin(req, res, next, 'google');
+  };
 
   async logout(req, res, next) {
     req.session.destroy(err => {

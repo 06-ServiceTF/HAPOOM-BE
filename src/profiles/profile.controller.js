@@ -6,8 +6,9 @@ class ProfileController {
   // 유저 정보 조회
   userInfo = async (req, res, next) => {
     try {
-      const { email, method } = req.user;
-      const user = await this.profileService.userInfo(email, method);
+      const { email,method } = req.user;
+      const user = await this.profileService.userInfo(email,method);
+
       return res.status(200).json({ user });
     } catch (error) {
       console.log(error);

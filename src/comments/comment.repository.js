@@ -57,6 +57,7 @@ class CommentRepository {
     return deleteComment;
   };
 
+
   // 게시글 존재 여부
   checkPostExists = async (postId) => {
     const postExists = await Comments.findOne({ where: { postId } });
@@ -81,5 +82,6 @@ class CommentRepository {
     return comment;
   };
 }
+
 
 module.exports = CommentRepository;

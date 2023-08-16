@@ -1,7 +1,7 @@
 const { Posts, Users, Images, Likes } = require('../models');
 
 class ProfileRepository {
-  // 유저 정보 조회
+
   userInfo = async (email, method) => {
     const user = await Users.findOne({
       where: { email, method },

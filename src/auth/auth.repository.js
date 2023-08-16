@@ -28,8 +28,59 @@ class AuthRepository {
     return user;
   };
 
-  async findByEmail(email) {
-    return Users.findOne({ where: { email } });
+  kakaoAuth = async (user, method) => {
+    //console.log(user,method)
+    let sequelizeUser = await Users.findOne({ where: { email: user._json.kakao_account.email,method } });
+    if (!sequelizeUser) {
+        sequelizeUser = await Users.create({
+          email: user.email || user._json.kakao_account.email,
+          nickname: user.nickname || user._json.properties.nickname,
+          password: user.email || user._json.kakao_account.email,
+          userImage: user._json.properties.thumbnail_image,
+          method: method,
+          theme: 1,
+          preset: 1
+        });
+    }
+      return sequelizeUser;
+  };
+
+  googleAuth = async (user, method) => {
+    //console.log(user,method)
+    let sequelizeUser = await Users.findOne({ where: { email: user.emails[0].value,method } });
+    if (!sequelizeUser) {
+        sequelizeUser = await Users.create({
+          email: user.emails[0].value,
+          nickname: user.displayName,
+          password: user.emails[0].value,
+          userImage: user._json.picture, // Google의 프로필 이미지를 가져올 수 있는 경로로 수정해야 합니다.
+          method: method,
+          theme: 1,
+          preset: 1,
+        });
+    }
+    return sequelizeUser;
+  };
+
+  naverAuth = async (user, method) => {
+    //console.log(user,method)
+    let sequelizeUser = await Users.findOne({ where: { email: user.emails[0].value,method } });
+    if (!sequelizeUser) {
+        sequelizeUser = await Users.create({
+          email: user.emails[0].value,
+          nickname: user.displayName,
+          password: user.emails[0].value,
+          userImage: user._json.profile_image, // Naver의 프로필 이미지를 가져올 수 있는 경로로 수정해야 합니다.
+          method: method,
+          theme: 1,
+          preset: 1,
+        });
+    }
+      return sequelizeUser;
+  };
+
+  async findByEmail(userData) {
+    return Users.findOne({ where: { email:userData.email,method:userData.method } });
   }
 
 }

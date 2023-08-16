@@ -8,6 +8,10 @@ const session = require('express-session');
 const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
 const initializeLocalPassport = require('./src/passports/local.passport');
+const initializeGooglePassport = require('./src/passports/google.passport');
+const initializeKakaoPassport = require('./src/passports/kakao.passport');
+const initializeNaverPassport = require('./src/passports/naver.passport');
+
 const path = require('path'); // 경로는 해당 모듈의 위치에 따라 달라집니다.
 
 const http = require('http');
@@ -97,6 +101,10 @@ app.use((err, req, res, next) => {
   });
 });
 initializeLocalPassport(passport);
+initializeGooglePassport(passport);
+initializeKakaoPassport(passport);
+initializeNaverPassport(passport);
+
 // express-session 의존, 뒤로
 app.use(passport.initialize()); // req 객체에 passport 설정을 심는다.
 app.use(passport.session()); // req.session 객체에 passport 정보를 저장한다.

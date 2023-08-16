@@ -6,37 +6,18 @@ require("dotenv").config();
 
 module.exports = function initializeNaverPassport (passport) {
   passport.use(
-  new NaverStrategy(
-    {
-      clientID: process.env.NAVER_CLIENT_ID,
-      callbackURL: process.env.NAVER_CALLBACK_URL,
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        console.log(profile);
-        const existUser = await Users.findOne({
-          where: { naverId: profile.id },
-        });
-
-        if (existUser) {
-          done(null, existUser);
-        } else {
-          const newUser = await Users.create({
-            email: profile.emails[0].value,
-            displayName: profile.displayName,
-            naverId: profile.id,
-            profileImageUrl: profile._json.profile_image,
-            providerType: "naver",
-          });
-          done(null, newUser);
-        }
-      } catch (error) {
-        console.error(error);
-        done(error);
-      }
-    }
-  )
-);
+    new NaverStrategy(
+      {
+        clientID: process.env.NAVER_CLIENT_ID,
+        clientSecret: process.env.NAVER_CLIENT_SECRET,
+        callbackURL: `${process.env.ORIGIN_BACK}/api/auth/naver/callback`,
+        passReqToCallback: true,
+      },
+      function (request,accessToken, refreshToken, profile, done) {
+        return done(null, profile);
+      },
+    ),
+  );
 
 passport.serializeUser((user, done) => {
   done(null, user);
