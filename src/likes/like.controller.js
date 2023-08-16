@@ -8,7 +8,7 @@ class LikeController {
   clickLike = async (req, res, next) => {
     try {
       const { postId } = req.params;
-      const { email } = req.user;
+      const { email, method } = req.user;
 
       const updatedLikeState = await this.likeService.clickLike(postId, email);
 

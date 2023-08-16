@@ -5,13 +5,14 @@ class CommentService {
   commentRepository = new CommentRepository();
 
   // 댓글 생성
-  createComment = async (postId, email, comment) => {
+  createComment = async (postId, email, method, comment) => {
     if (!comment || comment.trim() === '') {
       throw new Error('Comment cannot be empty');
     }
     const createComment = await this.commentRepository.createComment(
       postId,
       email,
+      method,
       comment
     );
     return createComment;
@@ -35,7 +36,7 @@ class CommentService {
   };
 
   // 댓글 수정
-  updateComment = async (postId, email, commentId, comment) => {
+  updateComment = async (postId, email, method, commentId, comment) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
@@ -50,6 +51,7 @@ class CommentService {
 
     const validateComment = await this.commentRepository.findComment(
       email,
+      method,
       commentId
     );
     if (!validateComment) {
@@ -59,6 +61,7 @@ class CommentService {
     const updatedComment = await this.commentRepository.updateComment(
       postId,
       email,
+      method,
       commentId,
       comment
     );
@@ -66,7 +69,7 @@ class CommentService {
   };
 
   // 댓글 삭제
-  deleteComment = async (postId, email, commentId) => {
+  deleteComment = async (postId, email, method, commentId) => {
     const postExists = await this.commentRepository.checkPostExists(postId);
     if (!postExists) {
       throw new CustomError('게시글이 존재하지 않습니다.', 404);
@@ -81,6 +84,7 @@ class CommentService {
 
     const validateComment = await this.commentRepository.findComment(
       email,
+      method,
       commentId
     );
     if (!validateComment) {
@@ -90,6 +94,7 @@ class CommentService {
     const deleteComment = await this.commentRepository.deleteComment(
       postId,
       email,
+      method,
       commentId
     );
     return deleteComment;
