@@ -56,30 +56,30 @@ class CommentRepository {
     });
     return deleteComment;
   };
+  // 게시글 존재 여부
+  checkPostExists = async (postId) => {
+    const postExists = await Comments.findOne({ where: { postId } });
+    return postExists;
+  };
+
+  // 댓글 존재 여부
+  checkCommentExists = async (commentId) => {
+    const commentExists = await Comments.findOne({ where: { commentId } });
+    return commentExists;
+  };
+
+  // 권한 여부
+  findComment = async (email, commentId) => {
+    const user = await Users.findOne({
+      where: { email },
+      attributes: ['userId'],
+    });
+    const comment = await Comments.findOne({
+      where: { commentId, userId: user.userId },
+    });
+    return comment;
+  };
 }
 
-// 게시글 존재 여부
-checkPostExists = async (postId) => {
-  const postExists = await Comments.findOne({ where: { postId } });
-  return postExists;
-};
-
-// 댓글 존재 여부
-checkCommentExists = async (commentId) => {
-  const commentExists = await Comments.findOne({ where: { commentId } });
-  return commentExists;
-};
-
-// 권한 여부
-findComment = async (email, commentId) => {
-  const user = await Users.findOne({
-    where: { email },
-    attributes: ['userId'],
-  });
-  const comment = await Comments.findOne({
-    where: { commentId, userId: user.userId },
-  });
-  return comment;
-};
 
 module.exports = CommentRepository;

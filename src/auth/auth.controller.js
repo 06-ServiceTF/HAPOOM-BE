@@ -32,6 +32,14 @@ class AuthController {
     }
   }
 
+  async emailAuth(req, res, next) {
+    try {
+      await authService.emailAuth(req.body,res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async login(req, res, next) {
     passport.authenticate('local', async (err, user, info) => {
       try {

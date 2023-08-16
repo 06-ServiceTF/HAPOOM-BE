@@ -63,7 +63,7 @@ class AuthRepository {
   };
 
   naverAuth = async (user, method) => {
-    console.log(user,method)
+    //console.log(user,method)
     let sequelizeUser = await Users.findOne({ where: { email: user.emails[0].value,method } });
     if (!sequelizeUser) {
         sequelizeUser = await Users.create({
