@@ -7,8 +7,8 @@ class LikeRepository {
     return postExists;
   };
 
-  existLike = async (postId, email) => {
-    const user = await Users.findOne({ where: { email } });
+  existLike = async (postId, email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     if (!user) {
       return null;
     }
@@ -21,8 +21,8 @@ class LikeRepository {
     return existLike;
   };
 
-  addLike = async (postId, email) => {
-    const user = await Users.findOne({ where: { email } });
+  addLike = async (postId, email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     if (!user) {
       return null;
     }
@@ -31,8 +31,8 @@ class LikeRepository {
     return addLike;
   };
 
-  removeLike = async (postId, email) => {
-    const user = await Users.findOne({ where: { email } });
+  removeLike = async (postId, email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     if (!user) {
       return null;
     }

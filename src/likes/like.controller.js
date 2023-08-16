@@ -10,7 +10,7 @@ class LikeController {
       const { postId } = req.params;
       const { email, method } = req.user;
 
-      const updatedLikeState = await this.likeService.clickLike(postId, email);
+      const updatedLikeState = await this.likeService.clickLike(postId, email, method);
 
       return res.status(200).json({ liked: updatedLikeState });
     } catch (error) {
