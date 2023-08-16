@@ -7,22 +7,21 @@ class ProfileService {
   profileRepository = new ProfileRepository();
 
   // 유저 정보 조회
-  userInfo = async (email) => {
-    const user = await this.profileRepository.userInfo(email);
+  userInfo = async (email, method) => {
+    const user = await this.profileRepository.userInfo(email, method);
     //console.log('유저정보',user)
     return user;
   };
 
   // 유저 정보 수정
-  updateUser = async (token, file, body,host) => {
+  updateUser = async (token, file, body, host) => {
     const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
     const user = await this.profileRepository.findByEmail(decoded.email);
     if (!user) {
       throw new Error('User not found');
     }
     if (file.image) {
-      user.userImage =
-        host + '/' + file.image[0].path;
+      user.userImage = host + '/' + file.image[0].path;
     }
 
     const updates = Object.keys(body);
@@ -38,14 +37,17 @@ class ProfileService {
   };
 
   // 마이페이지 조회
-  myProfile = async (email) => {
-    const findUser = await this.profileRepository.findUser(email);
+  myProfile = async (email, method) => {
+    const findUser = await this.profileRepository.findUser(email, method);
     if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
-    const postsCount = await this.profileRepository.postsCount(email);
-    const likePostsCount = await this.profileRepository.likePostsCount(email);
+    const postsCount = await this.profileRepository.postsCount(email, method);
+    const likePostsCount = await this.profileRepository.likePostsCount(
+      email,
+      method
+    );
 
-    const findPosts = await this.profileRepository.myPosts(email);
+    const findPosts = await this.profileRepository.myPosts(email, method);
     const myPosts = findPosts.map((post) => {
       return {
         postId: post.postId,
@@ -58,7 +60,10 @@ class ProfileService {
       };
     });
 
-    const findLikedPosts = await this.profileRepository.myLikedPosts(email);
+    const findLikedPosts = await this.profileRepository.myLikedPosts(
+      email,
+      method
+    );
     const myLikedPosts = findLikedPosts.map((post) => {
       return {
         postId: post.postId,
@@ -76,7 +81,7 @@ class ProfileService {
       postsCount,
       likePostsCount,
       myPosts,
-      myLikedPosts
+      myLikedPosts,
     };
   };
 
@@ -86,7 +91,9 @@ class ProfileService {
     if (!getUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
     const userPostsCount = await this.profileRepository.userPostsCount(userId);
-    const userLikePostsCount = await this.profileRepository.userLikePostsCount(userId);
+    const userLikePostsCount = await this.profileRepository.userLikePostsCount(
+      userId
+    );
 
     const findPosts = await this.profileRepository.userPosts(userId);
     const userPosts = findPosts.map((post) => {

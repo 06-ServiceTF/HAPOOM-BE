@@ -2,31 +2,31 @@ const { Posts, Users, Images, Likes } = require('../models');
 
 class ProfileRepository {
   // 유저 정보 조회
-  userInfo = async (email) => {
+  userInfo = async (email, method) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
     });
     return user;
   };
 
   // 유저 확인 (에러처리용)
-  findUser = async (email) => {
-    const user = await Users.findOne({ where: { email } });
+  findUser = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     return user;
   };
 
   // 유저 정보 수정
-  findByEmail = (email) => {
-    return Users.findOne({ where: { email: email } });
+  findByEmail = (email, method) => {
+    return Users.findOne({ where: { email: email, method: method } });
   };
   save = (user) => {
     return user.save();
   };
 
   // 마이페이지 작성 게시글 수
-  postsCount = async (email) => {
-    const user = await Users.findOne({ where: { email } });
+  postsCount = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     const postsCount = await Posts.count({
       where: { userId: user.userId },
     });
@@ -34,8 +34,8 @@ class ProfileRepository {
   };
 
   // 마이페이지 좋아요 누른 게시글 수
-  likePostsCount = async (email) => {
-    const user = await Users.findOne({ where: { email } });
+  likePostsCount = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     const likePostsCount = await Likes.count({
       where: { userId: user.userId },
     });
@@ -43,8 +43,8 @@ class ProfileRepository {
   };
 
   // 마이페이지 게시글 조회
-  myPosts = async (email) => {
-    const user = await Users.findOne({ where: { email } });
+  myPosts = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     const myPosts = await Posts.findAll({
       where: { userId: user.userId },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
@@ -53,8 +53,8 @@ class ProfileRepository {
   };
 
   // 마이페이지 좋아요 게시글 조회
-  myLikedPosts = async (email) => {
-    const user = await Users.findOne({ where: { email } });
+  myLikedPosts = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
     const likePostIds = await Likes.findAll({
       where: { userId: user.userId },
       attributes: ['postId'],
@@ -70,7 +70,9 @@ class ProfileRepository {
   getUser = async (userId) => {
     const user = await Users.findOne({
       where: { userId },
-      attributes: { exclude: ['userId','preset','password', 'createdAt', 'updatedAt'] },
+      attributes: {
+        exclude: ['userId', 'preset', 'password', 'createdAt', 'updatedAt'],
+      },
     });
     return user;
   };

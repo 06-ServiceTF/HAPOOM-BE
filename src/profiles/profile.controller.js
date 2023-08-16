@@ -7,7 +7,7 @@ class ProfileController {
   userInfo = async (req, res, next) => {
     try {
       const { email, method } = req.user;
-      const user = await this.profileService.userInfo(email);
+      const user = await this.profileService.userInfo(email, method);
       return res.status(200).json({ user });
     } catch (error) {
       console.log(error);
@@ -38,7 +38,7 @@ class ProfileController {
   myProfile = async (req, res, next) => {
     try {
       const { email, method } = req.user;
-      const myProfile = await this.profileService.myProfile(email);
+      const myProfile = await this.profileService.myProfile(email, method);
       res.status(200).json({
         user: myProfile.findUser,
         postsCount: myProfile.postsCount,
