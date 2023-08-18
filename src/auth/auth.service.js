@@ -30,7 +30,7 @@ class AuthService {
   }
 
   async signup(body) {
-    const exUser = await userRepository.findByEmail(body.email);
+    const exUser = await userRepository.findByEmail({email:body.email,method:"direct"});
     if (exUser) {
       throw new Error("이미 사용중인 아이디입니다");
     }
