@@ -61,40 +61,52 @@ class PostRepository {
 
       if (musicType==="3") {
         musicTitle='녹음된 음원';
-        musicUrl = host + '/' + audio.path;
+        musicUrl = audio.location;
       }
 
       // Update the post
-      await post.update({ content, musicTitle, musicUrl, latitude, longitude, placeName, musicType, private: false, tag });
+
+      await post.update({ content,
+        musicTitle,
+        musicUrl,
+        latitude,
+        longitude,
+        placeName,
+        musicType,
+        private: false,
+        tag});
 
       // Delete old images and audio
       const audioDelete = await Records.findOne({ where: { postId: post.postId }})
-      const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
-      await deleteS3(audioPath)
-      await Records.destroy({ where: { postId: postId } });
+      if(audioDelete) {
+        const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
+        await deleteS3(audioPath)
+        await Records.destroy({where: {postId: postId}});
+      }
 
-      const s3DeletePromises = images.map((image) => {
-        const imagePath = new URL(image.dataValues.url).pathname
-        return deleteS3(imagePath)
-      })
+      const imageDelete = await Images.findAll({ where: { postId: post.postId }})
+      if(imageDelete) {
+        const s3DeletePromises = imageDelete.map((image) => {
+          const imagePath = new URL(image.dataValues.url).pathname
+          return deleteS3(imagePath)
+        })
 
-      await Promise.all(s3DeletePromises)
+        await Promise.all(s3DeletePromises)
 
-      await Images.destroy({ where: { postId: postId } });
+        await Images.destroy({where: {postId: postId}});
+      }
 
-
-
-      // Add new images
       const imagePromises = images.map((image) => {
-        return Images.create({ url: host + '/' + image.path, postId: postId, userId: post.dataValues.userId });
+        return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
       });
 
       await Promise.all(imagePromises);
 
+      console.log(audio)
+
       if (musicType==="3" && audio) {
-        const audioUrl = host + '/' + audio.path;
         await Records.create({
-          url: audioUrl,
+          url: audio.location,
           postId: post.dataValues.postId,
           userId: post.dataValues.userId,
         });
@@ -134,8 +146,10 @@ class PostRepository {
 
       // Find and delete audio
       const audioDelete = await Records.findOne({ where: { postId: post.postId }})
-      const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
-      await deleteS3(audioPath)
+      if(audioDelete) {
+        const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
+        await deleteS3(audioPath)
+      }
 
       // Delete post
       await post.destroy();
