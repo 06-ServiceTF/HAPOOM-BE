@@ -1,36 +1,49 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { S3Client, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const multer = require('multer')
+const multerS3 = require('multer-s3')
+require('dotenv').config()
 
-try {
-  fs.readdirSync('uploads'); // 폴더 확인
-} catch (err) {
-  console.error('uploads 폴더가 없습니다. 폴더를 생성합니다.');
-  fs.mkdirSync('uploads'); // 폴더 생성
-}
-
-const multerMiddleware = multer({
-  storage: multer.diskStorage({
-    destination(req, file, cb) {
-      cb(null, 'uploads/');
-    },
-    filename(req, file, cb) {
-      // 파일의 확장자
-      const ext = path.extname(file.originalname);
-      // 파일이름 + 날짜 + 확장자 이름으로 저장
-      cb(null, path.basename(file.originalname, ext) + Date.now() + ext);
-    },
-  }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5메가로 용량 제한
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
 
-const deleteImage = function (imagePath) {
+// Posts용 multerS3 미들웨어 (fields)
+const multerMiddleware = multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: 'hapoomimagebucket', 
+    acl: 'public-read', 
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: function (req, file, cb) {
+      let folderName = 'images'
+
+      if(file.mimetype.startsWith('audio/')) {
+        folderName = 'audios'
+      }
+      cb(null, `${folderName}/${Date.now().toString()}_${file.originalname}`); 
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024}
+});
+
+// S3 버킷 이미지 및 오디오 삭제 함수
+async function deleteS3( imageKey ) {
+  const params = {
+    Bucket: 'hapoomimagebucket', 
+    Key: imageKey, // 삭제할 이미지의 키 'images/1691343931840_multer.png'
+  };
+
   try {
-    fs.unlinkSync(imagePath);
-    console.log('이미지 삭제 성공', imagePath);
-  } catch (err) {
-    console.error('이미지 삭제 실패', err);
+    const command = new DeleteObjectCommand(params);
+    await s3.send(command);
+    console.log(`S3에서 이미지 삭제 완료: ${imageKey}`);
+  } catch (error) {
+    console.error('S3 이미지 삭제 중 오류 발생:', error);
   }
 };
 
-module.exports = { multerMiddleware, deleteImage };
+module.exports = {multerMiddleware, deleteS3}
