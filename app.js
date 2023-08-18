@@ -24,7 +24,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server,{
   cors:{
-    origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app']
+    origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app','https://hapoom.life']
   }
 });
 app.set('io', io);
