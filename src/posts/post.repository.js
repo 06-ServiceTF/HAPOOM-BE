@@ -13,7 +13,7 @@ class PostRepository {
     try {
       const post = await Posts.findOne({ where: { postId: postId } });
       const images = await Images.findAll({ where: { postId: postId } });
-      const user = await Users.findOne({ where: { postId: postId } });
+      const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
