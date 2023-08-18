@@ -12,12 +12,12 @@ class AuthService {
   constructor() {
   }
   async getUserToken(userData) {
-    const user = await userRepository.findByEmail(userData);
-    console.log(user)
+    const {user,postIds} = await userRepository.findByEmailLikes(userData);
+    console.log(user,postIds)
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return { email: userResponse.email, nickname: userResponse.nickname,
-      userImage: userResponse.userImage,preset: userResponse.preset };
+      userImage: userResponse.userImage,preset: userResponse.preset,likePosts:postIds };
   }
 
   async refreshToken(user) {

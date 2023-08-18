@@ -1,4 +1,4 @@
-const { Users } = require("../models");
+const { Users,Likes,Posts } = require("../models");
 // const { ConflictError } = require("../errors/errors");
 
 class AuthRepository {
@@ -81,6 +81,23 @@ class AuthRepository {
 
   async findByEmail(userData) {
     return Users.findOne({ where: { email:userData.email,method:userData.method } });
+  }
+
+  async findByEmailLikes(userData) {
+    // 사용자 찾기
+    const user = await Users.findOne({ where: { email: userData.email, method: userData.method } });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // 해당 사용자의 좋아요한 게시물 찾기
+    const likes = await Likes.findAll({ where: { userId: user.userId } });
+
+    // 좋아요한 게시물의 postId들을 배열로 반환
+    const postIds = likes.map(like => like.postId);
+
+    return {user,postIds};
   }
 
 }

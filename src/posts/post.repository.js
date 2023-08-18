@@ -1,6 +1,7 @@
 // repositories/postRepository.js
 
 const { Posts, Images, Records, Users} = require('../models');
+const { deleteS3 } = require('../middlewares/multer.middleware')
 const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
 const dotenv = require("dotenv");
 dotenv.config();
@@ -67,8 +68,21 @@ class PostRepository {
       await post.update({ content, musicTitle, musicUrl, latitude, longitude, placeName, musicType, private: false, tag });
 
       // Delete old images and audio
+      const audioDelete = await Records.findOne({ where: { postId: post.postId }})
+      const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
+      await deleteS3(audioPath)
       await Records.destroy({ where: { postId: postId } });
+
+      const s3DeletePromises = images.map((image) => {
+        const imagePath = new URL(image.dataValues.url).pathname
+        return deleteS3(imagePath)
+      })
+
+      await Promise.all(s3DeletePromises)
+
       await Images.destroy({ where: { postId: postId } });
+
+
 
       // Add new images
       const imagePromises = images.map((image) => {
@@ -104,11 +118,24 @@ class PostRepository {
 
       // Find and delete images
       const images = await Images.findAll({ where: { postId: post.postId } });
+  
+      const s3DeletePromises = images.map((image) => {
+        const imagePath = new URL(image.dataValues.url).pathname.substr(1)
+        return deleteS3(imagePath)
+      })
+
+      await Promise.all(s3DeletePromises)
+
       const imageDeletePromises = images.map((image) => {
         return image.destroy();
       });
 
       await Promise.all(imageDeletePromises);
+
+      // Find and delete audio
+      const audioDelete = await Records.findOne({ where: { postId: post.postId }})
+      const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
+      await deleteS3(audioPath)
 
       // Delete post
       await post.destroy();
@@ -147,7 +174,7 @@ class PostRepository {
 
     if (musicType==="3") {
       musicTitle = '녹음된 음원';
-      musicUrl = host + '/' + audio.path;
+      musicUrl = audio.location;
     }
 
     const post = await Posts.create({
@@ -165,7 +192,7 @@ class PostRepository {
 
     const imagePromises = images.map((image) => {
       return Images.create({
-        url: host + '/' + image.path,
+        url: image.location,
         postId: post.dataValues.postId,
         userId
       });
@@ -174,7 +201,7 @@ class PostRepository {
     await Promise.all(imagePromises);
 
     if (musicType === "3" && audio) {
-      const audioUrl = host + '/' + audio.path;
+      const audioUrl = audio.location;
       try {
         await Records.create({
           url: audioUrl,
