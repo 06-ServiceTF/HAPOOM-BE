@@ -6,8 +6,8 @@ class ProfileController {
   // 유저 정보 조회
   userInfo = async (req, res, next) => {
     try {
-      const { email,method } = req.user;
-      const user = await this.profileService.userInfo(email,method);
+      const { email, method } = req.user;
+      const user = await this.profileService.userInfo(email, method);
 
       return res.status(200).json({ user });
     } catch (error) {
@@ -39,7 +39,12 @@ class ProfileController {
   myProfile = async (req, res, next) => {
     try {
       const { email, method } = req.user;
-      const myProfile = await this.profileService.myProfile(email, method);
+      const page = req.query.page || 1;
+      const myProfile = await this.profileService.myProfile(
+        email,
+        method,
+        page
+      );
       res.status(200).json({
         user: myProfile.findUser,
         postsCount: myProfile.postsCount,
@@ -57,7 +62,8 @@ class ProfileController {
   userProfile = async (req, res, next) => {
     try {
       const { userId } = req.params;
-      const profilePage = await this.profileService.userProfile(userId);
+      const page = req.query.page || 1;
+      const profilePage = await this.profileService.userProfile(userId, page);
 
       res.status(200).json({
         user: profilePage.getUser,
