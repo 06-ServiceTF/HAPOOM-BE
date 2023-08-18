@@ -13,12 +13,13 @@ class PostRepository {
     try {
       const post = await Posts.findOne({ where: { postId: postId } });
       const images = await Images.findAll({ where: { postId: postId } });
+      const user = await Users.findOne({ where: { postId: postId } });
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
       }
 
-      return { post, images };
+      return { post, images, user };
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
@@ -87,7 +88,7 @@ class PostRepository {
       const imageDelete = await Images.findAll({ where: { postId: post.postId }})
       if(imageDelete) {
         const s3DeletePromises = imageDelete.map((image) => {
-          const imagePath = new URL(image.dataValues.url).pathname
+          const imagePath = new URL(image.dataValues.url).pathname.substr(1)
           return deleteS3(imagePath)
         })
 
