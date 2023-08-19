@@ -41,7 +41,7 @@ jobs:
 
       - name: deploy with AWS CodeDeploy
         run: aws deploy create-deployment
-          --application-name hapoomAplication
+          --application-name application
           --deployment-config-name CodeDeployDefault.OneAtATime
-          --deployment-group-name hapoomNewGroup
+          --deployment-group-name hapoomGroup
           --s3-location bucket=hapoomnewbucket,bundleType=zip,key=deploy/CI.zip
