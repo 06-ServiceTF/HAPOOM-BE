@@ -94,10 +94,10 @@ class AuthService {
         };
         const refreshToken = jwt.sign(refreshPayload, process.env.JWT_REFRESH_SECRET);
         res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
-        return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
+        return res.redirect(`https://hapoom-fe.vercel.app/auth/SocialSuccess`);
       } catch (error) {
         console.log(error)
-        return res.redirect(`${process.env.ORIGIN}/auth/SignIn`);
+        return res.redirect(`https://hapoom-fe.vercel.app/auth/SignIn`);
       }
     })(req, res, next);
   };
