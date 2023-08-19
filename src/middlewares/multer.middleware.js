@@ -24,7 +24,7 @@ const multerMiddleware = multer({
       if(file.mimetype.startsWith('audio/')) {
         folderName = 'audios'
       }
-      cb(null, `${folderName}/${Date.now().toString()}_${file.originalname}`); 
+      cb(null, `${folderName}/${Date.now().toString()}_${file.originalname.toString()}`); 
     },
   }),
   limits: { fileSize: 5 * 1024 * 1024}
