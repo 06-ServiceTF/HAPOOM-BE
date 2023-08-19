@@ -30,6 +30,7 @@ const io = socketIo(server,{
 app.set('io', io);
 const origin = process.env.ORIGIN
 
+
 io.on('connection', (socket) => {
   console.log('New client connected');
 
@@ -98,6 +99,7 @@ app.use((err, req, res, next) => {
   console.error('errorMessage:', errorMessage);
   return res.status(err.status || 400).json({
     errorMessage: err.message || '오류가 발생했습니다',
+
   });
 });
 initializeLocalPassport(passport);
@@ -110,6 +112,7 @@ app.use(passport.initialize()); // req 객체에 passport 설정을 심는다.
 app.use(passport.session()); // req.session 객체에 passport 정보를 저장한다.
 // passport.session() 미들웨어는 express-session 미들웨어보다 뒤에 연결해야 한다.
 // passport.session()이 실행되면, 세션쿠키 정보 바탕으로 passport의 deserializeUser 메서드가 실행된다.
+
 
 server.listen(process.env.PORT || 3001, (req, res) => {
   console.log(`http://localhost:${process.env.PORT}`);

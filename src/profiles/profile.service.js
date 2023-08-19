@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 class ProfileService {
   profileRepository = new ProfileRepository();
 
-
   userInfo = async (email, method) => {
     const user = await this.profileRepository.userInfo(email, method);
 
@@ -41,7 +40,7 @@ class ProfileService {
   };
 
   // 마이페이지 조회
-  myProfile = async (email, method) => {
+  myProfile = async (email, method, page) => {
     const findUser = await this.profileRepository.findUser(email, method);
     if (!findUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
@@ -51,7 +50,7 @@ class ProfileService {
       method
     );
 
-    const findPosts = await this.profileRepository.myPosts(email, method);
+    const findPosts = await this.profileRepository.myPosts(email, method, page);
     const myPosts = findPosts.map((post) => {
       return {
         postId: post.postId,
@@ -66,7 +65,8 @@ class ProfileService {
 
     const findLikedPosts = await this.profileRepository.myLikedPosts(
       email,
-      method
+      method,
+      page
     );
     const myLikedPosts = findLikedPosts.map((post) => {
       return {
@@ -90,7 +90,7 @@ class ProfileService {
   };
 
   // 유저페이지 조회
-  userProfile = async (userId) => {
+  userProfile = async (userId, page) => {
     const getUser = await this.profileRepository.getUser(userId);
     if (!getUser) throw new CustomError('유저를 찾을 수 없습니다.', 404);
 
@@ -99,7 +99,7 @@ class ProfileService {
       userId
     );
 
-    const findPosts = await this.profileRepository.userPosts(userId);
+    const findPosts = await this.profileRepository.userPosts(userId, page);
     const userPosts = findPosts.map((post) => {
       return {
         postId: post.postId,
@@ -111,7 +111,10 @@ class ProfileService {
       };
     });
 
-    const findLikedPosts = await this.profileRepository.userLikedPosts(userId);
+    const findLikedPosts = await this.profileRepository.userLikedPosts(
+      userId,
+      page
+    );
     const userLikedPosts = findLikedPosts.map((post) => {
       return {
         postId: post.postId,

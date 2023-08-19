@@ -1,7 +1,6 @@
 const { Posts, Users, Images, Likes } = require('../models');
 
 class ProfileRepository {
-
   userInfo = async (email, method) => {
     const user = await Users.findOne({
       where: { email, method },
@@ -43,21 +42,29 @@ class ProfileRepository {
   };
 
   // 마이페이지 게시글 조회
-  myPosts = async (email, method) => {
+  myPosts = async (email, method, page) => {
     const user = await Users.findOne({ where: { email, method } });
+    const limit = 12;
+    const offset = (page - 1) * limit;
     const myPosts = await Posts.findAll({
       where: { userId: user.userId },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
+      limit,
+      offset,
     });
     return myPosts;
   };
 
   // 마이페이지 좋아요 게시글 조회
-  myLikedPosts = async (email, method) => {
+  myLikedPosts = async (email, method, page) => {
     const user = await Users.findOne({ where: { email, method } });
+    const limit = 12;
+    const offset = (page - 1) * limit;
     const likePostIds = await Likes.findAll({
       where: { userId: user.userId },
       attributes: ['postId'],
+      limit,
+      offset,
     });
     const myLikedPosts = await Posts.findAll({
       where: { postId: likePostIds.map((like) => like.postId) },
@@ -94,19 +101,25 @@ class ProfileRepository {
   };
 
   // 유저가 작성한 게시글 가져오기
-  userPosts = async (userId) => {
+  userPosts = async (userId, page) => {
+    const limit = 12;
+    const offset = (page - 1) * limit;
     const userPosts = await Posts.findAll({
       where: { userId, private: false },
       include: [
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
+      limit,
+      offset,
     });
     return userPosts;
   };
 
   // 유저가 좋아요를 누른 게시글 가져오기
-  userLikedPosts = async (userId) => {
+  userLikedPosts = async (userId, page) => {
+    const limit = 12;
+    const offset = (page - 1) * limit;
     const likedPosts = await Posts.findAll({
       where: { userId, private: false },
       include: [
@@ -114,6 +127,8 @@ class ProfileRepository {
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
+      limit,
+      offset,
     });
     return likedPosts;
   };
