@@ -39,6 +39,8 @@ class PostRepository {
       const images = files['image'];
       const audio = files['audio'] ? files['audio'][0] : null;
 
+      console.log(audio)
+
       if (musicType==="2") {
         switch (musicUrl){
           case "1":musicUrl=`${process.env.ORIGIN_BACK}/publicMusic/1.Alan Walker - Dreamer (BEAUZ & Heleen Remix) [NCS Release].mp3`;
