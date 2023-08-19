@@ -212,12 +212,8 @@ class PostRepository {
       tag,
       userId
     });
-    
 
     const imagePromises = images.map((image) => {
-      if (image['size'] >= 5000000) {
-        throw { status: 500, message: 'Error image size over' };
-      }
       return Images.create({
         url: image.location,
         postId: post.dataValues.postId,
