@@ -35,7 +35,7 @@ const profileController = new ProfileController();
 // 유저 정보 조회
 router.get('/', authMiddleware, profileController.userInfo);
 // 유저 정보 수정
-router.patch('/', authMiddleware, multerMiddleware, profileController.updateUser);
+//router.patch('/', authMiddleware, multerMiddleware, profileController.updateUser);
 // 마이페이지 조회
 router.get('/myprofile', authMiddleware, profileController.myProfile);
 // 유저페이지 조회

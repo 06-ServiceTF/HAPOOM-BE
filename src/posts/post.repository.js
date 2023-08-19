@@ -13,9 +13,15 @@ class PostRepository {
     try {
       const post = await Posts.findOne({ where: { postId: postId } });
       const images = await Images.findAll({ where: { postId: postId } });
-      const user = await Users.findOne({ where: { postId: postId } })
+      const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
 
       if (!post) {
+        throw { status: 404, message: 'Post not found' };
+      }
+      if (!images) {
+        throw { status: 404, message: 'Post not found' };
+      }
+      if (!user) {
         throw { status: 404, message: 'Post not found' };
       }
 
@@ -39,6 +45,8 @@ class PostRepository {
       let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag } = body;
       const images = files['image'];
       const audio = files['audio'] ? files['audio'][0] : null;
+
+      console.log(audio)
 
       if (musicType==="2") {
         switch (musicUrl){
@@ -88,7 +96,7 @@ class PostRepository {
       const imageDelete = await Images.findAll({ where: { postId: post.postId }})
       if(imageDelete) {
         const s3DeletePromises = imageDelete.map((image) => {
-          const imagePath = new URL(image.dataValues.url).pathname.substr(1)
+          const imagePath = new URL(image.dataValues.url).pathname
           return deleteS3(imagePath)
         })
 
