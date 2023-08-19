@@ -9,7 +9,7 @@ module.exports = function initializeKakaoPassport (passport) {
       new KaKaoStrategy(
         {
           clientID: process.env.KAKAO_CLIENT_ID,
-          callbackURL: `https://hapoom-fe.vercel.app/api/auth/kakao/callback`,
+          callbackURL: `https://hapoom.life/api/auth/kakao/callback`,
           passReqToCallback: true,
         },
         function (request, accessToken, refreshToken, profile, done) {
