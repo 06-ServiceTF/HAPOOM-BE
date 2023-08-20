@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
+      this.hasMany(models.PostsAndTagsMappings, {
+        sourceKey: 'postId',
+        foreignKey: 'postId'
+      })
     }
   }
   Posts.init(
@@ -49,15 +53,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       content: {
-        // allowNull: false,
         type: DataTypes.STRING(7000),
       },
       latitude: {
-        // allowNull: false,
         type: DataTypes.FLOAT,
       },
       longitude: {
-        // allowNull: false,
         type: DataTypes.FLOAT,
       },
       private: {
@@ -65,9 +66,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      tag: {
-        type: DataTypes.STRING
-      },
+      // tag: {
+      //   type: DataTypes.STRING
+      // },
       musicType: {
         type: DataTypes.INTEGER
       },
