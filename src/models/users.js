@@ -32,6 +32,16 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'userId',
         foreignKey: 'userId',
       });
+      this.belongsToMany(models.Users, {
+        foreignKey: 'followingId',
+        as: 'Followers',
+        through: 'Follows',
+      });
+      this.belongsToMany(models.Users, {
+        foreignKey: 'followerId',
+        as: 'Followings',
+        through: 'Follows',
+      });
     }
   }
   Users.init(
