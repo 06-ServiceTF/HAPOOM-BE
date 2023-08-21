@@ -15,7 +15,7 @@ const upload = multerMiddleware.fields([
 router.get('/', authMiddleware, profileController.userInfo);
 
 // 유저 정보 수정
-router.put('/', authMiddleware, upload, profileController.updateUser);
+router.patch('/', authMiddleware, upload, profileController.updateUser);
 
 // 마이페이지 조회
 router.get('/myprofile', authMiddleware, profileController.myProfile);
