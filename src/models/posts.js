@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
-      this.hasMany(models.PostsAndTagsMappings, {
+      this.hasMany(models.Mappings, {
         sourceKey: 'postId',
         foreignKey: 'postId'
       })
