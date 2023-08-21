@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       userImage: {
         allowNull: true,
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(7000),
       },
       method: {
         allowNull: true,
