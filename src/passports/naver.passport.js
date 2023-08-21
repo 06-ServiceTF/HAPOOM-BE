@@ -10,7 +10,7 @@ module.exports = function initializeNaverPassport (passport) {
       {
         clientID: process.env.NAVER_CLIENT_ID,
         clientSecret: process.env.NAVER_CLIENT_SECRET,
-        callbackURL: `${process.env.ORIGIN_BACK}/api/auth/naver/callback`,
+        callbackURL: `https://hapoom.life/api/auth/naver/callback`,
         passReqToCallback: true,
       },
       function (request,accessToken, refreshToken, profile, done) {

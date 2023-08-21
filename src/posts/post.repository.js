@@ -18,6 +18,12 @@ class PostRepository {
       if (!post) {
         throw { status: 404, message: 'Post not found' };
       }
+      if (!images) {
+        throw { status: 404, message: 'Post not found' };
+      }
+      if (!user) {
+        throw { status: 404, message: 'Post not found' };
+      }
 
       return { post, images, user };
     } catch (error) {
@@ -39,6 +45,8 @@ class PostRepository {
       let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag } = body;
       const images = files['image'];
       const audio = files['audio'] ? files['audio'][0] : null;
+
+      console.log(audio)
 
       if (musicType==="2") {
         switch (musicUrl){
