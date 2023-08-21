@@ -8,9 +8,10 @@ class FollowController {
   follow = async (req, res, next) => {
     try {
       const { userId } = req.params;
-      const { email, method } = req.user;
-      const follow = await this.followService.follow(userId, email, method);
-      return res.status(200).json({ follow });
+      // const { email, method } = req.user;
+      const email = 'asdf@gmail.com';
+      const follow = await this.followService.follow(userId, email);
+      return res.status(200).json({ message: '팔로우 성공' });
     } catch (error) {
       console.log(error);
       next(error);
@@ -20,9 +21,10 @@ class FollowController {
   unfollow = async (req, res, next) => {
     try {
       const { userId } = req.params;
-      const { email, method } = req.user;
-      const unfollow = await this.followService.unfollow(userId, email, method);
-      return res.status(200).json({ unfollow });
+      // const { email, method } = req.user;
+      const email = 'asdf@gmail.com';
+      const unfollow = await this.followService.unfollow(userId, email);
+      return res.status(200).json({ message: '팔로우 취소' });
     } catch (error) {
       console.log(error);
       next(error);

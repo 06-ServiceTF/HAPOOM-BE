@@ -14,7 +14,7 @@ router.post('/:userId/follow', followController.follow);
 router.post('/:userId/unfollow', followController.unfollow);
 
 // 팔로우 리스트 가져오기
-router.get('/:userId/followers', followController.getFollowers);
+router.get('/:userId/follower', followController.getFollowers);
 
 // 팔로잉 리스트 가져오기
 router.get('/:userId/following', followController.getFollowing);

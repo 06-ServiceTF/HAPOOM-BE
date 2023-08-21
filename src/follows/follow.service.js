@@ -4,13 +4,13 @@ const CustomError = require('../middlewares/error.middleware');
 class FollowService {
   followRepository = new FollowRepository();
 
-  follow = async (userId, email, method) => {
-    const follow = await this.followRepository.follow(userId, email, method);
+  follow = async (userId, email) => {
+    const follow = await this.followRepository.follow(userId, email);
     return follow;
   };
 
-  unfollow = async (userId, email, method) => {
-    const unfollow = await this.followRepository.unfollow(userId, email, method);
+  unfollow = async (userId, email) => {
+    const unfollow = await this.followRepository.unfollow(userId, email);
     return unfollow;
   };
 
