@@ -56,11 +56,8 @@ class MainRepository {
       where: { private: false },
       include: [
         { model: Images, attributes: ['url'], limit: 1 },
-        {
-         model: Tags,
-        },
+        { model: Tags},
       ],
-      raw: true,
       limit: 15,
       order: sequelize.literal('RAND()'),
     });
