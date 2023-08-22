@@ -50,7 +50,7 @@ const posts = [
   { title: 'Post 3', content: 'Content 3' },
 ];
 
-// 모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
+// //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
 // setInterval(() => {
 //   const randomPosts = [];
 //   for (let i = 0; i < 3; i++) {
@@ -63,6 +63,7 @@ const posts = [
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
   credentials:true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }))
 
 app.use(cookieParser(process.env.SESSION_SECRET));
@@ -99,7 +100,6 @@ app.use((err, req, res, next) => {
   console.error('errorMessage:', errorMessage);
   return res.status(err.status || 400).json({
     errorMessage: err.message || '오류가 발생했습니다',
-
   });
 });
 initializeLocalPassport(passport);

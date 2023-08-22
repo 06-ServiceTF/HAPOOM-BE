@@ -10,7 +10,7 @@ module.exports = function initializeGooglePassport(passport) {
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: `${process.env.ORIGIN_BACK}/api/auth/google/callback`,
+        callbackURL: `https://hapoom.life/api/auth/google/callback`,
         passReqToCallback: true,
       },
       function (request, accessToken, refreshToken, profile, done) {

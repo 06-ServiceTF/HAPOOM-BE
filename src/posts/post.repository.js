@@ -122,7 +122,7 @@ class PostRepository {
       const imageDelete = await Images.findAll({ where: { postId: post.postId }})
       if(imageDelete) {
         const s3DeletePromises = imageDelete.map((image) => {
-          const imagePath = new URL(image.dataValues.url).pathname
+          const imagePath = new URL(image.dataValues.url).pathname.substr(1)
           return deleteS3(imagePath)
         })
 
