@@ -4,11 +4,13 @@ const CustomError = require('../middlewares/error.middleware');
 class FollowService {
   followRepository = new FollowRepository();
 
+  // 팔로우
   follow = async (userId, email, method) => {
     const follow = await this.followRepository.follow(userId, email, method);
     return follow;
   };
 
+  // 언팔로우
   unfollow = async (userId, email, method) => {
     const unfollow = await this.followRepository.unfollow(
       userId,
@@ -18,6 +20,7 @@ class FollowService {
     return unfollow;
   };
 
+  // 유저 팔로워 리스트
   getFollowers = async (userId) => {
     const getFollowers = await this.followRepository.getFollowers(userId);
     const followers = getFollowers.map((follow) => {
@@ -32,6 +35,7 @@ class FollowService {
     return followers;
   };
 
+  // 유저 팔로잉 리스트
   getFollowing = async (userId) => {
     const getFollowings = await this.followRepository.getFollowing(userId);
     const followings = getFollowings.map((follow) => {
