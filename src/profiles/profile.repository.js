@@ -97,7 +97,7 @@ class ProfileRepository {
     const user = await Users.findOne({
       where: { userId },
       attributes: {
-        exclude: ['userId', 'preset', 'password', 'createdAt', 'updatedAt'],
+        exclude: ['password', 'createdAt', 'updatedAt'],
       },
     });
     return user;
