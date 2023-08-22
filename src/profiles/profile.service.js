@@ -47,6 +47,14 @@ class ProfileService {
       email,
       method
     );
+    const followerCount = await this.profileRepository.myFollowerCount(
+      email,
+      method
+    );
+    const followingCount = await this.profileRepository.myFollowingCount(
+      email,
+      method
+    );
 
     const findPosts = await this.profileRepository.myPosts(email, method, page);
     const myPosts = findPosts.map((post) => {
@@ -82,6 +90,8 @@ class ProfileService {
       findUser,
       postsCount,
       likePostsCount,
+      followerCount,
+      followingCount,
       myPosts,
       myLikedPosts,
     };
@@ -94,6 +104,12 @@ class ProfileService {
 
     const userPostsCount = await this.profileRepository.userPostsCount(userId);
     const userLikePostsCount = await this.profileRepository.userLikePostsCount(
+      userId
+    );
+    const userFollowerCount = await this.profileRepository.userFollowerCount(
+      userId
+    );
+    const userFollowingCount = await this.profileRepository.userFollowingCount(
       userId
     );
 
@@ -128,6 +144,8 @@ class ProfileService {
       getUser,
       userPostsCount,
       userLikePostsCount,
+      userFollowerCount,
+      userFollowingCount,
       userPosts,
       userLikedPosts,
     };

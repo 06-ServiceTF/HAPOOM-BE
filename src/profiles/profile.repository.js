@@ -1,4 +1,4 @@
-const { Posts, Users, Images, Likes } = require('../models');
+const { Posts, Users, Images, Likes, Follows } = require('../models');
 
 class ProfileRepository {
   // 유저 정보
@@ -40,6 +40,24 @@ class ProfileRepository {
       where: { userId: user.userId },
     });
     return likePostsCount;
+  };
+
+  // 마이페이지 팔로워 수 계산
+  myFollowerCount = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
+    const followerCount = await Follows.count({
+      where: { followingId: user.userId },
+    });
+    return followerCount;
+  };
+
+  // 마이페이지 팔로잉 수 계산
+  myFollowingCount = async (email, method) => {
+    const user = await Users.findOne({ where: { email, method } });
+    const followingCount = await Follows.count({
+      where: { followerId: user.userId },
+    });
+    return followingCount;
   };
 
   // 마이페이지 게시글 조회
@@ -99,6 +117,22 @@ class ProfileRepository {
       where: { userId },
     });
     return likePostsCount;
+  };
+
+  // 유저페이지 팔로워 수 계산
+  userFollowerCount = async (userId) => {
+    const followerCount = await Follows.count({
+      where: { followingId: userId },
+    });
+    return followerCount;
+  };
+
+  // 유저페이지 팔로잉 수 계산
+  userFollowingCount = async (userId) => {
+    const followingCount = await Follows.count({
+      where: { followerId: userId },
+    });
+    return followingCount;
   };
 
   // 유저가 작성한 게시글 가져오기

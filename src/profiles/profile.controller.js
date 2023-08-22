@@ -49,6 +49,8 @@ class ProfileController {
         user: myProfile.findUser,
         postsCount: myProfile.postsCount,
         likePostsCount: myProfile.likePostsCount,
+        followerCount: myProfile.followerCount,
+        followingCount: myProfile.followingCount,
         posts: myProfile.myPosts,
         likedPosts: myProfile.myLikedPosts,
       });
@@ -69,6 +71,8 @@ class ProfileController {
         user: profilePage.getUser,
         postsCount: profilePage.userPostsCount,
         likePostsCount: profilePage.userLikePostsCount,
+        followerCount: profilePage.userFollowerCount,
+        followingCount: profilePage.userFollowingCount,
         posts: profilePage.userPosts,
         likedPosts: profilePage.userLikedPosts,
       });
