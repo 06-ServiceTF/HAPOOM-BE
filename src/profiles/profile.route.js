@@ -8,18 +8,15 @@ const profileController = new ProfileController();
 
 const upload = multerMiddleware.fields([
   { name: 'image', maxCount: 5 },
-  { name: 'audio', maxCount: 1}
-])
+  { name: 'audio', maxCount: 1 },
+]);
 
 // 유저 정보 조회
 router.get('/', authMiddleware, profileController.userInfo);
-
 // 유저 정보 수정
-router.put('/', authMiddleware, upload, profileController.updateUser);
-
+router.put('/', upload, profileController.updateUser);
 // 마이페이지 조회
 router.get('/myprofile', authMiddleware, profileController.myProfile);
-
 // 유저페이지 조회
 router.get('/profile/:userId', profileController.userProfile);
 
