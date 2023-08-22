@@ -10,7 +10,6 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.Mappings[0].Tag.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
@@ -22,7 +21,6 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.Mappings[0].Tag.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
@@ -35,7 +33,7 @@ class MainService {
         nickname: post.User.nickname,
         private: post.private,
         image: post.Images[0].url,
-        tag: post.Mappings[0].Tag.tag
+
       }
     })
 

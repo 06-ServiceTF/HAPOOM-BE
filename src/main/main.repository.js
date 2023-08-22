@@ -15,8 +15,7 @@ class MainRepository {
       where: { private: false },
       include: [
         { model: Users, attributes: ['nickname'] },
-        { model: Images, attributes: ['url'], limit: 1 },
-        { model: Mappings, include: [{ model: Tags, attributes: ['tag'] }] },
+        { model: Images, attributes: ['url'], limit: 1 }
       ],
       limit: 12,
       order: Sequelize.literal('RAND()'),
@@ -30,8 +29,7 @@ class MainRepository {
       where: { private: false },
       include: [
         { model: Users, attributes: ['nickname'] },
-        { model: Images, attributes: ['url'], limit: 1 },
-        { model: Mappings, include: [{ model: Tags, attributes: ['tag'] }] },
+        { model: Images, attributes: ['url'], limit: 1 }
       ],
       attributes: {
         // Likes 테이블에서 Likes.postId가 Posts 테이블의 postId와 일치하는 항목의 개수를 계산

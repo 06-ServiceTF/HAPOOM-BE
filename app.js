@@ -44,13 +44,13 @@ io.on('connection', (socket) => {
   });
 });
 
-const posts = [
-  { title: 'Post 1', content: 'Content 1' },
-  { title: 'Post 2', content: 'Content 2' },
-  { title: 'Post 3', content: 'Content 3' },
-];
+// const posts = [
+//   { title: 'Post 1', content: 'Content 1' },
+//   { title: 'Post 2', content: 'Content 2' },
+//   { title: 'Post 3', content: 'Content 3' },
+// ];
 
-// //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
+// // //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
 // setInterval(() => {
 //   const randomPosts = [];
 //   for (let i = 0; i < 3; i++) {
