@@ -66,9 +66,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      // tag: {
-      //   type: DataTypes.STRING
-      // },
       musicType: {
         type: DataTypes.INTEGER
       },

@@ -33,9 +33,6 @@ class PostRepository {
         return { post, images, user };
       }
     
-      
-    
-     
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
