@@ -23,6 +23,35 @@ exports.youtubeSearch = async (term) => {
   });
 };
 
+exports.Geocode = async (address, page = 1, size = 5) => {
+  try {
+    const response = await axios.get('https://dapi.kakao.com/v2/local/search/keyword.json', {
+      params: {
+        query: address,
+        page: page,
+        size: size,
+      },
+      headers: {
+        'Authorization': `KakaoAK ${process.env.KAKAO_CLIENT_ID}`,
+      },
+    });
+
+    console.log('Response:', response.data); // 응답 전체 내용 출력
+
+    if (response.data.documents && response.data.documents.length > 0) {
+      return {
+        addressInfo: response.data.documents,
+      };
+    } else {
+      console.error('No matching address found');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error calling Kakao Geocode API:', error);
+    return null;
+  }
+};
+
 exports.reverseGeocode = async (x, y) => {
   const response = await axios.get('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc', {
     params: {
