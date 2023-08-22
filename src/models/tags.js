@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.PostsAndTagsMappings, {
+      this.hasMany(models.Mappings, {
         sourceKey: 'tagId',
         foreignKey: 'tagId'
       });

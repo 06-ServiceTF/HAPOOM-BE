@@ -95,21 +95,21 @@ class PostRepository {
         private: false,
         });
 
-        if (tag) {
-          const tagArr = tag.split(",")
-          const tagPromises = tagArr.map(async (tag) => {
-            const [item, created] = await Tags.findOrCreate({
-              where: { tag: tag }
-            })
+      if (tag) {
+        await Mappings.destroy({ where: { postId: post.dataValues.postId }})
     
-            Mappings.create({
-              postId: post.dataValues.postId,
-              tagId: item["tagId"]
-            })
+        const tagArr = tag.split(",")
+        for (let i = 0; i < tagArr.length; i++) {
+          const [item, result] = await Tags.findOrCreate({
+            where: { tag: tagArr[i] }
           })
-    
-          await Promise.all(tagPromises)
-        }
+          
+          await Mappings.create({
+            postId: post.dataValues.postId,
+            tagId: item["tagId"]
+          })
+        };
+        };
 
       // Delete old images and audio
       const audioDelete = await Records.findOne({ where: { postId: post.postId }})
@@ -160,6 +160,7 @@ class PostRepository {
     try {
       // Find and delete the post
       const post = await Posts.findOne({ where: { postId: postId } });
+      const mappings = await Mappings.findAll({ where: { postId }})
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -187,6 +188,11 @@ class PostRepository {
         const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
         await deleteS3(audioPath)
       }
+
+      // delete mappings
+      if (!mappings.length) {
+        await Mappings.destroy({ where: { postId }})
+      } 
 
       // Delete post
       await post.destroy();
@@ -242,18 +248,16 @@ class PostRepository {
 
     if (tag) {
       const tagArr = tag.split(",")
-      const tagPromises = tagArr.map(async (tag) => {
-        const [item, created] = await Tags.findOrCreate({
-          where: { tag: tag }
+      for (let i = 0; i < tagArr.length; i++) {
+        const [item, result] = await Tags.findOrCreate({
+          where: { tag: tagArr[i] }
         })
 
-        Mappings.create({
+        await Mappings.create({
           postId: post.dataValues.postId,
           tagId: item["tagId"]
         })
-      })
-
-      await Promise.all(tagPromises)
+      };
     }
 
     if (images) {
