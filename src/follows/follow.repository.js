@@ -1,9 +1,9 @@
 const { Users, Follows } = require('../models');
 
 class FollowRepository {
-  follow = async (userId, email) => {
+  follow = async (userId, email, method) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
 
@@ -33,9 +33,9 @@ class FollowRepository {
     return follow;
   };
 
-  unfollow = async (userId, email) => {
+  unfollow = async (userId, email, method) => {
     const user = await Users.findOne({
-      where: { email },
+      where: { email, method },
       attributes: ['userId'],
     });
 
