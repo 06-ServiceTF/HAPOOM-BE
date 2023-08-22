@@ -57,8 +57,11 @@ class MainRepository {
       include: [
         { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
-        { model: Mappings, include: [{ model: Tags, attributes: ['tag'], limit: 1}] },
+        // { model: Mappings, include: [{ model: Tags, attributes: ['tag'], limit: 1}] },
+        { model: Mappings, attributes: ['tagId'] },
+        { model: Tags, attributes: ['tag'], limit: 1 }
       ],
+      raw: true,
       limit: 15,
       order: Sequelize.literal('RAND()')
     })

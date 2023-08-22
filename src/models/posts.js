@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
+      // this.belongsToMany(models.Tags, {
+      //   through: 'Mappings',// 중간 테이블 이름
+      //   foreignKey: 'postId',
+      // });
       this.hasMany(models.Mappings, {
         sourceKey: 'postId',
         foreignKey: 'postId'
