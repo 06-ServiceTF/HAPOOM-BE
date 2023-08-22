@@ -10,6 +10,16 @@ exports.youtubeSearch = async (req, res) => {
   }
 };
 
+exports.Geocode = async (req, res) => {
+  try {
+    const data = await service.Geocode(req.query.query);
+    res.send(data);
+  } catch (error) {
+    console.error('Error getting geocode:', error);
+    res.status(500).send({ error: 'Error getting geocode' });
+  }
+};
+
 exports.reverseGeocode = async (req, res) => {
   try {
     const data = await service.reverseGeocode(req.query.x, req.query.y);
