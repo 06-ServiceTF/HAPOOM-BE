@@ -30,7 +30,6 @@ class MainService {
     const getMainTags = await findMainTags.map((post) => {
       return {
         postId: post.postId,
-        nickname: post.User.nickname,
         private: post.private,
         image: post.Images[0].url,
 

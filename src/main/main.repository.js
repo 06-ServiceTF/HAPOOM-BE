@@ -51,23 +51,22 @@ class MainRepository {
     return likedPosts;
   };
 
-  getMainTags = async() => {
-    const mainTags = await Posts.findAll({ 
+  getMainTags = async () => {
+    const mainTags = await Posts.findAll({
       where: { private: false },
       include: [
-        { model: Users, attributes: ['nickname'] },
         { model: Images, attributes: ['url'], limit: 1 },
-        // { model: Mappings, include: [{ model: Tags, attributes: ['tag'], limit: 1}] },
-        { model: Mappings, attributes: ['tagId'] },
-        { model: Tags, attributes: ['tag'], limit: 1 }
+        {
+         model: Tags,
+        },
       ],
       raw: true,
       limit: 15,
-      order: Sequelize.literal('RAND()')
-    })
-
-    return mainTags
-  }
+      order: sequelize.literal('RAND()'),
+    });
+  
+    return mainTags;
+  };
 };
 
 module.exports = MainRepository;
