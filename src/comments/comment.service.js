@@ -27,6 +27,7 @@ class CommentService {
         email: comment.User.email,
         nickname: comment.User.nickname,
         userImage: comment.User.userImage,
+        preset: comment.User.preset,
         comment: comment.comment,
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
