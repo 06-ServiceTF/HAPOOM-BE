@@ -1,6 +1,6 @@
 // repositories/postRepository.js
 
-const { Posts, Images, Records, Users} = require('../models');
+const { Posts, Images, Records, Users, Tags, Mappings } = require('../models');
 const { deleteS3 } = require('../middlewares/multer.middleware')
 const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
 const dotenv = require("dotenv");
@@ -14,6 +14,7 @@ class PostRepository {
       const post = await Posts.findOne({ where: { postId: postId } });
       const images = await Images.findAll({ where: { postId: postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
+      const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -25,7 +26,16 @@ class PostRepository {
         throw { status: 404, message: 'Post not found' };
       }
 
-      return { post, images, user };
+      if(mappings) {
+        const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
+        return { post, images, user, tag };
+      } else {
+        return { post, images, user };
+      }
+    
+      
+    
+     
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
@@ -83,7 +93,23 @@ class PostRepository {
         placeName,
         musicType,
         private: false,
-        tag});
+        });
+
+      if (tag) {
+        await Mappings.destroy({ where: { postId: post.dataValues.postId }})
+    
+        const tagArr = tag.split(",")
+        for (let i = 0; i < tagArr.length; i++) {
+          const [item, result] = await Tags.findOrCreate({
+            where: { tag: tagArr[i] }
+          })
+          
+          await Mappings.create({
+            postId: post.dataValues.postId,
+            tagId: item["tagId"]
+          })
+        };
+        };
 
       // Delete old images and audio
       const audioDelete = await Records.findOne({ where: { postId: post.postId }})
@@ -105,12 +131,14 @@ class PostRepository {
         await Images.destroy({where: {postId: postId}});
       }
 
-      const imagePromises = images.map((image) => {
-        return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
-      });
+      if(images) {
+        const imagePromises = images.map((image) => {
+          return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
+        });
 
-      await Promise.all(imagePromises);
-
+        await Promise.all(imagePromises);
+      }
+      
       console.log(audio)
 
       if (musicType==="3" && audio) {
@@ -132,6 +160,7 @@ class PostRepository {
     try {
       // Find and delete the post
       const post = await Posts.findOne({ where: { postId: postId } });
+      const mappings = await Mappings.findAll({ where: { postId }})
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -159,6 +188,11 @@ class PostRepository {
         const audioPath = new URL(audioDelete.dataValues.url).pathname.substr(1)
         await deleteS3(audioPath)
       }
+
+      // delete mappings
+      if (!mappings.length) {
+        await Mappings.destroy({ where: { postId }})
+      } 
 
       // Delete post
       await post.destroy();
@@ -209,19 +243,35 @@ class PostRepository {
       placeName,
       musicType,
       private: false,
-      tag,
       userId
     });
 
-    const imagePromises = images.map((image) => {
-      return Images.create({
-        url: image.location,
-        postId: post.dataValues.postId,
-        userId
-      });
-    });
+    if (tag) {
+      const tagArr = tag.split(",")
+      for (let i = 0; i < tagArr.length; i++) {
+        const [item, result] = await Tags.findOrCreate({
+          where: { tag: tagArr[i] }
+        })
 
-    await Promise.all(imagePromises);
+        await Mappings.create({
+          postId: post.dataValues.postId,
+          tagId: item["tagId"]
+        })
+      };
+    }
+
+    if (images) {
+      const imagePromises = images.map((image) => {
+        return Images.create({
+          url: image.location,
+          postId: post.dataValues.postId,
+          userId
+        });
+      });
+  
+      await Promise.all(imagePromises);
+    }
+   
 
     if (musicType === "3" && audio) {
       const audioUrl = audio.location;
