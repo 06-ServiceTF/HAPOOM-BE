@@ -20,7 +20,7 @@ class CommentRepository {
   getComments = async (postId) => {
     const getComments = await Comments.findAll({
       where: { postId },
-      include: { model: Users, attributes: ['nickname', 'userImage'] },
+      include: { model: Users, attributes: ['nickname', 'userImage', 'preset'] },
       order: [['createdAt', 'desc']],
     });
     return getComments;
