@@ -45,6 +45,7 @@ class MainService {
         image: feed.Images[0].url,
         musicTitle: feed.musicTitle,
         musicUrl: feed.musicUrl,
+        preset: feed.User.preset,
       };
     });
 
