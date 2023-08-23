@@ -16,6 +16,7 @@ const path = require('path'); // 경로는 해당 모듈의 위치에 따라 달
 
 const http = require('http');
 const socketIo = require('socket.io');
+const PostsController = require("./src/posts/post.controller");
 
 require('dotenv').config();
 
@@ -39,10 +40,17 @@ io.on('connection', (socket) => {
     io.emit('notify-post', { user: data.user, message: 'New post created!' });
   });
 
+  setInterval(async () => {
+    const postController = new PostsController();
+    const latestPosts = await postController.getMainPost();
+    socket.emit('latest-posts', latestPosts);
+  }, 60 * 1000); // 1분 간격
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
 });
+
 
 const posts = [
   { title: 'Post 1', content: 'Content 1' },

@@ -32,6 +32,33 @@ class PostRepository {
     }
   };
 
+  findLatestPost = async () => {
+    try {
+      const post = await Posts.findOne({
+        order: [
+          ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
+        ]
+      });
+      const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
+      const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
+
+      if (!post) {
+        throw { status: 404, message: 'Post not found' };
+      }
+      if (!images) {
+        throw { status: 404, message: 'Post not found' };
+      }
+      if (!user) {
+        throw { status: 404, message: 'Post not found' };
+      }
+
+      return { post, images, user };
+    } catch (error) {
+      console.error('Error getting post:', error);
+      throw { status: 500, message: 'Error getting post' };
+    }
+  };
+
   updatePost = async (postId, body, files, host) => {
     try {
       // Find the existing post
