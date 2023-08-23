@@ -33,6 +33,25 @@ class MainService {
       getLikedPosts,
     };
   };
+
+  getFeed = async () => {
+    const findFeed = await this.mainRepository.getFeed();
+    const getFeed = findFeed.map((feed) => {
+      return {
+        postId: feed.postId,
+        nickname: feed.User.nickname,
+        userImage: feed.User.userImage,
+        updatedAt: feed.updatedAt,
+        image: feed.Images[0].url,
+        musicTitle: feed.musicTitle,
+        musicUrl: feed.musicUrl,
+      };
+    });
+
+    return {
+      getFeed,
+    };
+  };
 }
 
 module.exports = MainService;

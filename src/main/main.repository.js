@@ -48,6 +48,20 @@ class MainRepository {
 
     return likedPosts;
   };
+
+  getFeed = async () => {
+    const getFeed = await Posts.findAll({
+      where: { private: false },
+      include: [
+        { model: Users, attributes: ['nickname', 'userImage'] },
+        { model: Images, attributes: ['url'], limit: 1 },
+      ],
+      limit: 12,
+      order: Sequelize.literal('RAND()'),
+    });
+
+    return getFeed;
+  };
 }
 
 module.exports = MainRepository;

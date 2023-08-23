@@ -15,6 +15,18 @@ class MainController {
       next(error);
     }
   };
+
+  getFeed = async (req, res, next) => {
+    try {
+      const feedPage = await this.mainService.getFeed();
+      res.status(200).json({
+        feed: feedPage.getFeed,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
 }
 
 module.exports = MainController;
