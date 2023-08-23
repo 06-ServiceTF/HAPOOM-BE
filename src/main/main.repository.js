@@ -61,7 +61,7 @@ class MainRepository {
         },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
-      limit: 12,
+      limit,
       offset,
       order: Sequelize.literal('RAND()'),
     });
