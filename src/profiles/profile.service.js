@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 
 class ProfileService {
   profileRepository = new ProfileRepository();
+
   // 유저 정보
   userInfo = async (email, method) => {
     const user = await this.profileRepository.userInfo(email, method);
@@ -18,9 +19,7 @@ class ProfileService {
       decoded.email,
       decoded.method
     );
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new Error('User not found');
     if (file.image) {
       user.userImage = host + '/' + file.image[0].path;
     }

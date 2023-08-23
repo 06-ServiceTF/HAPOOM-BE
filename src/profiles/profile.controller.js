@@ -8,7 +8,6 @@ class ProfileController {
     try {
       const { email, method } = req.user;
       const user = await this.profileService.userInfo(email, method);
-
       return res.status(200).json({ user });
     } catch (error) {
       console.log(error);
@@ -19,7 +18,6 @@ class ProfileController {
   // 유저 정보 수정
   updateUser = async (req, res) => {
     try {
-      //console.log(req)
       const host = req.protocol + '://' + req.get('host');
       const userUpdates = await this.profileService.updateUser(
         req.cookies.refreshToken,
@@ -27,7 +25,6 @@ class ProfileController {
         req.body,
         host
       );
-
       res.send({ user: userUpdates });
     } catch (error) {
       console.error('Error updating user:', error);
@@ -66,7 +63,6 @@ class ProfileController {
       const { userId } = req.params;
       const page = req.query.page || 1;
       const profilePage = await this.profileService.userProfile(userId, page);
-
       res.status(200).json({
         user: profilePage.getUser,
         postsCount: profilePage.userPostsCount,
