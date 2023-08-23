@@ -8,8 +8,6 @@ class ProfileService {
 
   userInfo = async (email, method) => {
     const user = await this.profileRepository.userInfo(email, method);
-
-    //console.log('유저정보',user)
     return user;
   };
 
@@ -24,7 +22,7 @@ class ProfileService {
       throw new Error('User not found');
     }
     if (file.image) {
-      //console.log(file)
+
       user.userImage = file.image[0].location;
     }
 

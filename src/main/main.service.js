@@ -10,7 +10,6 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
@@ -22,15 +21,48 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
     });
 
+    const findMainTags = await this.mainRepository.getMainTags()
+    const getMainTags = await findMainTags.map((post) => {
+      return {
+        postId: post.postId,
+        private: post.private,
+        image: post.Images[0].url,
+        tagId: post.Tags[0].tagId,
+        tag: post.Tags[0].tag
+        
+      }
+    })
+
     return {
       getPosts,
       getLikedPosts,
+      getMainTags
+    };
+  };
+
+  getFeed = async (page) => {
+    const findFeed = await this.mainRepository.getFeed(page);
+    const getFeed = findFeed.map((feed) => {
+      return {
+        postId: feed.postId,
+        email: feed.User.email,
+        nickname: feed.User.nickname,
+        userImage: feed.User.userImage,
+        updatedAt: feed.updatedAt,
+        image: feed.Images[0].url,
+        musicTitle: feed.musicTitle,
+        musicUrl: feed.musicUrl,
+        preset: feed.User.preset,
+      };
+    });
+
+    return {
+      getFeed,
     };
   };
 }

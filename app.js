@@ -53,20 +53,22 @@ io.on('connection', (socket) => {
 
 
 const posts = [
-  { title: 'Post 1', content: 'Content 1' },
-  { title: 'Post 2', content: 'Content 2' },
-  { title: 'Post 3', content: 'Content 3' },
+  { content1: '매번 같은 나날이라 힘겨워하기엔', content2: '매일 다른 하늘이 날 맞이해준다.' },
+  { content1: '힘들 땐 하늘을 봐', content2: '넌 절대 혼자가 아니야' },
+  { content1: '수고했어 오늘도', content2: '' },
+  { content1: '하늘은 용기 있는 자의 편이야', content2: '' },
+  { content1: '지금 힘든 일은 지나가는 구름이야', content2: '' },
 ];
 
-// //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
-// setInterval(() => {
-//   const randomPosts = [];
-//   for (let i = 0; i < 3; i++) {
-//     const randomIndex = Math.floor(Math.random() * posts.length);
-//     randomPosts.push(posts[randomIndex]);
-//   }
-//   io.emit('random-posts', randomPosts);
-// }, 60000);
+//모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
+setInterval(() => {
+  const randomPosts = [];
+  for (let i = 0; i < posts.length; i++) {
+    const randomIndex = Math.floor(Math.random() * posts.length);
+    randomPosts.push(posts[randomIndex]);
+  }
+  io.emit('random-posts', randomPosts);
+}, 12000);
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
