@@ -49,7 +49,9 @@ class MainRepository {
     return likedPosts;
   };
 
-  getFeed = async () => {
+  getFeed = async (page) => {
+    const limit = 12;
+    const offset = (page - 1) * limit;
     const getFeed = await Posts.findAll({
       where: { private: false },
       include: [
@@ -60,6 +62,7 @@ class MainRepository {
         { model: Images, attributes: ['url'], limit: 1 },
       ],
       limit: 12,
+      offset,
       order: Sequelize.literal('RAND()'),
     });
 
