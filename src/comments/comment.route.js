@@ -6,7 +6,7 @@ const CommentController = require('./comment.controller');
 const commentController = new CommentController();
 
 // 댓글 생성
-router.post('/:postId/comment', authMiddleware, upload,commentController.createComment);
+router.post('/:postId/comment', authMiddleware, commentController.createComment);
 // 게시글의 댓글 전체 조회
 router.get('/:postId/comment', commentController.getComments);
 // 댓글 수정
