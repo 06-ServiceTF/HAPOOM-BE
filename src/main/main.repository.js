@@ -3,6 +3,8 @@ const {
   Users,
   Images,
   Likes,
+  Mappings,
+  Tags,
   sequelize,
   Sequelize,
 } = require('../models');
@@ -47,6 +49,20 @@ class MainRepository {
     });
 
     return likedPosts;
+  };
+
+  getMainTags = async () => {
+    const mainTags = await Posts.findAll({
+      where: { private: false },
+      include: [
+        { model: Images, attributes: ['url'], limit: 1 },
+        { model: Tags },
+      ],
+      limit: 15,
+      order: sequelize.literal('RAND()'),
+    });
+
+    return mainTags;
   };
 
   getFeed = async (page) => {

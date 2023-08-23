@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
+      this.belongsToMany(models.Tags, {
+        through: 'Mappings',
+        foreignKey: 'postId'
+      })
     }
   }
   Posts.init(
@@ -49,24 +53,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
       },
       content: {
-        // allowNull: false,
         type: DataTypes.STRING(7000),
       },
       latitude: {
-        // allowNull: false,
         type: DataTypes.FLOAT,
       },
       longitude: {
-        // allowNull: false,
         type: DataTypes.FLOAT,
       },
       private: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-      },
-      tag: {
-        type: DataTypes.STRING
       },
       musicType: {
         type: DataTypes.INTEGER

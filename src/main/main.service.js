@@ -10,7 +10,6 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
@@ -22,15 +21,27 @@ class MainService {
         postId: post.postId,
         nickname: post.User.nickname,
         private: post.private,
-        tag: post.tag,
         updatedAt: post.updatedAt,
         image: post.Images[0].url,
       };
     });
 
+    const findMainTags = await this.mainRepository.getMainTags()
+    const getMainTags = await findMainTags.map((post) => {
+      return {
+        postId: post.postId,
+        private: post.private,
+        image: post.Images[0].url,
+        tagId: post.Tags[0].tagId,
+        tag: post.Tags[0].tag
+        
+      }
+    })
+
     return {
       getPosts,
       getLikedPosts,
+      getMainTags
     };
   };
 

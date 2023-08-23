@@ -37,9 +37,9 @@ module.exports = {
       placeName: {
         type: Sequelize.STRING(100)
       },
-      tag: {
-        type: Sequelize.STRING(100)
-      },
+      // tag: {
+      //   type: Sequelize.STRING(100)
+      // },
       musicType: {
         type: Sequelize.INTEGER
       },
