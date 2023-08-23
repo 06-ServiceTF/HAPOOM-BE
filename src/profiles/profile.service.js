@@ -24,7 +24,8 @@ class ProfileService {
       throw new Error('User not found');
     }
     if (file.image) {
-      user.userImage = host + '/' + file.image[0].path;
+      //console.log(file)
+      user.userImage = file.image[0].location;
     }
 
     const updates = Object.keys(body);
