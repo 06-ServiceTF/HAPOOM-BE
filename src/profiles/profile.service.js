@@ -22,7 +22,7 @@ class ProfileService {
       throw new Error('User not found');
     }
     if (file.image) {
-      console.log(file);
+
       user.userImage = file.image[0].location;
     }
 
