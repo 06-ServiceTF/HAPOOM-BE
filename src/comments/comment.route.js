@@ -10,7 +10,7 @@ router.post('/:postId/comment', authMiddleware, commentController.createComment)
 // 게시글의 댓글 전체 조회
 router.get('/:postId/comment', commentController.getComments);
 // 댓글 수정
-router.put('/:postId/comment/:commentId', authMiddleware, upload,commentController.updateComment);
+router.put('/:postId/comment/:commentId', authMiddleware, commentController.updateComment);
 // 댓글 삭제
 router.delete('/:postId/comment/:commentId', authMiddleware, commentController.deleteComment);
 
