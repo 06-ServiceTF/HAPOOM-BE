@@ -46,11 +46,11 @@ io.on('connection', (socket) => {
 
 
 const posts = [
-  { title: 'Post 1', content: '수고했어 오늘도' },
-  { title: 'Post 2', content: '힘들 땐 하늘을 봐,넌 절대 혼자가 아니야' },
-  { title: 'Post 3', content: '하늘은 용기 있는 자의 편이야' },
-  { title: 'Post 4', content: '매번 같은 나날이라 힘겨워하기엔,매일 다른 하늘이 날 맞이해준다.' },
-  { title: 'Post 5', content: '지금 힘든 일은 지나가는 구름이야' },
+  { content1: '매번 같은 나날이라 힘겨워하기엔', content2: '매일 다른 하늘이 날 맞이해준다.' },
+  { content1: '힘들 땐 하늘을 봐', content2: '넌 절대 혼자가 아니야' },
+  { content1: '수고했어 오늘도', content2: '' },
+  { content1: '하늘은 용기 있는 자의 편이야', content2: '' },
+  { content1: '지금 힘든 일은 지나가는 구름이야', content2: '' },
 ];
 
 //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
