@@ -39,6 +39,7 @@ class MainService {
     const getFeed = findFeed.map((feed) => {
       return {
         postId: feed.postId,
+        email: feed.User.email,
         nickname: feed.User.nickname,
         userImage: feed.User.userImage,
         updatedAt: feed.updatedAt,

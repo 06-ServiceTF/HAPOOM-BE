@@ -53,7 +53,10 @@ class MainRepository {
     const getFeed = await Posts.findAll({
       where: { private: false },
       include: [
-        { model: Users, attributes: ['nickname', 'userImage','preset'] },
+        {
+          model: Users,
+          attributes: ['email', 'nickname', 'userImage', 'preset'],
+        },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
       limit: 12,
