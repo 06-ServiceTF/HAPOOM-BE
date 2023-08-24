@@ -3,6 +3,8 @@ const {
   Users,
   Images,
   Likes,
+  Mappings,
+  Tags,
   sequelize,
   Sequelize,
 } = require('../models');
@@ -47,6 +49,40 @@ class MainRepository {
     });
 
     return likedPosts;
+  };
+
+  getMainTags = async () => {
+    const mainTags = await Posts.findAll({
+      where: { private: false },
+      include: [
+        { model: Images, attributes: ['url'], limit: 1 },
+        { model: Tags },
+      ],
+      limit: 15,
+      order: sequelize.literal('RAND()'),
+    });
+
+    return mainTags;
+  };
+
+  getFeed = async (page) => {
+    const limit = 12;
+    const offset = (page - 1) * limit;
+    const getFeed = await Posts.findAll({
+      where: { private: false },
+      include: [
+        {
+          model: Users,
+          attributes: ['email', 'nickname', 'userImage', 'preset'],
+        },
+        { model: Images, attributes: ['url'], limit: 1 },
+      ],
+      limit,
+      offset,
+      order: Sequelize.literal('RAND()'),
+    });
+
+    return getFeed;
   };
 }
 

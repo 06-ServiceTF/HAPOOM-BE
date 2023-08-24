@@ -1,11 +1,13 @@
 const { Posts, Users, Reports } = require('../models');
 
 class ReportRepository {
+    // 게시글 존재 여부 확인
   checkPostExists = async (postId) => {
     const postExists = await Posts.findOne({ where: { postId } });
     return postExists;
   };
 
+  // 신고하기
   addReport = async (postId, email, method) => {
     const user = await Users.findOne({
       where: { email, method },

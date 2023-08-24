@@ -13,7 +13,6 @@ class AuthService {
   }
   async getUserToken(userData) {
     const {user,postIds} = await userRepository.findByEmailLikes(userData);
-    //console.log(user,postIds)
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return { email: userResponse.email, nickname: userResponse.nickname,

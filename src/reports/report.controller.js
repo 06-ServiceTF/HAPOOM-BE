@@ -3,6 +3,7 @@ const ReportService = require('./report.service');
 class ReportController {
   reportService = new ReportService();
 
+  // 신고하기
   addReport = async (req, res, next) => {
     try {
       const { postId } = req.params;
