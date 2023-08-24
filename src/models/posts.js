@@ -66,6 +66,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+
       musicType: {
         type: DataTypes.INTEGER
       },

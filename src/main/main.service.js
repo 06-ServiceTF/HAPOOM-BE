@@ -43,6 +43,27 @@ class MainService {
       getMainTags
     };
   };
+
+  getFeed = async (page) => {
+    const findFeed = await this.mainRepository.getFeed(page);
+    const getFeed = findFeed.map((feed) => {
+      return {
+        postId: feed.postId,
+        email: feed.User.email,
+        nickname: feed.User.nickname,
+        userImage: feed.User.userImage,
+        updatedAt: feed.updatedAt,
+        image: feed.Images[0].url,
+        musicTitle: feed.musicTitle,
+        musicUrl: feed.musicUrl,
+        preset: feed.User.preset,
+      };
+    });
+
+    return {
+      getFeed,
+    };
+  };
 }
 
 module.exports = MainService;
