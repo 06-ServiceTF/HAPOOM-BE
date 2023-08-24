@@ -109,7 +109,6 @@ class PostRepository {
         private: false,
         });
 
-      // Todo
      // update tag
       const mappings = await Mappings.findAll({ where: { postId }})
       if (mappings.length) {
