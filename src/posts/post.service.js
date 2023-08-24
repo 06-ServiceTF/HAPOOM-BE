@@ -13,6 +13,10 @@ class PostService {
     return await postRepository.getPostById(postId);
   };
 
+  getMainPost = async () => {
+    return await postRepository.findLatestPost();
+  };
+
   updatePost = async (postId, body, files, host) => {
     await postRepository.updatePost(postId, body, files, host);
   };

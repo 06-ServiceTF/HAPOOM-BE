@@ -34,8 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'postId',
         foreignKey: 'postId',
       });
-      this.hasMany(models.Mappings, {
-        sourceKey: 'postId',
+      this.belongsToMany(models.Tags, {
+        through: 'Mappings',
         foreignKey: 'postId'
       })
     }
@@ -66,9 +66,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      // tag: {
-      //   type: DataTypes.STRING
-      // },
+
       musicType: {
         type: DataTypes.INTEGER
       },

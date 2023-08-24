@@ -33,6 +33,15 @@ class PostController {
     }
   };
 
+  getMainPost = async () => {
+    try {
+      return await postService.getMainPost();
+    } catch (error) {
+      console.error(error);
+      throw new Error(error.message);
+    }
+  };
+
   updatePost = async (req, res) => {
     try {
       const host = req.protocol + '://' + req.get('host');

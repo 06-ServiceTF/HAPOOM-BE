@@ -11,10 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.Mappings, {
-        sourceKey: 'tagId',
+
+      this.belongsToMany(models.Posts, {
+        through: 'Mappings',
         foreignKey: 'tagId'
-      });
+      })
+
     }
   }
   Tags.init({

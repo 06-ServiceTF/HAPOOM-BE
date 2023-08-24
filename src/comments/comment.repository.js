@@ -1,4 +1,4 @@
-const { Users, Posts, Comments } = require('../models');
+const { Users, Comments } = require('../models');
 const { Op } = require('sequelize');
 
 class CommentRepository {
@@ -20,7 +20,10 @@ class CommentRepository {
   getComments = async (postId) => {
     const getComments = await Comments.findAll({
       where: { postId },
-      include: { model: Users, attributes: ['nickname', 'userImage', 'preset'] },
+      include: {
+        model: Users,
+        attributes: ['nickname', 'userImage', 'preset'],
+      },
       order: [['createdAt', 'desc']],
     });
     return getComments;
@@ -57,7 +60,6 @@ class CommentRepository {
     return deleteComment;
   };
 
-
   // 게시글 존재 여부
   checkPostExists = async (postId) => {
     const postExists = await Comments.findOne({ where: { postId } });
@@ -82,6 +84,5 @@ class CommentRepository {
     return comment;
   };
 }
-
 
 module.exports = CommentRepository;

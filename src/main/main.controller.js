@@ -9,6 +9,20 @@ class MainController {
       res.status(200).json({
         posts: mainPage.getPosts,
         likePosts: mainPage.getLikedPosts,
+        mainTags: mainPage.getMainTags
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  };
+
+  getFeed = async (req, res, next) => {
+    try {
+      const page = req.query.page || 1;
+      const feedPage = await this.mainService.getFeed(page);
+      res.status(200).json({
+        feed: feedPage.getFeed,
       });
     } catch (error) {
       console.log(error);
