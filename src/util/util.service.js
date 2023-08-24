@@ -36,7 +36,7 @@ exports.Geocode = async (address, page = 1, size = 5) => {
       },
     });
 
-    console.log('Response:', response.data); // 응답 전체 내용 출력
+    //console.log('Response:', response.data); // 응답 전체 내용 출력
 
     if (response.data.documents && response.data.documents.length > 0) {
       return {
