@@ -89,7 +89,6 @@ class PostRepository {
 
       // Update the post
 
-
       await post.update({ content,
         musicTitle,
         musicUrl,
@@ -115,7 +114,6 @@ class PostRepository {
           })
         };
         };
-
 
       if(audio) {
         const audioDelete = await Records.findOne({where: {postId: post.postId}})
@@ -146,7 +144,6 @@ class PostRepository {
         await Promise.all(s3DeletePromises)
         //await Images.destroy({where: {imageId: image.imageId}});
       }
-
 
       if(images){
       const imagePromises = images.map((image) => {
