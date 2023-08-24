@@ -16,7 +16,7 @@ require('dotenv').config();
 
 const development = {
   username: 'root',
-  password: '1234',
+  password: 'Gabriela-_-940908',
   database: 'hapoom-be',
   host: '127.0.0.1',
   dialect: 'mysql',

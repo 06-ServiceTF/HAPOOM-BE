@@ -10,6 +10,7 @@ const authRouter = require('../auth/auth.route');
 const postRouter = require('../posts/post.route');
 const utilRouter = require('../util/util.route');
 const followRouter = require('../follows/follow.route');
+const searchRouter = require('../search/search.route');
 
 // 로그인 회원가입 관련
 router.use('/auth', authRouter);
