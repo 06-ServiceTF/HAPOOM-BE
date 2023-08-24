@@ -49,6 +49,7 @@ class PostRepository {
       });
       const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
+      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -66,10 +67,7 @@ class PostRepository {
       } else {
         return { post, images, user };
       }
-    
-      
-    
-     
+
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };

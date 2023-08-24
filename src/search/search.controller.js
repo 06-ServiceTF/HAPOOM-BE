@@ -1,22 +1,23 @@
 const SearchService = require("../search/search.service");
-const UserRepository = require("../profiles/profile.repository");
-const PostRepository = require("../posts/post.repository");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
+const {Users} = require("../models");
+
+const searchService = new SearchService();
 
 class SearchController {
-    constructor(userRepository, postRepository, searchService) {
-        this.userRepository = userRepository || new UserRepository();
-        this.postRepository = postRepository || new PostRepository();
-        this.searchService = searchService || new SearchService(this.userRepository, this.postRepository);
+    constructor() {
     }
-
     async search(req, res, next) {
         const query = req.query.q;
         const category = req.query.category;
-        const email = req.body.email;  // 예시: email과 method가 body에 있다고 가정
-        // const method = req.body.method; // 패스포트용으로 넣어놨음. if 사용자 로그인 정보가 데이터 안에 들어있으면 method 대신 passport (google 같은 것)을 불러올 수 있음
-    
+        const token = req.cookies.refreshToken;
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        const email = decoded.email;  // 토큰의 본인 이메일
+        const method = decoded.method; // 토큰의 본인 메서드
         try {
-            const result = await this.searchService.search(query, category, email);
+            const result = await searchService.search(query, category, email,method);
             res.status(200).json(result);
         } catch (err) {
             res.status(err.statusCode || 400).json({ message: err.message });

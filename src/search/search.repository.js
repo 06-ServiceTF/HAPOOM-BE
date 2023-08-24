@@ -1,17 +1,17 @@
 const { Users, Posts, Images, Likes, Mappings, Tags } = require("../models");
 const { Op, Sequelize } = require("sequelize");
 
+const likeRepository = new (require("../likes/like.repository"))();
+
 class SearchRepository {
-  constructor(likeRepository) {
-    this.likeRepository =
-      likeRepository || new (require("../likes/like.repository"))();
+  constructor() {
   }
 
   // 유저 아이디 (로그인) 가져오기
-  async getUserIdByEmailAndMethod(email, method) {
+  async getUserIdByEmailAndMethod(email,method) {
     try {
       const user = await Users.findOne({
-        where: { email, method },
+        where: { email,method },
       });
       return user ? user.userId : null;
     } catch (err) {
@@ -33,15 +33,15 @@ class SearchRepository {
         order: [
           [
             Sequelize.literal(`CASE 
-            WHEN nickname LIKE ? THEN 1 
-            WHEN nickname LIKE ? THEN 2 
-            WHEN nickname LIKE ? THEN 3 
-            ELSE 4 
-          END`),
-            [query, query + "%", "%" + query + "%"],
+          WHEN nickname LIKE :query1 THEN 1 
+          WHEN nickname LIKE :query2 THEN 2 
+          WHEN nickname LIKE :query3 THEN 3 
+          ELSE 4 
+        END`),
             "ASC",
           ],
         ],
+        replacements: { query1: `%${query}%`, query2: `%${query}%`, query3: `%${query}%` },
       });
     } catch (err) {
       console.error("유저 검색 에러:", err);
@@ -49,16 +49,16 @@ class SearchRepository {
     }
   }
 
-  // 포스트(게시물) 검색
   async searchPosts(query, email, method) {
-    const currentUserId = await this.getUserIdByEmailAndMethod();
+    const likeQuery = `%${query}%`;
+    const currentUserId = await this.getUserIdByEmailAndMethod(email, method);
 
     try {
       const posts = await Posts.findAll({
-        where: { content: { [Op.like]: `%${query}%` } }, // 쿼리 부분 일치
+        where: { content: { [Op.like]: likeQuery } }, // 쿼리 부분 일치
         include: [
           // 포스트 이미지 패스 포함
-          { model: Images, attributes: ["path"] },
+          { model: Images, attributes: ["url"] },
           {
             // Include like information of the posts by current user
             model: Likes,
@@ -72,28 +72,25 @@ class SearchRepository {
           "content",
           [
             Sequelize.literal(
-              "case when likes.userId is null then false else true end"
+              "case when Likes.userId is null then false else true end"
             ),
             "likeState",
           ],
         ],
-        group: ["postId", "Images.path", "Likes.userId"], //?
+        group: ["postId", "Images.url", "Likes.userId"], //?
         order: [
           [
             Sequelize.literal(`CASE 
-            WHEN content LIKE ? THEN 1 
-            WHEN content LIKE ? THEN 2 
-            WHEN content LIKE ? THEN 3 
+            WHEN content LIKE '${likeQuery}' THEN 1 
+            WHEN content LIKE '${likeQuery}' THEN 2 
+            WHEN content LIKE '${likeQuery}' THEN 3 
             ELSE 4 
           END`),
-            [query, query + "%", "%" + query + "%"],
             "ASC",
           ],
         ],
       });
 
-      const likeRepository = new LikeRepository(); // 좋아요 레포지토리 끌어오기
-      // currentUserId를 베이스로 existlike 함수 map으로 찾기
       return await Promise.all(
         posts.map(async (post) => {
           const likeState = await likeRepository.existLike(
@@ -110,11 +107,9 @@ class SearchRepository {
     }
   }
 
-  //
-
   // 태그 검색
   async searchPostsByTag(query, email, method) {
-    const currentUserId = await this.getUserIdByEmailAndMethod();
+    const currentUserId = await this.getUserIdByEmailAndMethod(email,method);
 
     try {
       const tags = await Tags.findAll({
@@ -136,7 +131,7 @@ class SearchRepository {
         where: { postId: { [Op.in]: postIds } },
         include: [
           // Include image paths of the posts
-          { model: Images, attributes: ["path"] },
+          { model: Images, attributes: ["url"] },
           {
             model: Likes,
             attributes: [],
@@ -149,15 +144,14 @@ class SearchRepository {
           "content",
           [
             Sequelize.literal(
-              "case when likes.userId is null then false else true end"
+              "case when Likes.userId is null then false else true end"
             ),
             "likeState",
           ],
         ],
-        group: ["postId", "Images.path", "Likes.userId"],
+        group: ["postId", "Images.url", "Likes.userId"],
       });
 
-      const likeRepository = new LikeRepository();
       return await Promise.all(
         posts.map(async (post) => {
           const likeState = await likeRepository.existLike(
