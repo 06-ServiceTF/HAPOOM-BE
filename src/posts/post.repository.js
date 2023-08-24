@@ -16,6 +16,7 @@ class PostRepository {
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
 
+
       if (!post) {
         throw { status: 404, message: 'Post not found' };
       }
@@ -59,7 +60,16 @@ class PostRepository {
         throw { status: 404, message: 'Post not found' };
       }
 
-      return { post, images, user };
+      if(mappings) {
+        const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
+        return { post, images, user, tag };
+      } else {
+        return { post, images, user };
+      }
+    
+      
+    
+     
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
@@ -144,7 +154,7 @@ class PostRepository {
         await Promise.all(s3DeletePromises)
         //await Images.destroy({where: {imageId: image.imageId}});
       }
-
+      
       if(images){
       const imagePromises = images.map((image) => {
         return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
