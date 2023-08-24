@@ -92,21 +92,32 @@ class PostRepository {
         private: false,
         });
 
-      if (tag) {
-        await Mappings.destroy({ where: { postId: post.dataValues.postId }})
+      // Todo
+     // update tag
+      const mappings = await Mappings.findAll({ where: { postId }})
+      if (mappings) {
+        if (tag.length) {
+          await Mappings.destroy({ where: { postId: post.dataValues.postId }})
     
-        const tagArr = tag.split(",")
-        for (let i = 0; i < tagArr.length; i++) {
-          const [item, result] = await Tags.findOrCreate({
-            where: { tag: tagArr[i] }
-          })
-          
-          await Mappings.create({
-            postId: post.dataValues.postId,
-            tagId: item["tagId"]
-          })
-        };
-        };
+          const tagArr = tag.split(",")
+    
+          for (let i = 0; i < tagArr.length; i++) {
+            const trimmedTag = tagArr[i].trim()
+            const [item, result] = await Tags.findOrCreate({
+              where: { tag: trimmedTag }
+            })
+            
+            await Mappings.create({
+              postId: post.dataValues.postId,
+              tagId: item["tagId"]
+            })
+          };
+        }
+
+        if (!tag.length) {
+          await Mappings.destroy({ where: { postId: post.dataValues.postId }})
+        }
+      }
 
       // Delete old images and audio
       const audioDelete = await Records.findOne({ where: { postId: post.postId }})
@@ -187,7 +198,7 @@ class PostRepository {
       }
 
       // delete mappings
-      if (!mappings.length) {
+      if (mappings.length) {
         await Mappings.destroy({ where: { postId }})
       } 
 
@@ -245,9 +256,12 @@ class PostRepository {
 
     if (tag) {
       const tagArr = tag.split(",")
+    
       for (let i = 0; i < tagArr.length; i++) {
+        const trimmedTag = tagArr[i].trim()
+
         const [item, result] = await Tags.findOrCreate({
-          where: { tag: tagArr[i] }
+          where: { tag: trimmedTag }
         })
 
         await Mappings.create({
@@ -255,7 +269,7 @@ class PostRepository {
           tagId: item["tagId"]
         })
       };
-    }
+    };
 
     if (images) {
       const imagePromises = images.map((image) => {
