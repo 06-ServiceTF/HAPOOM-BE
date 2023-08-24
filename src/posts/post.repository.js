@@ -95,14 +95,14 @@ class PostRepository {
       // Todo
      // update tag
       const mappings = await Mappings.findAll({ where: { postId }})
-      if (mappings) {
+      if (mappings.length) {
         if (tag.length) {
           await Mappings.destroy({ where: { postId: post.dataValues.postId }})
     
           const tagArr = tag.split(",")
     
-          for (let i = 0; i < tagArr.length; i++) {
-            const trimmedTag = tagArr[i].trim()
+          for (const tag of tagArr) {
+            const trimmedTag = tag.trim()
             const [item, result] = await Tags.findOrCreate({
               where: { tag: trimmedTag }
             })
@@ -257,13 +257,12 @@ class PostRepository {
     if (tag) {
       const tagArr = tag.split(",")
     
-      for (let i = 0; i < tagArr.length; i++) {
-        const trimmedTag = tagArr[i].trim()
-
+      for (const tag of tagArr) {
+        const trimmedTag = tag.trim()
         const [item, result] = await Tags.findOrCreate({
           where: { tag: trimmedTag }
         })
-
+        
         await Mappings.create({
           postId: post.dataValues.postId,
           tagId: item["tagId"]
