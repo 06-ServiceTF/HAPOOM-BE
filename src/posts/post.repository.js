@@ -15,21 +15,21 @@ class PostRepository {
       const images = await Images.findAll({ where: { postId: postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
-      const likeCount = await Likes.findAll({ 
-        where: { postId },
-        attributes: {
-          include: [
-            sequelize.literal(`(
-              SELECT
-                COUNT(*)
-              FROM
-                Likes
-              WHERE
-                Likes.postId = Posts.postId
-            )`), 'LikesCount'
-          ]
-        }
-      })
+      // const likeCount = await Likes.findAll({ 
+      //   where: { postId },
+      //   attributes: {
+      //     include: [
+      //       sequelize.literal(`(
+      //         SELECT
+      //           COUNT(*)
+      //         FROM
+      //           Likes
+      //         WHERE
+      //           Likes.postId = postId
+      //       )`), 'LikesCount'
+      //     ]
+      //   }
+      // })
 
 
       if (!post) {
@@ -44,9 +44,9 @@ class PostRepository {
 
       if(mappings) {
         const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, likeCount, tag };
+        return { post, images, user, tag };
       } else {
-        return { post, images, user, likeCount };
+        return { post, images, user };
       }
     
     } catch (error) {
