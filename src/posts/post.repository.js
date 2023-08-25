@@ -1,6 +1,6 @@
 // repositories/postRepository.js
 
-const { Posts, Images, Records, Users, Tags, Mappings } = require('../models');
+const { Posts, Images, Records, Users, Tags, Mappings, Likes, sequelize } = require('../models');
 const { deleteS3 } = require('../middlewares/multer.middleware')
 const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
 const dotenv = require("dotenv");
@@ -15,6 +15,21 @@ class PostRepository {
       const images = await Images.findAll({ where: { postId: postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
+      const likeCount = await Likes.findAll({ 
+        where: { postId },
+        attributes: {
+          include: [
+            sequelize.literal(`(
+              SELECT
+                COUNT(*)
+              FROM
+                Likes
+              WHERE
+                Likes.postId = Posts.postId
+            )`), 'LikesCount'
+          ]
+        }
+      })
 
 
       if (!post) {
@@ -29,9 +44,9 @@ class PostRepository {
 
       if(mappings) {
         const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, tag };
+        return { post, images, user, likeCount, tag };
       } else {
-        return { post, images, user };
+        return { post, images, user, likeCount };
       }
     
     } catch (error) {
