@@ -1,6 +1,6 @@
 // repositories/postRepository.js
 
-const { Posts, Images, Records, Users, Tags, Mappings } = require('../models');
+const { Posts, Images, Records, Users, Tags, Mappings, Likes, sequelize } = require('../models');
 const { deleteS3 } = require('../middlewares/multer.middleware')
 const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
 const dotenv = require("dotenv");
@@ -15,6 +15,22 @@ class PostRepository {
       const images = await Images.findAll({ where: { postId: postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
+      const likeCount = await Likes.findAll({ 
+        where: { postId },
+        attributes: {
+          include: [
+            sequelize.literal(`(
+              SELECT
+                COUNT(*)
+              FROM
+                Likes
+              WHERE
+                Likes.postId = Posts.postId
+            )`), 'LikesCount'
+          ]
+        }
+      })
+
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -28,9 +44,9 @@ class PostRepository {
 
       if(mappings) {
         const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, tag };
+        return { post, images, user, likeCount, tag };
       } else {
-        return { post, images, user };
+        return { post, images, user, likeCount };
       }
     
     } catch (error) {
@@ -48,6 +64,7 @@ class PostRepository {
       });
       const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
+      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
 
       if (!post) {
         throw { status: 404, message: 'Post not found' };
@@ -89,7 +106,6 @@ class PostRepository {
 
       // Update the post
 
-
       await post.update({ content,
         musicTitle,
         musicUrl,
@@ -100,22 +116,31 @@ class PostRepository {
         private: false,
         });
 
-      if (tag) {
-        await Mappings.destroy({ where: { postId: post.dataValues.postId }})
+     // update tag
+      const mappings = await Mappings.findAll({ where: { postId }})
+      if (mappings.length) {
+        if (tag.length) {
+          await Mappings.destroy({ where: { postId: post.dataValues.postId }})
     
-        const tagArr = tag.split(",")
-        for (let i = 0; i < tagArr.length; i++) {
-          const [item, result] = await Tags.findOrCreate({
-            where: { tag: tagArr[i] }
-          })
-          
-          await Mappings.create({
-            postId: post.dataValues.postId,
-            tagId: item["tagId"]
-          })
-        };
-        };
+          const tagArr = tag.split(",")
+    
+          for (const tag of tagArr) {
+            const trimmedTag = tag.trim()
+            const [item, result] = await Tags.findOrCreate({
+              where: { tag: trimmedTag }
+            })
+            
+            await Mappings.create({
+              postId: post.dataValues.postId,
+              tagId: item["tagId"]
+            })
+          };
+        }
 
+        if (!tag.length) {
+          await Mappings.destroy({ where: { postId: post.dataValues.postId }})
+        }
+      }
 
       if(audio) {
         const audioDelete = await Records.findOne({where: {postId: post.postId}})
@@ -146,8 +171,7 @@ class PostRepository {
         await Promise.all(s3DeletePromises)
         //await Images.destroy({where: {imageId: image.imageId}});
       }
-
-
+      
       if(images){
       const imagePromises = images.map((image) => {
         return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
@@ -217,7 +241,7 @@ class PostRepository {
       }
 
       // delete mappings
-      if (!mappings.length) {
+      if (mappings.length) {
         await Mappings.destroy({ where: { postId }})
       } 
 
@@ -255,17 +279,19 @@ class PostRepository {
 
     if (tag) {
       const tagArr = tag.split(",")
-      for (let i = 0; i < tagArr.length; i++) {
+    
+      for (const tag of tagArr) {
+        const trimmedTag = tag.trim()
         const [item, result] = await Tags.findOrCreate({
-          where: { tag: tagArr[i] }
+          where: { tag: trimmedTag }
         })
-
+        
         await Mappings.create({
           postId: post.dataValues.postId,
           tagId: item["tagId"]
         })
       };
-    }
+    };
 
     if (images) {
       const imagePromises = images.map((image) => {

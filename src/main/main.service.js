@@ -32,9 +32,8 @@ class MainService {
         postId: post.postId,
         private: post.private,
         image: post.Images[0].url,
-        tagId: post.Tags[0].tagId,
-        tag: post.Tags[0].tag
-        
+        tagId: post.Tags[0]?.tagId,
+        tag: post.Tags[0]?.tag
       }
     })
 
