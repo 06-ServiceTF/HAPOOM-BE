@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/login", authController.login);
 router.post("/signup", authController.signup);
 router.get("/token",authMiddleware, authController.getUserToken);
-router.get("/email",authMiddleware, authController.emailAuth);
+router.get("/email", authController.emailAuth);
 router.get("/refreshtoken",reauthMiddleware, authController.refreshToken);
 router.get("/logout", authController.logout);
 router.get("/kakao", passport.authenticate('kakao', { authType: 'reprompt' }));
