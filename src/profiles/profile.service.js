@@ -22,7 +22,7 @@ class ProfileService {
       throw new Error('User not found');
     }
     if (file.image) {
-      user.userImage = host + '/' + file.image[0].path;
+      user.userImage = file.image[0].location;
     }
 
     const updates = Object.keys(body);

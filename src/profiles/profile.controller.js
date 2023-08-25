@@ -19,7 +19,6 @@ class ProfileController {
   // 유저 정보 수정
   updateUser = async (req, res) => {
     try {
-      //console.log(req)
       const host = req.protocol + '://' + req.get('host');
       const userUpdates = await this.profileService.updateUser(
         req.cookies.refreshToken,
@@ -27,7 +26,6 @@ class ProfileController {
         req.body,
         host
       );
-
       res.send({ user: userUpdates });
     } catch (error) {
       console.error('Error updating user:', error);
