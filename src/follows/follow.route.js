@@ -14,9 +14,4 @@ router.get('/:userId/follower', followController.getFollowers);
 // 팔로잉 리스트 가져오기
 router.get('/:userId/following', followController.getFollowing);
 
-// 나의 팔로우 리스트 가져오기
-router.get('/myfollower', followController.getMyFollowers);
-// 나의 팔로잉 리스트 가져오기
-router.get('/myfollowing', followController.getMyFollowing);
-
 module.exports = router;

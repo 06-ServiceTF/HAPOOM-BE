@@ -71,32 +71,6 @@ class FollowRepository {
     });
     return following;
   };
-
-  // 나의 팔로워 리스트
-  getMyFollowers = async (email, method) => {
-    const user = await Users.findOne({
-      where: { email, method },
-      attributes: ['userId'],
-    });
-    const followers = await Follows.findAll({
-      where: { followingId: user.userId },
-      include: [{ model: Users, as: 'Follower' }],
-    });
-    return followers;
-  };
-
-  // 나의 팔로잉 리스트
-  getMyFollowing = async (email, method) => {
-    const user = await Users.findOne({
-      where: { email, method },
-      attributes: ['userId'],
-    });
-    const following = await Follows.findAll({
-      where: { followerId: user.userId },
-      include: [{ model: Users, as: 'Following' }],
-    });
-    return following;
-  };
 }
 
 module.exports = FollowRepository;

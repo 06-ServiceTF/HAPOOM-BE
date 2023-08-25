@@ -49,42 +49,6 @@ class FollowService {
     });
     return followings;
   };
-
-  // 나의 팔로워 리스트
-  getMyFollowers = async (email, method) => {
-    const getFollowers = await this.followRepository.getMyFollowers(
-      email,
-      method
-    );
-    const followers = getFollowers.map((follow) => {
-      return {
-        userId: follow.Follower.userId,
-        email: follow.Follower.email,
-        nickname: follow.Follower.nickname,
-        userImage: follow.Follower.userImage,
-        preset: follow.Follower.preset,
-      };
-    });
-    return followers;
-  };
-
-  // 나의 팔로잉 리스트
-  getMyFollowing = async (email, method) => {
-    const getFollowings = await this.followRepository.getMyFollowing(
-      email,
-      method
-    );
-    const followings = getFollowings.map((follow) => {
-      return {
-        userId: follow.Following.userId,
-        email: follow.Following.email,
-        nickname: follow.Following.nickname,
-        userImage: follow.Following.userImage,
-        preset: follow.Following.preset,
-      };
-    });
-    return followings;
-  };
 }
 
 module.exports = FollowService;

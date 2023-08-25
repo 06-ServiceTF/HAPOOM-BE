@@ -54,30 +54,6 @@ class FollowController {
       next(error);
     }
   };
-
-  // 나의 팔로워 리스트
-  getMyFollowers = async (req, res, next) => {
-    try {
-      const { email, method } = req.user;
-      const followers = await this.followService.getMyFollowers(email, method);
-      return res.status(200).json({ followers });
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  };
-
-  // 나의 팔로잉 리스트
-  getMyFollowing = async (req, res, next) => {
-    try {
-      const { email, method } = req.user;
-      const following = await this.followService.getMyFollowing(email, method);
-      return res.status(200).json({ following });
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  };
 }
 
 module.exports = FollowController;
