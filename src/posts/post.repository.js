@@ -61,13 +61,7 @@ class PostRepository {
         throw { status: 404, message: 'Post not found' };
       }
 
-      if(mappings) {
-        const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, tag };
-      } else {
-        return { post, images, user };
-      }
-
+      return { post, images, user };
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
