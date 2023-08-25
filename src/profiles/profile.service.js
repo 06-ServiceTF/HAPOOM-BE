@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 class ProfileService {
   profileRepository = new ProfileRepository();
-
+  // 유저 정보
   userInfo = async (email, method) => {
     const user = await this.profileRepository.userInfo(email, method);
     return user;
@@ -22,8 +22,7 @@ class ProfileService {
       throw new Error('User not found');
     }
     if (file.image) {
-
-      user.userImage = file.image[0].location;
+      user.userImage = host + '/' + file.image[0].path;
     }
 
     const updates = Object.keys(body);
@@ -45,6 +44,14 @@ class ProfileService {
 
     const postsCount = await this.profileRepository.postsCount(email, method);
     const likePostsCount = await this.profileRepository.likePostsCount(
+      email,
+      method
+    );
+    const followerCount = await this.profileRepository.myFollowerCount(
+      email,
+      method
+    );
+    const followingCount = await this.profileRepository.myFollowingCount(
       email,
       method
     );
@@ -83,6 +90,8 @@ class ProfileService {
       findUser,
       postsCount,
       likePostsCount,
+      followerCount,
+      followingCount,
       myPosts,
       myLikedPosts,
     };
@@ -95,6 +104,12 @@ class ProfileService {
 
     const userPostsCount = await this.profileRepository.userPostsCount(userId);
     const userLikePostsCount = await this.profileRepository.userLikePostsCount(
+      userId
+    );
+    const userFollowerCount = await this.profileRepository.userFollowerCount(
+      userId
+    );
+    const userFollowingCount = await this.profileRepository.userFollowingCount(
       userId
     );
 
@@ -129,6 +144,8 @@ class ProfileService {
       getUser,
       userPostsCount,
       userLikePostsCount,
+      userFollowerCount,
+      userFollowingCount,
       userPosts,
       userLikedPosts,
     };
