@@ -54,37 +54,37 @@ class AuthService {
     return userResponse;
   }
 
-  // async emailAuth(res,body) {
-  //   const exUser = await userRepository.findByEmail(body.email);
-  //   if (exUser) {
-  //     throw new Error("이미 사용중인 이메일입니다");
-  //   }
-
-  //   console.log(process.env.SEND_EMAIL_ID,process.env.SEND_EMAIL_PW)
-  //   const transporter = nodemailer.createTransport({
-  //     service: "Naver",
-  //     auth: {
-  //       user: process.env.SEND_EMAIL_ID,
-  //       pass: process.env.SEND_EMAIL_PW,
-  //     },
-  //   });
-
-  //   const mailOptions = {
-  //     from: process.env.SEND_EMAIL_ID,
-  //     to: body.email,
-  //     subject: "하품 이메일인증 인증번호",
-  //     text: "1111",
-  //   };
-  //   transporter.sendMail(mailOptions, function(error, info){
-  //     if (error) {
-  //       console.log(error);
-  //     }else{
-  //       res.status(200)
-  //     }
-  //   });
-  // }
-
   async emailAuth(res, body) {
+    const exUser = await userRepository.findByEmail(body.email);
+    if (exUser) {
+      throw new Error('이미 사용중인 이메일입니다');
+    }
+
+    console.log(process.env.SEND_EMAIL_ID, process.env.SEND_EMAIL_PW);
+    const transporter = nodemailer.createTransport({
+      service: 'Naver',
+      auth: {
+        user: process.env.SEND_EMAIL_ID,
+        pass: process.env.SEND_EMAIL_PW,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.SEND_EMAIL_ID,
+      to: body.email,
+      subject: '하품 이메일인증 인증번호',
+      text: '1111',
+    };
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200);
+      }
+    });
+  }
+
+  async passwordAuth(res, body) {
     const transporter = nodemailer.createTransport({
       service: 'Naver',
       auth: {

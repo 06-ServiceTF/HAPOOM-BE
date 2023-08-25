@@ -32,6 +32,14 @@ class AuthController {
     }
   }
 
+  async passwordAuth(req, res, next) {
+    try {
+      await authService.passwordAuth(req.body,res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async emailAuth(req, res, next) {
     try {
       await authService.emailAuth(req.body,res);
