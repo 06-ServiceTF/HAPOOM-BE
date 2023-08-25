@@ -13,7 +13,6 @@ class AuthService {
   }
   async getUserToken(userData) {
     const {user,postIds} = await userRepository.findByEmailLikes(userData);
-    // console.log(user,postIds)
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return { email: userResponse.email, nickname: userResponse.nickname,
@@ -92,6 +91,10 @@ class AuthService {
           method,
           exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 1), // Refresh token valid for 1 days
         };
+
+        const io = req.app.get('io');
+        io.emit('loginSuccess', { email: sequelizeUser.dataValues.email, nickname: sequelizeUser.dataValues.nickname });
+
         const refreshToken = jwt.sign(refreshPayload, process.env.JWT_REFRESH_SECRET);
         res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'None', secure: true });
         return res.redirect(`https://hapoom-fe.vercel.app/auth/SocialSuccess`);
