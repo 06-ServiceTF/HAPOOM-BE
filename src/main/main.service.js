@@ -48,6 +48,7 @@ class MainService {
     const findFeed = await this.mainRepository.getFeed(page);
     const getFeed = findFeed.map((feed) => {
       return {
+        userId: feed.userId,
         postId: feed.postId,
         email: feed.User.email,
         nickname: feed.User.nickname,

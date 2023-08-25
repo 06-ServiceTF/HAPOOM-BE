@@ -73,7 +73,7 @@ class MainRepository {
       include: [
         {
           model: Users,
-          attributes: ['email', 'nickname', 'userImage', 'preset'],
+          attributes: ['userId', 'email', 'nickname', 'userImage', 'preset'],
         },
         { model: Images, attributes: ['url'], limit: 1 },
       ],
