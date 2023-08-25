@@ -79,7 +79,7 @@ class MainRepository {
       ],
       limit,
       offset,
-      order: Sequelize.literal('RAND()'),
+      order: [['createdAt', 'DESC']],
     });
 
     return getFeed;
