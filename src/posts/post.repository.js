@@ -78,11 +78,10 @@ class PostRepository {
 
       if(mappings) {
         const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, likeCount, tag };
+        return { post, images, user, tag };
       } else {
-        return { post, images, user, likeCount };
+        return { post, images, user };
       }
-
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
