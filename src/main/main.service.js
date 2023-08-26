@@ -59,6 +59,7 @@ class MainService {
         musicUrl: feed.musicUrl,
         preset: feed.User.preset,
         content: feed.content,
+        tags: feed.Tags.map((tag) => tag.tag),
       };
     });
 

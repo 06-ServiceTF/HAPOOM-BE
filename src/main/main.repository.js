@@ -76,12 +76,18 @@ class MainRepository {
           attributes: ['userId', 'email', 'nickname', 'userImage', 'preset'],
         },
         { model: Images, attributes: ['url'], limit: 1 },
+        {
+          model: Tags,
+          attributes: ['tag'],
+          through: { attributes: [] }, // This ensures that the join table attributes are not included
+        },
       ],
       limit,
       offset,
       order: [['createdAt', 'DESC']],
     });
 
+    console.log(getFeed)
     return getFeed;
   };
 }
