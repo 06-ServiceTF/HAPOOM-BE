@@ -1,4 +1,5 @@
 const axios = require('axios');
+const webpush = require('web-push');
 const repository = require('./util.repository');
 const dotenv = require("dotenv");
 dotenv.config();
@@ -67,6 +68,13 @@ exports.reverseGeocode = async (x, y) => {
   return response.data;
 };
 
-exports.createDummyData = async () => {
-  await repository.createDummyData();
+exports.addSubscription = async (subscription) => {
+  return await repository.create(subscription);
+};
+
+exports.sendNotificationToAll = async (payload) => {
+  const subscriptions = await repository.findAll();
+  subscriptions.forEach((subscription) => {
+    webpush.sendNotification(subscription, JSON.stringify(payload));
+  });
 };
