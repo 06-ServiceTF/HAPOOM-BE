@@ -58,6 +58,7 @@ class MainService {
         musicTitle: feed.musicTitle,
         musicUrl: feed.musicUrl,
         preset: feed.User.preset,
+        content: feed.content,
       };
     });
 
