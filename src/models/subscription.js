@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         references: {
           model: 'Users', // 가정: 사용자 정보가 'Users' 테이블에 저장되어 있다고 가정합니다.
-          key: 'id',
+          key: 'userId',
         },
       },
       endpoint: {
