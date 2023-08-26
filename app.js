@@ -17,9 +17,21 @@ const path = require('path'); // 경로는 해당 모듈의 위치에 따라 달
 const http = require('http');
 const socketIo = require('socket.io');
 const PostsController = require("./src/posts/post.controller");
+const webpush = require("web-push");
+const Subscription = require("./src/util/util.repository");
 
 require('dotenv').config();
 
+const vapidKeys = {
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY,
+};
+
+webpush.setVapidDetails(
+  'mailto:sniperad@naver.com',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
 
 const app = express();
 const server = http.createServer(app);
@@ -63,12 +75,25 @@ const posts = [
 //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
 setInterval(() => {
   const randomPosts = [];
-  for (let i = 0; i < posts.length; i++) {
+  for (let i = 0; i < 1; i++) {
     const randomIndex = Math.floor(Math.random() * posts.length);
     randomPosts.push(posts[randomIndex]);
   }
   io.emit('random-posts', randomPosts);
-}, 12000);
+
+  //모든 구독자에게 푸시 알림 전송
+  Subscription.findAll().then(subscriptions => {
+    subscriptions.forEach(sub => {
+      const pushConfig = {
+        endpoint: sub.endpoint,
+        keys: sub.keys,
+        //expirationTime: sub.expirationTime
+      };
+      webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:'http://localhost:3000' }))
+        .catch(error => console.error(error));
+    });
+  });
+}, 60000);
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
