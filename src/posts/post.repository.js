@@ -1,6 +1,6 @@
 // repositories/postRepository.js
 
-const { Posts, Images, Records, Users, Tags, Mappings, Likes, sequelize } = require('../models');
+const { Posts, Images, Records, Users, Tags, Mappings, Likes, Sequelize } = require('../models');
 const { deleteS3 } = require('../middlewares/multer.middleware')
 const jwt = require("jsonwebtoken"); // 모델을 가져옵니다.
 const dotenv = require("dotenv");
@@ -15,40 +15,18 @@ class PostRepository {
       const images = await Images.findAll({ where: { postId: postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: postId }, include: Tags });
-      // const likeCount = await Likes.findAll({ 
-      //   where: { postId },
-      //   attributes: {
-      //     include: [
-      //       sequelize.literal(`(
-      //         SELECT
-      //           COUNT(*)
-      //         FROM
-      //           Likes
-      //         WHERE
-      //           Likes.postId = postId
-      //       )`), 'LikesCount'
-      //     ]
-      //   }
-      // })
+      const likeCount = await Likes.count({
+        where: { postId }
+      });
 
-
-      if (!post) {
+      if (!post || !images || !user) {
         throw { status: 404, message: 'Post not found' };
-      }
-      if (!images) {
-        throw { status: 404, message: 'Post not found' };
-      }
-      if (!user) {
-        throw { status: 404, message: 'Post not found' };
-      }
-
-      if(mappings) {
-        const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, tag };
-      } else {
-        return { post, images, user };
       }
     
+      const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
+      
+      return { post, images, user, tag, likeCount: likeCount?.likeCount }
+      
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
@@ -66,22 +44,14 @@ class PostRepository {
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
 
-      if (!post) {
-        throw { status: 404, message: 'Post not found' };
-      }
-      if (!images) {
-        throw { status: 404, message: 'Post not found' };
-      }
-      if (!user) {
+      if (!post || !images || !user) {
         throw { status: 404, message: 'Post not found' };
       }
 
-      if(mappings) {
-        const tag = mappings.map(tagInfo => tagInfo.Tag.tag);
-        return { post, images, user, tag };
-      } else {
-        return { post, images, user };
-      }
+      const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
+      
+      return { post, images, user, tag }
+
     } catch (error) {
       console.error('Error getting post:', error);
       throw { status: 500, message: 'Error getting post' };
