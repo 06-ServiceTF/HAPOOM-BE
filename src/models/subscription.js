@@ -31,6 +31,11 @@ module.exports = (sequelize, DataTypes) => {
           key: 'userId',
         },
       },
+      receive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
       endpoint: {
         type: DataTypes.STRING,
         allowNull: false,

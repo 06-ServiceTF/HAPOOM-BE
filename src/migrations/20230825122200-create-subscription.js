@@ -18,6 +18,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
+      receive: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true, // 기본적으로는 알림 수신을 허용한다고 가정
+      },
       endpoint: {
         type: Sequelize.STRING,
       },
