@@ -79,7 +79,7 @@ class MainRepository {
         {
           model: Tags,
           attributes: ['tag'],
-          through: { attributes: [] }, // This ensures that the join table attributes are not included
+          through: { attributes: [] },
         },
       ],
       limit,
