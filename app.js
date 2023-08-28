@@ -51,7 +51,8 @@ io.on('connection', (socket) => {
     Subscription.findAll().then(subscriptions => {
       subscriptions.forEach(sub => {
         // 구독 상태를 체크 (예: sub.isActive 또는 어떤 플래그를 통해)
-        if (sub.receive===1) {
+        console.log(sub)
+        if (sub.receive===true) {
           const pushConfig = {
             endpoint: sub.endpoint,
             keys: sub.keys,
