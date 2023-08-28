@@ -12,7 +12,7 @@ const userRepository = new UserRepository();
 class AuthService {
   constructor() {}
   async getUserToken(userData) {
-    const { user, postIds } = await userRepository.findByEmailLikes(userData);
+    const { user, postIds,sub } = await userRepository.findByEmailLikes(userData);
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return {
@@ -21,6 +21,7 @@ class AuthService {
       userImage: userResponse.userImage,
       preset: userResponse.preset,
       likePosts: postIds,
+      push: sub ? true : false,
     };
   }
 
