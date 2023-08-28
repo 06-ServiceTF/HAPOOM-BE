@@ -2,12 +2,17 @@ const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize,Subscr
 const bcrypt = require('bcrypt');
 
 exports.create = async (subscription, user) => {
-  // User ID에 해당하는 구독 정보가 이미 존재하는지 확인합니다.
-  const existingSubscription = await Subscription.findOne({ where: { userId: user.userId } });
+  // User ID와 엔드포인트에 해당하는 구독 정보가 이미 존재하는지 확인합니다.
+  const existingSubscription = await Subscription.findOne({
+    where: {
+      userId: user.userId,
+      endpoint: subscription.endpoint
+    }
+  });
 
   // 이미 구독 정보가 존재한다면 새로 생성하지 않고 반환합니다.
   if (existingSubscription) {
-    console.log("Subscription already exists for this user.");
+    console.log("Subscription already exists for this user and endpoint.");
     return existingSubscription;
   }
 
@@ -18,23 +23,23 @@ exports.create = async (subscription, user) => {
 };
 
 exports.togglePush = async(userId) => {
-  // userId와 일치하는 구독을 찾습니다.
-  const subscription = await Subscription.findOne({ where: { userId: userId } });
+  // userId와 일치하는 모든 구독을 찾습니다.
+  const subscriptions = await Subscription.findAll({ where: { userId: userId } });
 
-  if (!subscription) {
+  if (!subscriptions.length) {
     throw new Error("Subscription not found for user");
   }
 
-  // receive 필드를 토글합니다.
-  subscription.receive = !subscription.receive;
-
-  // 변경 사항을 데이터베이스에 저장합니다.
-  await subscription.save();
+  // 각 구독에 대해 receive 필드를 토글합니다.
+  for (let sub of subscriptions) {
+    sub.receive = !sub.receive;
+    await sub.save();
+  }
 
   return "Success";
 };
 
-exports.findOne = async (userId) => {
+exports.findOneSub = async (userId) => {
   const subscription = await Subscription.findOne({
     where: {
       userId: userId
@@ -43,11 +48,9 @@ exports.findOne = async (userId) => {
   return subscription;
 };
 
-exports.findAll = async () => {
+exports.findAllSub = async () => {
   const subscriptions = await Subscription.findAll(
   );
-
-  console.log(subscriptions)
 
   const uniqueSubscriptions = [];
 
