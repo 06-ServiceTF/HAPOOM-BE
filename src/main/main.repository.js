@@ -66,9 +66,14 @@ class MainRepository {
   };
 
   getFeed = async (page) => {
+    console.log(page)
     const limit = 12;
     const offset = (page - 1) * limit;
-    const getFeed = await Posts.findAll({
+
+    // 총 포스트 수 가져오기
+    const totalPosts = await Posts.count();
+
+    const feedData = await Posts.findAll({
       where: { private: false },
       include: [
         {
@@ -87,8 +92,13 @@ class MainRepository {
       order: [['createdAt', 'DESC']],
     });
 
-    //console.log(getFeed)
-    return getFeed;
+    // 다음 페이지가 있는지 여부 결정
+    const hasNextPage = totalPosts > offset + limit;
+
+    return {
+      feed: feedData,
+      nextPage: hasNextPage ? parseInt(page) + 1 : null
+    };
   };
 }
 
