@@ -78,20 +78,22 @@ setInterval(() => {
   }
   io.emit('random-posts', randomPosts);
 
-  //모든 구독자에게 푸시 알림 전송
+  // 모든 구독자에게 푸시 알림 전송
   Subscription.findAll().then(subscriptions => {
     subscriptions.forEach(sub => {
-      const pushConfig = {
-        endpoint: sub.endpoint,
-        keys: sub.keys,
-        //expirationTime: sub.expirationTime
-      };
+      // 구독 상태를 체크 (예: sub.isActive 또는 어떤 플래그를 통해)
+      if (sub.receive===1) {
+        const pushConfig = {
+          endpoint: sub.endpoint,
+          keys: sub.keys,
+        };
 
-      // 구독 정보를 콘솔에 출력합니다.
-      console.log('Subscription:', sub.toJSON());
+        // 구독 정보를 콘솔에 출력합니다.
+        console.log('Subscription:', sub.toJSON());
 
-      webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:process.env.ORIGIN }))
-        .catch(error => console.error(error));
+        webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:process.env.ORIGIN }))
+          .catch(error => console.error(error));
+      }
     });
   });
 }, 60000);
