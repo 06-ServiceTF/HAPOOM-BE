@@ -56,8 +56,12 @@ class ProfileService {
       method
     );
 
-    const findPosts = await this.profileRepository.myPosts(email, method, page);
-    const myPosts = findPosts.map((post) => {
+    const { posts, nextPage } = await this.profileRepository.myPosts(
+      email,
+      method,
+      page
+    );
+    const myPosts = posts.map((post) => {
       return {
         postId: post.postId,
         email: post.email,
@@ -69,12 +73,9 @@ class ProfileService {
       };
     });
 
-    const findLikedPosts = await this.profileRepository.myLikedPosts(
-      email,
-      method,
-      page
-    );
-    const myLikedPosts = findLikedPosts.map((post) => {
+    const { likedPosts, nextLikedPage } =
+      await this.profileRepository.myLikedPosts(email, method, page);
+    const myLikedPosts = likedPosts.map((post) => {
       return {
         postId: post.postId,
         email: post.email,
@@ -93,7 +94,9 @@ class ProfileService {
       followerCount,
       followingCount,
       myPosts,
+      nextPage,
       myLikedPosts,
+      nextLikedPage,
     };
   };
 
@@ -113,8 +116,11 @@ class ProfileService {
       userId
     );
 
-    const findPosts = await this.profileRepository.userPosts(userId, page);
-    const userPosts = findPosts.map((post) => {
+    const { posts, nextPage } = await this.profileRepository.userPosts(
+      userId,
+      page
+    );
+    const userPosts = posts.map((post) => {
       return {
         postId: post.postId,
         // nickname: post.User.nickname,
@@ -125,11 +131,9 @@ class ProfileService {
       };
     });
 
-    const findLikedPosts = await this.profileRepository.userLikedPosts(
-      userId,
-      page
-    );
-    const userLikedPosts = findLikedPosts.map((post) => {
+    const { likedPosts, nextLikedPage } =
+      await this.profileRepository.userLikedPosts(userId, page);
+    const userLikedPosts = likedPosts.map((post) => {
       return {
         postId: post.postId,
         // nickname: post.User.nickname,
@@ -147,7 +151,9 @@ class ProfileService {
       userFollowerCount,
       userFollowingCount,
       userPosts,
+      nextPage,
       userLikedPosts,
+      nextLikedPage,
     };
   };
 }

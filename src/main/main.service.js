@@ -45,7 +45,7 @@ class MainService {
   };
 
   getFeed = async (page) => {
-    const {feed,nextPage} = await this.mainRepository.getFeed(page);
+    const { feed, nextPage } = await this.mainRepository.getFeed(page);
     const getFeed = feed.map((feed) => {
       return {
         userId: feed.userId,
@@ -64,7 +64,8 @@ class MainService {
     });
 
     return {
-      getFeed,nextPage
+      getFeed,
+      nextPage,
     };
   };
 }
