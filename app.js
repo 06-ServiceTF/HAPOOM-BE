@@ -45,17 +45,10 @@ const origin = process.env.ORIGIN
 
 io.on('connection', (socket) => {
   console.log('New client connected');
-
   // 클라이언트에서 "post-created" 이벤트를 수신하면, 모든 클라이언트에게 알림을 보냅니다.
   socket.on('post-created', (data) => {
     io.emit('notify-post', { user: data.user, message: 'New post created!' });
   });
-
-  setInterval(async () => {
-    const postController = new PostsController();
-    const latestPosts = await postController.getMainPost();
-    socket.emit('latest-posts', latestPosts);
-  }, 60 * 1000); // 1분 간격
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
@@ -70,6 +63,12 @@ const posts = [
   { content1: '지금 힘든 일은 지나가는 구름이야', content2: '' },
 ];
 
+// setInterval(async () => {
+//   const postController = new PostsController();
+//   const latestPosts = await postController.getMainPost();
+//   io.emit('latest-posts', latestPosts);
+// }, 60 * 1000); // 1분 간격
+
 //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
 setInterval(() => {
   const randomPosts = [];
@@ -79,26 +78,10 @@ setInterval(() => {
   }
   io.emit('random-posts', randomPosts);
 
-  //모든 구독자에게 푸시 알림 전송
-  Subscription.findAll().then(subscriptions => {
-    subscriptions.forEach(sub => {
-      const pushConfig = {
-        endpoint: sub.endpoint,
-        keys: sub.keys,
-        //expirationTime: sub.expirationTime
-      };
-
-      // 구독 정보를 콘솔에 출력합니다.
-      console.log('Subscription:', sub.toJSON());
-
-      webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:process.env.ORIGIN }))
-        .catch(error => console.error(error));
-    });
-  });
 }, 60000);
 
 app.use(cors({
-  origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
+  origin:['http://localhost:3000','http://localhost:3001','https://hapoom.life'],
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }))

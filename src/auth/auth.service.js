@@ -12,7 +12,7 @@ const userRepository = new UserRepository();
 class AuthService {
   constructor() {}
   async getUserToken(userData) {
-    const { user, postIds } = await userRepository.findByEmailLikes(userData);
+    const { user, postIds,sub } = await userRepository.findByEmailLikes(userData);
     const userResponse = user.get({ plain: true });
     delete userResponse.password;
     return {
@@ -21,6 +21,7 @@ class AuthService {
       userImage: userResponse.userImage,
       preset: userResponse.preset,
       likePosts: postIds,
+      push: sub ? true : false,
     };
   }
 
@@ -36,7 +37,6 @@ class AuthService {
   async signup(body) {
     const exUser = await userRepository.findByEmail({
       email: body.email,
-      method: 'direct',
     });
     if (exUser) {
       throw new Error('이미 사용중인 아이디입니다');
@@ -143,10 +143,10 @@ class AuthService {
           sameSite: 'None',
           secure: true,
         });
-        return res.redirect(`https://hapoom-fe.vercel.app/auth/SocialSuccess`);
+        return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
       } catch (error) {
         console.log(error);
-        return res.redirect(`https://hapoom-fe.vercel.app/auth/SignIn`);
+        return res.redirect(`${process.env.ORIGIN}/auth/SignIn`);
       }
     })(req, res, next);
   };

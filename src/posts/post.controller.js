@@ -33,15 +33,19 @@ class PostController {
       await postService.createPost(user.userId,req.body, req.files, host);
       const io = req.app.get('io');
       io.emit('newPost', { message: '새 게시물이 등록 되었습니다.' });
-      Subscription.findAll().then(subscriptions => {
+      Subscription.findAllSub().then(subscriptions => {
         subscriptions.forEach(sub => {
-          const pushConfig = {
-            endpoint: sub.endpoint,
-            keys: sub.keys,
-            //expirationTime: sub.expirationTime
-          };
-          webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 글이 등록 되었습니다.', content: '함 들어가 보셈!',url:'http://localhost:3000' }))
-            .catch(error => console.error(error));
+          // 구독 상태를 체크 (예: sub.isActive 또는 어떤 플래그를 통해)
+          if (sub.receive===true) {
+            const pushConfig = {
+              endpoint: sub.endpoint,
+              keys: sub.keys,
+            };
+            // 구독 정보를 콘솔에 출력합니다.
+            console.log('Subscription:', sub.toJSON());
+            webpush.sendNotification(pushConfig, JSON.stringify({ title: '새글이 작성되었습니다!', content: '빨랑가서 확인해 봅시다.',url:process.env.ORIGIN }))
+              .catch(error => console.error(error));
+          }
         });
       });
       res.status(200).send({message: 'Post create Success'});
