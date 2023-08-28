@@ -50,4 +50,13 @@ exports.sendNotification = async (req, res) => {
   }
 };
 
+exports.togglePush = async (req, res) => {
+  try {
+    await service.togglePush(req,res);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 

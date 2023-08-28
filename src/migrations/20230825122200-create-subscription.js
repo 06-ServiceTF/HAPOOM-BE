@@ -9,6 +9,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users', // 가정: 사용자 정보가 'Users' 테이블에 저장되어 있다고 가정합니다.
+          key: 'userId',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
+      receive: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true, // 기본적으로는 알림 수신을 허용한다고 가정
+      },
       endpoint: {
         type: Sequelize.STRING,
       },
@@ -29,6 +43,7 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Subscriptions');
   },

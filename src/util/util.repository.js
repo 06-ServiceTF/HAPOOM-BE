@@ -1,8 +1,26 @@
 const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize,Subscription } = require('../models');
 const bcrypt = require('bcrypt');
 
-exports.create = (subscription) => {
+exports.create = (subscription, user) => {
+  subscription.userId = user.id;
   return Subscription.create(subscription);
+};
+
+exports.togglePush = async(userId) => {
+  // userId와 일치하는 구독을 찾습니다.
+  const subscription = await Subscription.findOne({ where: { userId: userId } });
+
+  if (!subscription) {
+    throw new Error("Subscription not found for user");
+  }
+
+  // receive 필드를 토글합니다.
+  subscription.receive = !subscription.receive;
+
+  // 변경 사항을 데이터베이스에 저장합니다.
+  await subscription.save();
+
+  return "Success";
 };
 
 exports.findAll = async () => {

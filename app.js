@@ -43,7 +43,6 @@ const io = socketIo(server,{
 app.set('io', io);
 const origin = process.env.ORIGIN
 
-
 io.on('connection', (socket) => {
   console.log('New client connected');
 
@@ -62,7 +61,6 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 });
-
 
 const posts = [
   { content1: '매번 같은 나날이라 힘겨워하기엔', content2: '매일 다른 하늘이 날 맞이해준다.' },
@@ -89,6 +87,10 @@ setInterval(() => {
         keys: sub.keys,
         //expirationTime: sub.expirationTime
       };
+
+      // 구독 정보를 콘솔에 출력합니다.
+      console.log('Subscription:', sub.toJSON());
+
       webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:'http://localhost:3000' }))
         .catch(error => console.error(error));
     });

@@ -2,6 +2,8 @@ const axios = require('axios');
 const webpush = require('web-push');
 const repository = require('./util.repository');
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+const {Users} = require("../models");
 dotenv.config();
 
 exports.youtubeSearch = async (term) => {
@@ -69,7 +71,10 @@ exports.reverseGeocode = async (x, y) => {
 };
 
 exports.addSubscription = async (subscription) => {
-  return await repository.create(subscription);
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
+  return await repository.create(subscription,user);
 };
 
 exports.sendNotificationToAll = async (payload) => {
@@ -77,4 +82,12 @@ exports.sendNotificationToAll = async (payload) => {
   subscriptions.forEach((subscription) => {
     webpush.sendNotification(subscription, JSON.stringify(payload));
   });
+};
+
+exports.togglePush = async (req,res) => {
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
+  await repository.togglePush(user.userId);
+  res.status(200)
 };
