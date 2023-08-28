@@ -26,21 +26,21 @@ class MainService {
       };
     });
 
-    const findMainTags = await this.mainRepository.getMainTags()
+    const findMainTags = await this.mainRepository.getMainTags();
     const getMainTags = await findMainTags.map((post) => {
       return {
         postId: post.postId,
         private: post.private,
         image: post.Images[0].url,
         tagId: post.Tags[0]?.tagId,
-        tag: post.Tags[0]?.tag
-      }
-    })
+        tag: post.Tags[0]?.tag,
+      };
+    });
 
     return {
       getPosts,
       getLikedPosts,
-      getMainTags
+      getMainTags,
     };
   };
 
@@ -58,6 +58,8 @@ class MainService {
         musicTitle: feed.musicTitle,
         musicUrl: feed.musicUrl,
         preset: feed.User.preset,
+        content: feed.content,
+        tags: feed.Tags.map((tag) => tag.tag),
       };
     });
 

@@ -76,12 +76,18 @@ class MainRepository {
           attributes: ['userId', 'email', 'nickname', 'userImage', 'preset'],
         },
         { model: Images, attributes: ['url'], limit: 1 },
+        {
+          model: Tags,
+          attributes: ['tag'],
+          through: { attributes: [] },
+        },
       ],
       limit,
       offset,
       order: [['createdAt', 'DESC']],
     });
 
+    console.log(getFeed)
     return getFeed;
   };
 }
