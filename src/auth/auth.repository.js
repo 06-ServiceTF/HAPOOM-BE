@@ -80,7 +80,7 @@ class AuthRepository {
   };
 
   async findByEmail(userData) {
-    return Users.findOne({ where: { email:userData.email,method:userData.method } });
+    return Users.findOne({ where: { email:userData.email } });
   }
 
   async findByEmailLikes(userData) {
