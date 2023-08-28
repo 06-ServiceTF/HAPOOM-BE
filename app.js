@@ -94,7 +94,7 @@ setInterval(() => {
         .catch(error => console.error(error));
     });
   });
-}, 12000);
+}, 60000);
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
