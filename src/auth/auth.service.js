@@ -144,10 +144,10 @@ class AuthService {
           sameSite: 'None',
           secure: true,
         });
-        return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
+        return res.redirect(`${process.env.ORIGIN_BACK}/auth/SocialSuccess`);
       } catch (error) {
         console.log(error);
-        return res.redirect(`${process.env.ORIGIN}/auth/SignIn`);
+        return res.redirect(`${process.env.ORIGIN_BACK}/auth/SignIn`);
       }
     })(req, res, next);
   };
