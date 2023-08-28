@@ -88,7 +88,7 @@ exports.addSubscription = async (subscription, req) => {
 };
 
 exports.sendNotificationToAll = async (payload) => {
-  const subscriptions = await repository.findAll();
+  const subscriptions = await repository.findAllSub();
   console.log(subscriptions)
   subscriptions.forEach((subscription) => {
     webpush.sendNotification(subscription, JSON.stringify(payload));
