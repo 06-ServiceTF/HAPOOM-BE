@@ -33,7 +33,7 @@ exports.reverseGeocode = async (req, res) => {
 exports.subscribe = async (req, res) => {
   try {
     const subscription = req.body;
-    await service.addSubscription(subscription);
+    await service.addSubscription(subscription,req);
     res.status(201).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -44,6 +44,15 @@ exports.sendNotification = async (req, res) => {
   try {
     const payload = req.body;
     await service.sendNotificationToAll(payload);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.togglePush = async (req, res) => {
+  try {
+    await service.togglePush(req,res);
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
