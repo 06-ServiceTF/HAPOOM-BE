@@ -87,7 +87,7 @@ class MainRepository {
       order: [['createdAt', 'DESC']],
     });
 
-    console.log(getFeed)
+    //console.log(getFeed)
     return getFeed;
   };
 }

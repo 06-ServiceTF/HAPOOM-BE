@@ -28,7 +28,7 @@ class PostController {
     try {
       const token = req.cookies.refreshToken;
       const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      const user = await Users.findOne({ where: { email: decoded.email } });
+      const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
       const host = req.protocol + '://' + req.get('host');
       await postService.createPost(user.userId,req.body, req.files, host);
       const io = req.app.get('io');

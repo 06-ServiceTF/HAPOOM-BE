@@ -2,6 +2,8 @@ const axios = require('axios');
 const webpush = require('web-push');
 const repository = require('./util.repository');
 const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+const {Users} = require("../models");
 dotenv.config();
 
 exports.youtubeSearch = async (term) => {
@@ -68,13 +70,35 @@ exports.reverseGeocode = async (x, y) => {
   return response.data;
 };
 
-exports.addSubscription = async (subscription) => {
-  return await repository.create(subscription);
+exports.addSubscription = async (subscription, req) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({ where: { email: decoded.email, method: decoded.method } });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return await repository.create(subscription, user);
+  } catch (error) {
+    console.error("Error in addSubscription:", error);
+    throw error; // 에러를 다시 던져서 호출하는 측에서도 처리할 수 있게 합니다.
+  }
 };
 
 exports.sendNotificationToAll = async (payload) => {
   const subscriptions = await repository.findAll();
+  console.log(subscriptions)
   subscriptions.forEach((subscription) => {
     webpush.sendNotification(subscription, JSON.stringify(payload));
   });
+};
+
+exports.togglePush = async (req,res) => {
+  const token = req.cookies.refreshToken;
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
+  await repository.togglePush(user.userId);
+  res.status(200)
 };
