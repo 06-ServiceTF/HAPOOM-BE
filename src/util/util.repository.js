@@ -44,11 +44,8 @@ exports.findOne = async (userId) => {
 };
 
 exports.findAll = async () => {
-  const subscriptions = await Subscription.findAll({
-    where: {
-      receive: 1,
-    }
-  });
+  const subscriptions = await Subscription.findAll(
+  );
 
   console.log(subscriptions)
 
