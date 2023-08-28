@@ -45,17 +45,10 @@ const origin = process.env.ORIGIN
 
 io.on('connection', (socket) => {
   console.log('New client connected');
-
   // 클라이언트에서 "post-created" 이벤트를 수신하면, 모든 클라이언트에게 알림을 보냅니다.
   socket.on('post-created', (data) => {
     io.emit('notify-post', { user: data.user, message: 'New post created!' });
   });
-
-  setInterval(async () => {
-    const postController = new PostsController();
-    const latestPosts = await postController.getMainPost();
-    socket.emit('latest-posts', latestPosts);
-  }, 60 * 1000); // 1분 간격
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
@@ -69,6 +62,12 @@ const posts = [
   { content1: '하늘은 용기 있는 자의 편이야', content2: '' },
   { content1: '지금 힘든 일은 지나가는 구름이야', content2: '' },
 ];
+
+// setInterval(async () => {
+//   const postController = new PostsController();
+//   const latestPosts = await postController.getMainPost();
+//   io.emit('latest-posts', latestPosts);
+// }, 60 * 1000); // 1분 간격
 
 //모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
 setInterval(() => {
@@ -95,7 +94,7 @@ setInterval(() => {
         .catch(error => console.error(error));
     });
   });
-}, 60000);
+}, 12000);
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],

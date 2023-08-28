@@ -34,13 +34,23 @@ exports.togglePush = async(userId) => {
   return "Success";
 };
 
-exports.findAll = async () => {
-  // Modify the query to only fetch subscriptions with receive set to true
-  const subscriptions = await Subscription.findAll({
+exports.findOne = async (userId) => {
+  const subscription = await Subscription.findOne({
     where: {
-      receive: true
+      userId: userId
     }
   });
+  return subscription;
+};
+
+exports.findAll = async () => {
+  const subscriptions = await Subscription.findAll({
+    where: {
+      receive: 1,
+    }
+  });
+
+  console.log(subscriptions)
 
   const uniqueSubscriptions = [];
 
