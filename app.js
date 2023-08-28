@@ -91,7 +91,7 @@ setInterval(() => {
       // 구독 정보를 콘솔에 출력합니다.
       console.log('Subscription:', sub.toJSON());
 
-      webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:'http://localhost:3000' }))
+      webpush.sendNotification(pushConfig, JSON.stringify({ title: '새 메시지가 도착했습니다!', content: '랜덤 메세지입니다.',url:process.env.ORIGIN }))
         .catch(error => console.error(error));
     });
   });

@@ -33,7 +33,7 @@ exports.reverseGeocode = async (req, res) => {
 exports.subscribe = async (req, res) => {
   try {
     const subscription = req.body;
-    await service.addSubscription(subscription);
+    await service.addSubscription(subscription,req);
     res.status(201).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

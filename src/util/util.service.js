@@ -70,15 +70,26 @@ exports.reverseGeocode = async (x, y) => {
   return response.data;
 };
 
-exports.addSubscription = async (subscription) => {
-  const token = req.cookies.refreshToken;
-  const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-  const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
-  return await repository.create(subscription,user);
+exports.addSubscription = async (subscription, req) => {
+  try {
+    const token = req.cookies.refreshToken;
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+    const user = await Users.findOne({ where: { email: decoded.email, method: decoded.method } });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return await repository.create(subscription, user);
+  } catch (error) {
+    console.error("Error in addSubscription:", error);
+    throw error; // 에러를 다시 던져서 호출하는 측에서도 처리할 수 있게 합니다.
+  }
 };
 
 exports.sendNotificationToAll = async (payload) => {
   const subscriptions = await repository.findAll();
+  console.log(subscriptions)
   subscriptions.forEach((subscription) => {
     webpush.sendNotification(subscription, JSON.stringify(payload));
   });
