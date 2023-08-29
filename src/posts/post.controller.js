@@ -57,6 +57,10 @@ class PostController {
   getPost = async (req, res) => {
     try {
       const result = await postService.getPost(req.params.postId);
+      if(result.reportCount>=5) {
+        result.post.content = '누적신고로 인해 블라인드 처리 되었습니다.'
+        result.images = ['https://hapoomimagebucket.s3.ap-northeast-2.amazonaws.com/images/1693285405252_pexels-skyler-ewing-12216250%20%281%29.jpg']
+      }
       res.send(result);
     } catch (error) {
       res.status(error.status || 500).send({error: error.message});
