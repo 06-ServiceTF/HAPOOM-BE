@@ -17,9 +17,21 @@ const path = require('path'); // 경로는 해당 모듈의 위치에 따라 달
 const http = require('http');
 const socketIo = require('socket.io');
 const PostsController = require("./src/posts/post.controller");
+const webpush = require("web-push");
+const Subscription = require("./src/util/util.repository");
 
 require('dotenv').config();
 
+const vapidKeys = {
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY,
+};
+
+webpush.setVapidDetails(
+  'mailto:sniperad@naver.com',
+  vapidKeys.publicKey,
+  vapidKeys.privateKey
+);
 
 const app = express();
 const server = http.createServer(app);
@@ -31,47 +43,26 @@ const io = socketIo(server,{
 app.set('io', io);
 const origin = process.env.ORIGIN
 
-
 io.on('connection', (socket) => {
   console.log('New client connected');
-
   // 클라이언트에서 "post-created" 이벤트를 수신하면, 모든 클라이언트에게 알림을 보냅니다.
   socket.on('post-created', (data) => {
     io.emit('notify-post', { user: data.user, message: 'New post created!' });
   });
-
-  setInterval(async () => {
-    const postController = new PostsController();
-    const latestPosts = await postController.getMainPost();
-    socket.emit('latest-posts', latestPosts);
-  }, 60 * 1000); // 1분 간격
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
 });
 
-
-const posts = [
-  { content1: '매번 같은 나날이라 힘겨워하기엔', content2: '매일 다른 하늘이 날 맞이해준다.' },
-  { content1: '힘들 땐 하늘을 봐', content2: '넌 절대 혼자가 아니야' },
-  { content1: '수고했어 오늘도', content2: '' },
-  { content1: '하늘은 용기 있는 자의 편이야', content2: '' },
-  { content1: '지금 힘든 일은 지나가는 구름이야', content2: '' },
-];
-
-//모든 클라이언트에게 1분마다 랜덤 게시물 3개 전송
-setInterval(() => {
-  const randomPosts = [];
-  for (let i = 0; i < posts.length; i++) {
-    const randomIndex = Math.floor(Math.random() * posts.length);
-    randomPosts.push(posts[randomIndex]);
-  }
-  io.emit('random-posts', randomPosts);
-}, 12000);
+// setInterval(async () => {
+//   const postController = new PostsController();
+//   const latestPosts = await postController.getMainPost();
+//   io.emit('latest-posts', latestPosts);
+// }, 60 * 1000); // 1분 간격
 
 app.use(cors({
-  origin:['http://localhost:3000','http://localhost:3001','https://hapoom-fe.vercel.app'],
+  origin:['http://localhost:3000','http://localhost:3001','https://hapoom.life'],
   credentials:true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 }))

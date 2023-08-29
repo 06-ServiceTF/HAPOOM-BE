@@ -30,12 +30,33 @@ exports.reverseGeocode = async (req, res) => {
   }
 };
 
-exports.createDummy = async (req, res) => {
+exports.subscribe = async (req, res) => {
   try {
-    await service.createDummyData();
-    res.status(200).send('Test Data Created Successfully');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while creating test data');
+    const subscription = req.body;
+    await service.addSubscription(subscription,req);
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
+
+exports.sendNotification = async (req, res) => {
+  try {
+    const payload = req.body;
+    await service.sendNotificationToAll(payload);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.togglePush = async (req, res) => {
+  try {
+    await service.togglePush(req,res);
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+

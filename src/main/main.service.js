@@ -26,29 +26,29 @@ class MainService {
       };
     });
 
-    const findMainTags = await this.mainRepository.getMainTags()
+    const findMainTags = await this.mainRepository.getMainTags();
     const getMainTags = await findMainTags.map((post) => {
       return {
         postId: post.postId,
         private: post.private,
         image: post.Images[0].url,
-        tagId: post.Tags[0].tagId,
-        tag: post.Tags[0].tag
-        
-      }
-    })
+        tagId: post.Tags[0]?.tagId,
+        tag: post.Tags[0]?.tag,
+      };
+    });
 
     return {
       getPosts,
       getLikedPosts,
-      getMainTags
+      getMainTags,
     };
   };
 
   getFeed = async (page) => {
-    const findFeed = await this.mainRepository.getFeed(page);
-    const getFeed = findFeed.map((feed) => {
+    const {feed,nextPage} = await this.mainRepository.getFeed(page);
+    const getFeed = feed.map((feed) => {
       return {
+        userId: feed.userId,
         postId: feed.postId,
         email: feed.User.email,
         nickname: feed.User.nickname,
@@ -58,11 +58,13 @@ class MainService {
         musicTitle: feed.musicTitle,
         musicUrl: feed.musicUrl,
         preset: feed.User.preset,
+        content: feed.content,
+        tags: feed.Tags.map((tag) => tag.tag),
       };
     });
 
     return {
-      getFeed,
+      getFeed,nextPage
     };
   };
 }

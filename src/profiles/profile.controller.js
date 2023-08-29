@@ -8,6 +8,7 @@ class ProfileController {
     try {
       const { email, method } = req.user;
       const user = await this.profileService.userInfo(email, method);
+
       return res.status(200).json({ user });
     } catch (error) {
       console.log(error);
@@ -63,6 +64,7 @@ class ProfileController {
       const { userId } = req.params;
       const page = req.query.page || 1;
       const profilePage = await this.profileService.userProfile(userId, page);
+
       res.status(200).json({
         user: profilePage.getUser,
         postsCount: profilePage.userPostsCount,

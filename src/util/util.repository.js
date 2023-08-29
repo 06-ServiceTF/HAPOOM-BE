@@ -1,46 +1,67 @@
-const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize } = require('../models');
+const { Posts, Users, Likes, Images,Comments,Reports,sequelize, Sequelize,Subscription } = require('../models');
 const bcrypt = require('bcrypt');
 
-exports.createDummyData = async () => {
-  const hashedPassword = await bcrypt.hash('testtest1', 12);
-  const musicData = [
-    { url: "https://www.youtube.com/watch?v=rgms0zs6SZc", title: "남자를몰라" },
-    { url: "https://www.youtube.com/watch?v=q0Bc1lmn5fA", title: "onelove" },
-    { url: "https://www.youtube.com/watch?v=FwbEtCtz8Qk", title: "please dont happy" },
-    { url: "https://www.youtube.com/watch?v=4oQ2-b89a0w", title: "hello" },
-    { url: "https://www.youtube.com/watch?v=1-Lm2LUR8Ss", title: "버즈(Buzz) - 가시 [가사/Lyrics]" }
-  ];
-
-  for (let i = 0; i < 10; i++) {
-    const user = await Users.create({
-      email: `test${i}@example.com`,
-      password: hashedPassword,
-      nickname: `user${i}`,
-      userImage:'',
-      theme:1,
-      preset:5,
-      method:"direct"
-    });
-
-    for (let j = 0; j < 2; j++) {
-      const randomMusic = musicData[Math.floor(Math.random() * musicData.length)];
-      const post = await Posts.create({
-        userId: user.userId,
-        content: `Test Post ${j} by user${i}`,
-        private: false,
-        musicTitle: randomMusic.title,
-        musicUrl: randomMusic.url,
-        latitude:126.742,
-        longitude:34.3245,
-        placeName:`전라남도 완도군 완도읍 장보고대로 103  해남소방서 완도119안전센터`,
-        tag:"",
-      });
-
-      await Images.create({
-        url: 'https://avatars.githubusercontent.com/u/32028454?v=4',
-        postId: post.postId,
-        userId: post.dataValues.userId
-      });
+exports.create = async (subscription, user) => {
+  // User ID와 엔드포인트에 해당하는 구독 정보가 이미 존재하는지 확인합니다.
+  const existingSubscription = await Subscription.findOne({
+    where: {
+      userId: user.userId,
+      endpoint: subscription.endpoint
     }
+  });
+
+  // 이미 구독 정보가 존재한다면 새로 생성하지 않고 반환합니다.
+  if (existingSubscription) {
+    console.log("Subscription already exists for this user and endpoint.");
+    return existingSubscription;
   }
+
+  // 존재하지 않는다면 새 구독 정보를 생성합니다.
+  subscription.userId = user.userId;
+  console.log(subscription);
+  return Subscription.create(subscription);
+};
+
+exports.togglePush = async(userId) => {
+  // userId와 일치하는 모든 구독을 찾습니다.
+  const subscriptions = await Subscription.findAll({ where: { userId: userId } });
+
+  if (!subscriptions.length) {
+    throw new Error("Subscription not found for user");
+  }
+
+  // 각 구독에 대해 receive 필드를 토글합니다.
+  for (let sub of subscriptions) {
+    sub.receive = !sub.receive;
+    await sub.save();
+  }
+
+  return "Success";
+};
+
+exports.findOneSub = async (userId) => {
+  const subscription = await Subscription.findOne({
+    where: {
+      userId: userId
+    }
+  });
+  return subscription;
+};
+
+exports.findAllSub = async () => {
+  const subscriptions = await Subscription.findAll(
+  );
+
+  const uniqueSubscriptions = [];
+
+  // Endpoint를 기준으로 중복을 제거
+  const endpoints = new Set();
+  subscriptions.forEach(sub => {
+    if (!endpoints.has(sub.endpoint)) {
+      uniqueSubscriptions.push(sub);
+      endpoints.add(sub.endpoint);
+    }
+  });
+
+  return uniqueSubscriptions;
 };
