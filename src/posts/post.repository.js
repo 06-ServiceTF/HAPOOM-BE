@@ -43,7 +43,7 @@ class PostRepository {
           ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
         ]
       });
-      const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
+      const images = await Images.findAll({ where: { postId: post.dataValues.postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
       const likeCount = await Likes.count({
