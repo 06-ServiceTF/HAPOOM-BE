@@ -20,6 +20,7 @@ class AuthService {
       nickname: userResponse.nickname,
       userImage: userResponse.userImage,
       preset: userResponse.preset,
+      userId:userResponse.userId,
       likePosts: postIds,
       push: sub ? true : false,
     };
