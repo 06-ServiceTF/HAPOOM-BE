@@ -55,11 +55,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// setInterval(async () => {
-//   const postController = new PostsController();
-//   const latestPosts = await postController.getMainPost();
-//   io.emit('latest-posts', latestPosts);
-// }, 60 * 1000); // 1분 간격
+setInterval(async () => {
+  const postController = new PostsController();
+  const latestPosts = await postController.getMainPost();
+  io.emit('latest-posts', latestPosts);
+}, 60 * 1000); // 1분 간격
 
 app.use(cors({
   origin:['http://localhost:3000','http://localhost:3001','https://hapoom.life'],
