@@ -43,8 +43,11 @@ const io = socketIo(server,{
 app.set('io', io);
 const origin = process.env.ORIGIN
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
   console.log('New client connected');
+  const postController = new PostsController();
+  const latestPosts = await postController.getMainPost();
+  io.emit('latest-posts', latestPosts);
   // 클라이언트에서 "post-created" 이벤트를 수신하면, 모든 클라이언트에게 알림을 보냅니다.
   socket.on('post-created', (data) => {
     io.emit('notify-post', { user: data.user, message: 'New post created!' });
