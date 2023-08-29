@@ -16,7 +16,7 @@ class ReportController {
         method
       );
       if (isSelfReport) {
-        return res.status(403).json({ message: '자신을 신고할 수 없습니다.' });
+        return res.status(400).json({ message: '자신을 신고할 수 없습니다.' });
       }
 
       const addReport = await this.reportService.addReport(
