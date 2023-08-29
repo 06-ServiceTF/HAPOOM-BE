@@ -6,24 +6,45 @@ const jwt = require("jsonwebtoken");
 const {Users} = require("../models");
 dotenv.config();
 
-exports.youtubeSearch = async (term) => {
-  const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
-    params: {
-      part: 'snippet',
-      maxResults: 5,
-      key: process.env.YOUTUBE_API_KEY,
-      q: term,
-      type: 'video',
-    },
-  });
+const API_KEYS = [
+  process.env.YOUTUBE_API_KEY1,
+  process.env.YOUTUBE_API_KEY2,
+  process.env.YOUTUBE_API_KEY3,
+  process.env.YOUTUBE_API_KEY4,
+  process.env.YOUTUBE_API_KEY5,
+  process.env.YOUTUBE_API_KEY6,
+  process.env.YOUTUBE_API_KEY7,
+];
 
-  return response.data.items.map(item => {
-    return {
-      videoId: item.id.videoId,
-      title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.default.url,
-    };
-  });
+exports.youtubeSearch = async (term) => {
+  for (let i = 0; i < API_KEYS.length; i++) {
+    try {
+      const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
+        params: {
+          part: 'snippet',
+          maxResults: 5,
+          key: API_KEYS[i],
+          q: term,
+          type: 'video',
+        },
+      });
+
+      return response.data.items.map(item => {
+        return {
+          videoId: item.id.videoId,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails.default.url,
+        };
+      });
+    } catch (error) {
+      if (i === API_KEYS.length - 1) { // 모든 API 키가 사용됐다면 오류를 던진다.
+        throw new Error("All API keys quota exceeded.");
+      }
+      // API 키 할당량 초과나 기타 오류로 인한 예외 처리.
+      // 이 경우, 다음 API 키로 교체하여 재시도한다.
+      continue;
+    }
+  }
 };
 
 exports.Geocode = async (address, page = 1, size = 5) => {
