@@ -13,9 +13,16 @@ class SearchController {
         const query = req.query.q;
         const category = req.query.category;
         const token = req.cookies.refreshToken;
-        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        const email = decoded.email;  // 토큰의 본인 이메일
-        const method = decoded.method; // 토큰의 본인 메서드
+        let email;
+        let method;
+        if(!token){
+            email="notlogged";
+            method="notlogeed";
+        }else{
+            const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+            email = decoded.email;  // 토큰의 본인 이메일
+            method = decoded.method; // 토큰의 본인 메서드
+        }
         try {
             const result = await searchService.search(query, category, email,method);
             res.status(200).json(result);
