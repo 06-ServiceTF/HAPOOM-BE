@@ -45,8 +45,8 @@ class MainService {
   };
 
   getFeed = async (page) => {
-    const {feed,nextPage} = await this.mainRepository.getFeed(page);
-    const getFeed = feed.map((feed) => {
+    const {content,totalPages,totalElements} = await this.mainRepository.getFeed(page);
+    const getFeed = content.map((feed) => {
       return {
         userId: feed.userId,
         postId: feed.postId,
@@ -64,7 +64,7 @@ class MainService {
     });
 
     return {
-      getFeed,nextPage
+      content:getFeed,totalPages,totalElements
     };
   };
 }
