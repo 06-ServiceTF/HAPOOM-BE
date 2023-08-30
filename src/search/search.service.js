@@ -5,7 +5,7 @@ class SearchService {
     constructor(){
     }
     async search(query, category, email, method) {
-        //console.log(query,category,email,method)
+        console.log(query,category,email,method)
         switch (category) {
             case "users":
                 console.log("유저검색")
