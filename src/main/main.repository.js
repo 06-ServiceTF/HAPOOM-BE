@@ -71,6 +71,7 @@ class MainRepository {
 
     // 총 포스트 수 가져오기
     const totalPosts = await Posts.count();
+    const totalPages = Math.ceil(totalPosts / limit);
 
     const feedData = await Posts.findAll({
       where: { private: false },
@@ -95,8 +96,9 @@ class MainRepository {
     const hasNextPage = totalPosts > offset + limit;
 
     return {
-      feed: feedData,
-      nextPage: hasNextPage ? parseInt(page) + 1 : null,
+      content: feedData,
+      totalPages,
+      totalElements: totalPosts
     };
   };
 }
