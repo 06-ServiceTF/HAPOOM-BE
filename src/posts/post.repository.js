@@ -47,10 +47,18 @@ class PostRepository {
         raw: true
       });
 
-      const topLikedPostIds = topLikedPosts.map(post => post.postId);
+      let randomPostId;
 
-      // 2. postId들 중 랜덤으로 하나를 선택합니다.
-      const randomPostId = topLikedPostIds[Math.floor(Math.random() * topLikedPostIds.length)];
+      if (topLikedPosts.length === 0) {
+        // 좋아요가 없는 경우 최신 게시물을 가져옵니다.
+        const latestPost = await Posts.findOne({ order: [['createdAt', 'DESC']] });
+        if (!latestPost) throw { status: 404, message: 'No posts found' };
+        randomPostId = latestPost.id;
+      } else {
+        const topLikedPostIds = topLikedPosts.map(post => post.postId);
+        // 2. postId들 중 랜덤으로 하나를 선택합니다.
+        randomPostId = topLikedPostIds[Math.floor(Math.random() * topLikedPostIds.length)];
+      }
 
       // 게시물 정보 가져오기
       const post = await Posts.findByPk(randomPostId);
@@ -65,6 +73,7 @@ class PostRepository {
       const mappings = await Mappings.findAll({ where: { postId: randomPostId }, include: Tags });
       const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
 
+      // const likeCount = topLikedPostIds.find(post => post.postId === randomPostId).likeCount;
       const likeCount = await Likes.count({
         where: { postId:randomPostId }
       });
