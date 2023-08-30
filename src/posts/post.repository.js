@@ -38,27 +38,39 @@ class PostRepository {
 
   findLatestPost = async () => {
     try {
-      const post = await Posts.findOne({
-        order: [
-          ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
-        ]
+      // 1. 상위 5개의 like를 가진 postId를 가져옵니다.
+      const topLikedPosts = await Likes.findAll({
+        attributes: ['postId', [Sequelize.fn('COUNT', Sequelize.col('postId')), 'likeCount']],
+        group: ['postId'],
+        order: [[Sequelize.fn('COUNT', Sequelize.col('postId')), 'DESC']],
+        limit: 5,
+        raw: true
       });
-      const images = await Images.findAll({ where: { postId: post.dataValues.postId } });
-      const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
-      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
-      const likeCount = await Likes.count({
-        where: { postId:post.dataValues.userId }
-      });
-      const reportCount = await Reports.count({
-        where: { postId:post.dataValues.userId }
-      });
-      if (!post || !images || !user) {
-        throw { status: 404, message: 'Post not found' };
+
+      const topLikedPostIds = topLikedPosts.map(post => post.postId);
+
+      // 2. postId들 중 랜덤으로 하나를 선택합니다.
+      const randomPostId = topLikedPostIds[Math.floor(Math.random() * topLikedPostIds.length)];
+
+      // 게시물 정보 가져오기
+      const post = await Posts.findByPk(randomPostId);
+
+      // 3. 선택한 postId에 해당하는 이미지가 있는지 확인
+      const images = await Images.findAll({ where: { postId: randomPostId } });
+      if (!images || images.length < 1) {
+        throw { status: 404, message: 'No images found for the post' };
       }
 
+      const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
+      const mappings = await Mappings.findAll({ where: { postId: randomPostId }, include: Tags });
       const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
-      
-      return { post, images, user, tag,likeCount,reportCount }
+
+      const likeCount = await Likes.count({
+        where: { postId:randomPostId }
+      });
+      const reportCount = await Reports.count({ where: { postId: randomPostId } });
+
+      return { post, images, user, tag, likeCount, reportCount };
 
     } catch (error) {
       console.error('Error getting post:', error);
@@ -104,15 +116,15 @@ class PostRepository {
       if (mappings.length) {
         if (tag.length) {
           await Mappings.destroy({ where: { postId: post.dataValues.postId }})
-    
+
           const tagArr = tag.split(",")
-    
+
           for (const tag of tagArr) {
             const trimmedTag = tag.trim()
             const [item, result] = await Tags.findOrCreate({
               where: { tag: trimmedTag }
             })
-            
+
             await Mappings.create({
               postId: post.dataValues.postId,
               tagId: item["tagId"]
@@ -154,7 +166,7 @@ class PostRepository {
         await Promise.all(s3DeletePromises)
         //await Images.destroy({where: {imageId: image.imageId}});
       }
-      
+
       if(images){
       const imagePromises = images.map((image) => {
         return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
@@ -163,7 +175,7 @@ class PostRepository {
 
         await Promise.all(imagePromises);
       }
-      
+
       console.log(audio)
 
       if (musicType==="3" && audio) {
@@ -202,7 +214,7 @@ class PostRepository {
 
       // Find and delete images
       const images = await Images.findAll({ where: { postId: post.postId } });
-  
+
       const s3DeletePromises = images.map((image) => {
         const imagePath = new URL(image.dataValues.url).pathname.substr(1)
         return deleteS3(imagePath)
@@ -226,7 +238,7 @@ class PostRepository {
       // delete mappings
       if (mappings.length) {
         await Mappings.destroy({ where: { postId }})
-      } 
+      }
 
       // Delete post
       await post.destroy();
@@ -262,13 +274,13 @@ class PostRepository {
 
     if (tag) {
       const tagArr = tag.split(",")
-    
+
       for (const tag of tagArr) {
         const trimmedTag = tag.trim()
         const [item, result] = await Tags.findOrCreate({
           where: { tag: trimmedTag }
         })
-        
+
         await Mappings.create({
           postId: post.dataValues.postId,
           tagId: item["tagId"]
@@ -284,10 +296,10 @@ class PostRepository {
           userId
         });
       });
-  
+
       await Promise.all(imagePromises);
     }
-   
+
 
     if (musicType === "3" && audio) {
       const audioUrl = audio.location;
