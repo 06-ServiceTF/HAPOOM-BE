@@ -72,6 +72,7 @@ class ProfileRepository {
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
     const hasNextPage = totalPosts > offset + limit;
 
@@ -97,6 +98,7 @@ class ProfileRepository {
     const myLikedPosts = await Posts.findAll({
       where: { postId: likePostIds.map((like) => like.postId) },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
+      order: [['createdAt', 'DESC']],
     });
     const hasNextPage = totalPosts > offset + limit;
 
@@ -163,6 +165,7 @@ class ProfileRepository {
       ],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
     const hasNextPage = totalPosts > offset + limit;
 
@@ -187,6 +190,7 @@ class ProfileRepository {
       ],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
     const hasNextPage = totalPosts > offset + limit;
 
