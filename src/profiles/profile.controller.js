@@ -51,6 +51,8 @@ class ProfileController {
         followingCount: myProfile.followingCount,
         posts: myProfile.myPosts,
         likedPosts: myProfile.myLikedPosts,
+        nextPage: myProfile.nextPage,
+        nextLikedPage: myProfile.nextLikedPage,
       });
     } catch (error) {
       console.log(error);
@@ -73,6 +75,8 @@ class ProfileController {
         followingCount: profilePage.userFollowingCount,
         posts: profilePage.userPosts,
         likedPosts: profilePage.userLikedPosts,
+        nextPage: profilePage.nextPage,
+        nextLikedPage: profilePage.nextLikedPage,
       });
     } catch (error) {
       console.log(error);
