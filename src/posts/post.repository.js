@@ -116,15 +116,15 @@ class PostRepository {
       if (mappings.length) {
         if (tag.length) {
           await Mappings.destroy({ where: { postId: post.dataValues.postId }})
-    
+
           const tagArr = tag.split(",")
-    
+
           for (const tag of tagArr) {
             const trimmedTag = tag.trim()
             const [item, result] = await Tags.findOrCreate({
               where: { tag: trimmedTag }
             })
-            
+
             await Mappings.create({
               postId: post.dataValues.postId,
               tagId: item["tagId"]
@@ -166,7 +166,7 @@ class PostRepository {
         await Promise.all(s3DeletePromises)
         //await Images.destroy({where: {imageId: image.imageId}});
       }
-      
+
       if(images){
       const imagePromises = images.map((image) => {
         return Images.create({ url: image.location, postId: postId, userId: post.dataValues.userId });
@@ -175,7 +175,7 @@ class PostRepository {
 
         await Promise.all(imagePromises);
       }
-      
+
       console.log(audio)
 
       if (musicType==="3" && audio) {
@@ -214,7 +214,7 @@ class PostRepository {
 
       // Find and delete images
       const images = await Images.findAll({ where: { postId: post.postId } });
-  
+
       const s3DeletePromises = images.map((image) => {
         const imagePath = new URL(image.dataValues.url).pathname.substr(1)
         return deleteS3(imagePath)
@@ -238,7 +238,7 @@ class PostRepository {
       // delete mappings
       if (mappings.length) {
         await Mappings.destroy({ where: { postId }})
-      } 
+      }
 
       // Delete post
       await post.destroy();
@@ -274,13 +274,13 @@ class PostRepository {
 
     if (tag) {
       const tagArr = tag.split(",")
-    
+
       for (const tag of tagArr) {
         const trimmedTag = tag.trim()
         const [item, result] = await Tags.findOrCreate({
           where: { tag: trimmedTag }
         })
-        
+
         await Mappings.create({
           postId: post.dataValues.postId,
           tagId: item["tagId"]
@@ -296,10 +296,10 @@ class PostRepository {
           userId
         });
       });
-  
+
       await Promise.all(imagePromises);
     }
-   
+
 
     if (musicType === "3" && audio) {
       const audioUrl = audio.location;

@@ -9,7 +9,7 @@ class MainController {
       res.status(200).json({
         posts: mainPage.getPosts,
         likePosts: mainPage.getLikedPosts,
-        mainTags: mainPage.getMainTags
+        mainTags: mainPage.getMainTags,
       });
     } catch (error) {
       console.log(error);

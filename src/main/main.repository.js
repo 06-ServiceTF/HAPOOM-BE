@@ -66,7 +66,6 @@ class MainRepository {
   };
 
   getFeed = async (page) => {
-    console.log(page)
     const limit = 12;
     const offset = (page - 1) * limit;
 

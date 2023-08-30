@@ -65,13 +65,21 @@ class ProfileRepository {
     const user = await Users.findOne({ where: { email, method } });
     const limit = 12;
     const offset = (page - 1) * limit;
+    const totalPosts = await Posts.count();
+
     const myPosts = await Posts.findAll({
       where: { userId: user.userId },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
-    return myPosts;
+    const hasNextPage = totalPosts > offset + limit;
+
+    return {
+      posts: myPosts,
+      nextPage: hasNextPage ? parseInt(page) + 1 : null,
+    };
   };
 
   // 마이페이지 좋아요 게시글 조회
@@ -79,6 +87,8 @@ class ProfileRepository {
     const user = await Users.findOne({ where: { email, method } });
     const limit = 12;
     const offset = (page - 1) * limit;
+    const totalPosts = await Posts.count();
+
     const likePostIds = await Likes.findAll({
       where: { userId: user.userId },
       attributes: ['postId'],
@@ -88,8 +98,14 @@ class ProfileRepository {
     const myLikedPosts = await Posts.findAll({
       where: { postId: likePostIds.map((like) => like.postId) },
       include: [{ model: Images, attributes: ['url'], limit: 1 }],
+      order: [['createdAt', 'DESC']],
     });
-    return myLikedPosts;
+    const hasNextPage = totalPosts > offset + limit;
+
+    return {
+      likedPosts: myLikedPosts,
+      nextLikedPage: hasNextPage ? parseInt(page) + 1 : null,
+    };
   };
 
   // 유저프로필 유저 확인 (에러처리용)
@@ -139,6 +155,8 @@ class ProfileRepository {
   userPosts = async (userId, page) => {
     const limit = 12;
     const offset = (page - 1) * limit;
+    const totalPosts = await Posts.count();
+
     const userPosts = await Posts.findAll({
       where: { userId, private: false },
       include: [
@@ -147,15 +165,23 @@ class ProfileRepository {
       ],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
-    return userPosts;
+    const hasNextPage = totalPosts > offset + limit;
+
+    return {
+      posts: userPosts,
+      nextPage: hasNextPage ? parseInt(page) + 1 : null,
+    };
   };
 
   // 유저가 좋아요를 누른 게시글 가져오기
   userLikedPosts = async (userId, page) => {
     const limit = 12;
     const offset = (page - 1) * limit;
-    const likedPosts = await Posts.findAll({
+    const totalPosts = await Posts.count();
+
+    const userLikedPosts = await Posts.findAll({
       where: { userId, private: false },
       include: [
         { model: Likes, where: { userId } },
@@ -164,8 +190,14 @@ class ProfileRepository {
       ],
       limit,
       offset,
+      order: [['createdAt', 'DESC']],
     });
-    return likedPosts;
+    const hasNextPage = totalPosts > offset + limit;
+
+    return {
+      likedPosts: userLikedPosts,
+      nextLikedPage: hasNextPage ? parseInt(page) + 1 : null,
+    };
   };
 }
 

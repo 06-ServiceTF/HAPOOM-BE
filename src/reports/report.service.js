@@ -4,6 +4,16 @@ const CustomError = require('../middlewares/error.middleware');
 class ReportService {
   reportRepository = new ReportRepository();
 
+  isSelfReport = async (postId, email, method) => {
+    const postAuthor = await this.reportRepository.getPostAuthor(postId);
+    const currentUser = await this.reportRepository.getCurrentUser(
+      email,
+      method
+    );
+
+    return postAuthor.userId === currentUser.userId;
+  };
+
   addReport = async (postId, email, method) => {
     // 게시글 존재 여부 확인
     const postExists = await this.reportRepository.checkPostExists(postId);
