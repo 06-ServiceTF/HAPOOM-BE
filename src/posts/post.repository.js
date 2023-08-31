@@ -126,18 +126,19 @@ class PostRepository {
         if (tag.length) {
           await Mappings.destroy({ where: { postId: post.dataValues.postId }})
 
-          const tagArr = tag.split(",")
-
-          for (const tag of tagArr) {
-            const trimmedTag = tag.trim()
+          const tagArr = tag.split(","); 
+    
+          for (const originalTag of tagArr) {
+            const trimmedTag = originalTag.trim().replace(/#/g, "").replace(/\s/g, "");
+        
             const [item, result] = await Tags.findOrCreate({
               where: { tag: trimmedTag }
-            })
-
+            });
+        
             await Mappings.create({
               postId: post.dataValues.postId,
-              tagId: item["tagId"]
-            })
+              tagId: item.tagId
+            });
           };
         }
 
