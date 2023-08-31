@@ -27,7 +27,7 @@ class MainService {
     });
 
     const findMainTags = await this.mainRepository.getMainTags();
-    const getMainTags = await findMainTags.map((post) => {
+    const getMainTags = findMainTags.map((post) => {
       return {
         postId: post.postId,
         private: post.private,
