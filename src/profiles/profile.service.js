@@ -24,6 +24,15 @@ class ProfileService {
     if (file.image) {
       user.userImage = file.image[0].location;
     }
+    if (body.nickname && user.nickname !== body.nickname) {
+      const existingUserWithNickname =
+        await this.profileRepository.findUserByNickname(body.nickname);
+      if (existingUserWithNickname) {
+        throw new Error('Nickname already in use', 409);
+      }
+      console.log('New nickname:', body.nickname);
+      user.nickname = body.nickname;
+    }
 
     const updates = Object.keys(body);
     for (const update of updates) {
