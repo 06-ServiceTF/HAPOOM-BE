@@ -46,7 +46,8 @@ class MainService {
 
   getFeed = async (page) => {
     const {content,totalPages,totalElements} = await this.mainRepository.getFeed(page);
-    const getFeed = content.map((feed) => {
+    const getFeed = await Promise.all(content.map(async (feed) => {
+      const likeCount = await this.mainRepository.getLikeCount(feed.postId); // 새로 추가된 부분
       return {
         userId: feed.userId,
         postId: feed.postId,
@@ -60,8 +61,9 @@ class MainService {
         preset: feed.User.preset,
         content: feed.content,
         tags: feed.Tags.map((tag) => tag.tag),
+        likeCount: likeCount, // 좋아요 수 추가
       };
-    });
+    }));
 
     return {
       content:getFeed,totalPages,totalElements
