@@ -38,48 +38,27 @@ class PostRepository {
 
   findLatestPost = async () => {
     try {
-      // 1. 상위 5개의 like를 가진 postId를 가져옵니다.
-      const topLikedPosts = await Likes.findAll({
-        attributes: ['postId', [Sequelize.fn('COUNT', Sequelize.col('postId')), 'likeCount']],
-        group: ['postId'],
-        order: [[Sequelize.fn('COUNT', Sequelize.col('postId')), 'DESC']],
-        limit: 5,
-        raw: true
+      const post = await Posts.findOne({
+        order: [
+          ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
+        ]
       });
-
-      let randomPostId;
-
-      if (topLikedPosts.length === 0) {
-        // 좋아요가 없는 경우 최신 게시물을 가져옵니다.
-        const latestPost = await Posts.findOne({ order: [['createdAt', 'DESC']] });
-        if (!latestPost) throw { status: 404, message: 'No posts found' };
-        randomPostId = latestPost.id;
-      } else {
-        const topLikedPostIds = topLikedPosts.map(post => post.postId);
-        // 2. postId들 중 랜덤으로 하나를 선택합니다.
-        randomPostId = topLikedPostIds[Math.floor(Math.random() * topLikedPostIds.length)];
-      }
-
-      // 게시물 정보 가져오기
-      const post = await Posts.findByPk(randomPostId);
-
-      // 3. 선택한 postId에 해당하는 이미지가 있는지 확인
-      const images = await Images.findAll({ where: { postId: randomPostId } });
-      if (!images || images.length < 1) {
-        throw { status: 404, message: 'No images found for the post' };
-      }
-
+      const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
-      const mappings = await Mappings.findAll({ where: { postId: randomPostId }, include: Tags });
+      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
+      const likeCount = await Likes.count({
+        where: { postId:post.dataValues.userId }
+      });
+      const reportCount = await Reports.count({
+        where: { postId:post.dataValues.userId }
+      });
+      if (!post || !images || !user) {
+        throw { status: 404, message: 'Post not found' };
+      }
+
       const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
 
-      // const likeCount = topLikedPostIds.find(post => post.postId === randomPostId).likeCount;
-      const likeCount = await Likes.count({
-        where: { postId:randomPostId }
-      });
-      const reportCount = await Reports.count({ where: { postId: randomPostId } });
-
-      return { post, images, user, tag, likeCount, reportCount };
+      return { post, images, user, tag,likeCount,reportCount }
 
     } catch (error) {
       console.error('Error getting post:', error);
