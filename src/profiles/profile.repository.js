@@ -11,8 +11,8 @@ class ProfileRepository {
   };
 
   // 유저 확인 (에러처리용)
-  findUser = async (email, method) => {
-    const user = await Users.findOne({ where: { email, method } });
+  findUser = async (email, method, nickname) => {
+    const user = await Users.findOne({ where: { email, method, nickname } });
     return user;
   };
 

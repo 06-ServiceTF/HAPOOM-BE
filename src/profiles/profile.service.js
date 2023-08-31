@@ -21,20 +21,16 @@ class ProfileService {
     if (!user) {
       throw new Error('User not found');
     }
-    if (file.image) {
-      user.userImage = file.image[0].location;
-    }
-
     if (body.nickname && user.nickname !== body.nickname) {
       const existingUserWithNickname = await this.profileRepository.findUser(
-        body.nickname,
-        decoded.method
+        decoded.email,
+        decoded.method,
+        body.nickname
       );
       if (existingUserWithNickname) {
         throw new Error('Nickname already in use');
       }
     }
-
     if (file.image) {
       user.userImage = file.image[0].location;
     }
