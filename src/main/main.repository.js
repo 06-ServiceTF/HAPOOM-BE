@@ -92,14 +92,16 @@ class MainRepository {
       order: [['createdAt', 'DESC']],
     });
 
-    // 다음 페이지가 있는지 여부 결정
-    const hasNextPage = totalPosts > offset + limit;
-
     return {
       content: feedData,
       totalPages,
-      totalElements: totalPosts
+      totalElements: totalPosts,
     };
+  };
+
+  getLikeCount = async (postId) => {
+    const likeCount = await Likes.count({ where: { postId } });
+    return likeCount;
   };
 }
 
