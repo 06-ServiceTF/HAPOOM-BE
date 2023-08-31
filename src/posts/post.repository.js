@@ -282,18 +282,19 @@ class PostRepository {
     });
 
     if (tag) {
-      const tagArr = tag.split(",")
-
-      for (const tag of tagArr) {
-        const trimmedTag = tag.trim()
+      const tagArr = tag.split(","); 
+    
+      for (const originalTag of tagArr) {
+        const trimmedTag = originalTag.trim().replace(/^#/, "").replace(/\s/g, "");
+    
         const [item, result] = await Tags.findOrCreate({
           where: { tag: trimmedTag }
-        })
-
+        });
+    
         await Mappings.create({
           postId: post.dataValues.postId,
-          tagId: item["tagId"]
-        })
+          tagId: item.tagId
+        });
       };
     };
 
@@ -325,7 +326,7 @@ class PostRepository {
     }
 
     return { message: 'Post received' };
-  }catch (err){
+  } catch (err){
     console.error(err);
     throw new Error('Error uploading');
   }
