@@ -285,7 +285,7 @@ class PostRepository {
       const tagArr = tag.split(","); 
     
       for (const originalTag of tagArr) {
-        const trimmedTag = originalTag.trim().replace(/^#/, "").replace(/\s/g, "");
+        const trimmedTag = originalTag.trim().replace(/#/g, "").replace(/\s/g, "");
     
         const [item, result] = await Tags.findOrCreate({
           where: { tag: trimmedTag }
