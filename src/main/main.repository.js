@@ -4,6 +4,7 @@ const {
   Images,
   Likes,
   Mappings,
+  Comments,
   Tags,
   sequelize,
   Sequelize,
@@ -99,9 +100,9 @@ class MainRepository {
     };
   };
 
-  getLikeCount = async (postId) => {
-    const likeCount = await Likes.count({ where: { postId } });
-    return likeCount;
+  getCommentCount = async (postId) => {
+    const commentCount = await Comments.count({ where: { postId } });
+    return commentCount;
   };
 }
 
