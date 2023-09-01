@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
+const rateLimit = require("express-rate-limit");
 
 const routes = require('./src/routes/index.route');
 const testRouter = require('./src/test/test.route');
@@ -34,6 +35,33 @@ webpush.setVapidDetails(
 );
 
 const app = express();
+
+// // 차단된 IP 주소를 저장할 배열
+// const blockedIPs = [];
+//
+// // IP 차단 확인 미들웨어
+// const isIPBlocked = (req, res, next) => {
+//   if (blockedIPs.includes(req.ip)) {
+//     return res.status(403).send("Your IP is permanently blocked.");
+//   }
+//   next();
+// };
+//
+// const limiter = rateLimit({
+//   windowMs: 1 * 60 * 1000, // 1분
+//   max: 20, // 1분 안에 10번 요청
+//   handler: function (req, res) {
+//     const ip = req.ip;
+//     if (!blockedIPs.includes(ip)) {
+//       blockedIPs.push(ip);
+//     }
+//     res.status(429).send("Your IP has been permanently blocked due to excessive requests.");
+//   },
+// });
+//
+// app.use(isIPBlocked); // IP 차단 확인 미들웨어 추가
+// app.use(limiter);     // 요청 제한 미들웨어 추가
+
 const server = http.createServer(app);
 const io = socketIo(server,{
   cors:{
