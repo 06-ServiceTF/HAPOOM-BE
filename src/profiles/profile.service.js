@@ -28,7 +28,7 @@ class ProfileService {
       const existingUserWithNickname =
         await this.profileRepository.findUserByNickname(body.nickname);
       if (existingUserWithNickname) {
-        throw new Error('Nickname already in use', 409);
+        throw new Error('이미 사용 중인 닉네임입니다.', 409)
       }
       console.log('New nickname:', body.nickname);
       user.nickname = body.nickname;
