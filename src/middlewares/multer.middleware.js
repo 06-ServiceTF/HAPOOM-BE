@@ -27,7 +27,7 @@ const multerMiddleware = multer({
       cb(null, `${folderName}/${Date.now().toString()}_${file.originalname.toString()}`); 
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024}
+  // limits: { fileSize: 5 * 1024 * 1024}
 });
 
 // S3 버킷 이미지 및 오디오 삭제 함수
