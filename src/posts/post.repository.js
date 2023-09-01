@@ -38,27 +38,34 @@ class PostRepository {
 
   findLatestPost = async () => {
     try {
-      const post = await Posts.findOne({
+      const posts = await Posts.findAll({
+        limit: 10, // 최신 10개를 가져옵니다.
         order: [
-          ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
+          ['createdAt', 'DESC']
         ]
       });
+
+      // 10개 중 랜덤하게 한 개를 선택합니다.
+      const randomIndex = Math.floor(Math.random() * posts.length);
+      const post = posts[randomIndex];
+
       const images = await Images.findAll({ where: { postId: post.dataValues.postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
       const mappings = await Mappings.findAll({ where: { postId: post.dataValues.postId }, include: Tags });
       const likeCount = await Likes.count({
-        where: { postId:post.dataValues.postId }
+        where: { postId: post.dataValues.postId }
       });
       const reportCount = await Reports.count({
-        where: { postId:post.dataValues.postId }
+        where: { postId: post.dataValues.postId }
       });
+
       if (!post || !images || !user) {
         throw { status: 404, message: 'Post not found' };
       }
 
       const tag = mappings?.map(tagInfo => tagInfo.Tag.tag);
 
-      return { post, images, user, tag,likeCount,reportCount }
+      return { post, images, user, tag, likeCount, reportCount }
 
     } catch (error) {
       console.error('Error getting post:', error);
