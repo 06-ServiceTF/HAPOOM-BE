@@ -43,14 +43,14 @@ class PostRepository {
           ['createdAt', 'DESC'] // 또는 ['updatedAt', 'DESC'] (수정 시간 기준)
         ]
       });
-      const images = await Images.findAll({ where: { postId: post.dataValues.userId } });
+      const images = await Images.findAll({ where: { postId: post.dataValues.postId } });
       const user = await Users.findOne({ where: { userId: post.dataValues.userId } });
-      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.userId }, include: Tags });
+      const mappings = await Mappings.findAll({ where: { postId: post.dataValues.postId }, include: Tags });
       const likeCount = await Likes.count({
-        where: { postId:post.dataValues.userId }
+        where: { postId:post.dataValues.postId }
       });
       const reportCount = await Reports.count({
-        where: { postId:post.dataValues.userId }
+        where: { postId:post.dataValues.postId }
       });
       if (!post || !images || !user) {
         throw { status: 404, message: 'Post not found' };
