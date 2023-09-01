@@ -43,7 +43,6 @@ class AuthService {
       throw new Error('이미 사용중인 아이디입니다');
     }
     const hashedPassword = await bcrypt.hash(body.password, 12);
-    console.log(body);
     const user = await userRepository.createUser(
       body.email,
       hashedPassword,
