@@ -46,7 +46,8 @@ class MainService {
 
   getFeed = async (page) => {
     const {content,totalPages,totalElements} = await this.mainRepository.getFeed(page);
-    const getFeed = content.map((feed) => {
+    const getFeed = await Promise.all(content.map(async (feed) => {
+      const commentCount = await this.mainRepository.getCommentCount(feed.postId);
       return {
         userId: feed.userId,
         postId: feed.postId,
@@ -60,8 +61,9 @@ class MainService {
         preset: feed.User.preset,
         content: feed.content,
         tags: feed.Tags.map((tag) => tag.tag),
+        commentCount: commentCount,
       };
-    });
+    }));
 
     return {
       content:getFeed,totalPages,totalElements

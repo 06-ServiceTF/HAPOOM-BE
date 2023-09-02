@@ -43,7 +43,6 @@ class AuthService {
       throw new Error('이미 사용중인 아이디입니다');
     }
     const hashedPassword = await bcrypt.hash(body.password, 12);
-    console.log(body);
     const user = await userRepository.createUser(
       body.email,
       hashedPassword,
@@ -142,6 +141,7 @@ class AuthService {
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'strict',
+
           secure: true,
         });
         return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
@@ -177,6 +177,7 @@ class AuthService {
         req.res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'strict',
+
           secure: true,
         });
         const userResponse = user.get({ plain: true });
