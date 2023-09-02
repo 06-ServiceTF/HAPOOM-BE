@@ -102,8 +102,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
       sameSite: 'strict',
+      secure: true,
     },
   })
 );
