@@ -18,19 +18,17 @@ class ProfileService {
       decoded.email,
       decoded.method
     );
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new CustomError('유저를 찾을 수 없습니다.', 404);
+
     if (file.image) {
       user.userImage = file.image[0].location;
     }
     if (body.nickname && user.nickname !== body.nickname) {
       const existingUserWithNickname =
         await this.profileRepository.findUserByNickname(body.nickname);
-      if (existingUserWithNickname) {
-        throw new Error('이미 사용 중인 닉네임입니다.', 409)
-      }
-      console.log('New nickname:', body.nickname);
+      if (existingUserWithNickname)
+        throw new CustomError('이미 사용 중인 닉네임입니다.', 409);
+
       user.nickname = body.nickname;
     }
 

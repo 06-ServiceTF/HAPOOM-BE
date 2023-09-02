@@ -47,7 +47,7 @@ class MainService {
   getFeed = async (page) => {
     const {content,totalPages,totalElements} = await this.mainRepository.getFeed(page);
     const getFeed = await Promise.all(content.map(async (feed) => {
-      const commentCount = await this.mainRepository.getCommentCount(feed.postId); // 새로 추가된 부분
+      const commentCount = await this.mainRepository.getCommentCount(feed.postId);
       return {
         userId: feed.userId,
         postId: feed.postId,
