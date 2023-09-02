@@ -245,11 +245,12 @@ class PostRepository {
 
   };
 
-  createPost = async (userId,body, files, host) => {
+  createPost = async (body, files, host) => {
   try {
-    let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag } = body;
+    let { content, musicType, musicUrl, musicTitle, latitude, longitude, placeName, tag,userId } = body;
     const images = files['image'];
     const audio = files['audio'] ? files['audio'][0] : null;
+    console.log(userId)
 
     if (musicType==="3") {
       musicTitle = '녹음된 음원';
