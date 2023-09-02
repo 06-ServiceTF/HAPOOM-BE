@@ -16,6 +16,12 @@ class ProfileRepository {
     return user;
   };
 
+  // 유저 닉네임 확인
+  findUserByNickname = async (nickname) => {
+    const user = await Users.findOne({ where: { nickname } });
+    return user;
+  };
+
   // 유저 정보 수정
   findByEmail = (email, method) => {
     return Users.findOne({ where: { email: email, method: method } });

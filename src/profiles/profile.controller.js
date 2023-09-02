@@ -17,7 +17,7 @@ class ProfileController {
   };
 
   // 유저 정보 수정
-  updateUser = async (req, res) => {
+  updateUser = async (req, res, next) => {
     try {
       const host = req.protocol + '://' + req.get('host');
       const userUpdates = await this.profileService.updateUser(
@@ -28,8 +28,8 @@ class ProfileController {
       );
       res.send({ user: userUpdates });
     } catch (error) {
-      console.error('Error updating user:', error);
-      res.status(500).send({ error: 'Error updating user' });
+      console.log(error);
+      next(error);
     }
   };
 

@@ -20,9 +20,12 @@ class MainController {
   getFeed = async (req, res, next) => {
     try {
       const page = req.query.page || 1;
-      const {content,totalPages,totalElements} = await this.mainService.getFeed(page);
+      const { content, totalPages, totalElements } =
+        await this.mainService.getFeed(page);
       res.status(200).json({
-        content,totalPages,totalElements
+        content,
+        totalPages,
+        totalElements,
       });
     } catch (error) {
       console.log(error);
