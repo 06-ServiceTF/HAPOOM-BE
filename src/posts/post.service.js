@@ -25,8 +25,8 @@ class PostService {
     await postRepository.deletePost(postId);
   };
 
-  createPost = async (userId,body, files, host) => {
-    await postRepository.createPost(userId,body, files, host);
+  createPost = async (body, files, host) => {
+    await postRepository.createPost(body, files, host);
   };
 
 }

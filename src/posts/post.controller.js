@@ -26,11 +26,12 @@ class PostController {
 
   createPost = async (req, res) => {
     try {
-      const token = req.cookies.refreshToken;
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-      const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
+     // const token = req.cookies.refreshToken;
+     // const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      //const user = await Users.findOne({ where: { email: decoded.email,method:decoded.method } });
       const host = req.protocol + '://' + req.get('host');
-      await postService.createPost(user.userId,req.body, req.files, host);
+      //await postService.createPost(user.userId,req.body, req.files, host);
+      await postService.createPost(req.body, req.files, host);
       const io = req.app.get('io');
       io.emit('newPost', { message: '새 게시물이 등록 되었습니다.' });
       Subscription.findAllSub().then(subscriptions => {
