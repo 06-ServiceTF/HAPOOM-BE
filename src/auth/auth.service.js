@@ -141,7 +141,7 @@ class AuthService {
         );
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          sameSite: 'strict',
           secure: true,
         });
         return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
@@ -176,7 +176,7 @@ class AuthService {
         );
         req.res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          sameSite: 'strict',
           secure: true,
         });
         const userResponse = user.get({ plain: true });
