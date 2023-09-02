@@ -114,8 +114,8 @@ app.use('/', express.static(path.join(__dirname, 'publicMusic')));
 app.use('/uploads', express.static('uploads'));
 app.use('/', express.static(path.join(__dirname, 'uploads')));
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({limit: '100mb'}));
+app.use(express.urlencoded({limit: '100mb', extended: false}));
 
 //app.use('/server', routes)
 app.use('/api', routes);
