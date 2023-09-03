@@ -115,7 +115,7 @@ class AuthService {
     );
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      sameSite: 'None',
+      sameSite: 'Lax',
       secure: true,
     });
 
