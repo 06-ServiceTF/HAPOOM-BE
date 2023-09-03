@@ -45,28 +45,37 @@ class MainService {
   };
 
   getFeed = async (page) => {
-    const {content,totalPages,totalElements} = await this.mainRepository.getFeed(page);
-    const getFeed = await Promise.all(content.map(async (feed) => {
-      const commentCount = await this.mainRepository.getCommentCount(feed.postId);
-      return {
-        userId: feed.userId,
-        postId: feed.postId,
-        // email: feed.User.email,
-        nickname: feed.User.nickname,
-        userImage: feed.User.userImage,
-        updatedAt: feed.updatedAt,
-        image: feed.Images[0].url,
-        // musicTitle: feed.musicTitle,
-        // musicUrl: feed.musicUrl,
-        preset: feed.User.preset,
-        content: feed.content,
-        tags: feed.Tags.map((tag) => tag.tag),
-        commentCount: commentCount,
-      };
-    }));
+    const { content, totalPages, totalElements } =
+      await this.mainRepository.getFeed(page);
+    const getFeed = await Promise.all(
+      content.map(async (feed) => {
+        const commentCount = await this.mainRepository.getCommentCount(
+          feed.postId
+        );
+        const likeCount = await this.mainRepository.getLikeCount(feed.postId);
+        return {
+          userId: feed.userId,
+          postId: feed.postId,
+          // email: feed.User.email,
+          nickname: feed.User.nickname,
+          userImage: feed.User.userImage,
+          updatedAt: feed.updatedAt,
+          image: feed.Images[0].url,
+          // musicTitle: feed.musicTitle,
+          // musicUrl: feed.musicUrl,
+          preset: feed.User.preset,
+          content: feed.content,
+          tags: feed.Tags.map((tag) => tag.tag),
+          commentCount: commentCount,
+          likeCount: likeCount,
+        };
+      })
+    );
 
     return {
-      content:getFeed,totalPages,totalElements
+      content: getFeed,
+      totalPages,
+      totalElements,
     };
   };
 }
