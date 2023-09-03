@@ -18,6 +18,8 @@ function generateRandomPassword(length = 12) {
   return result;
 }
 
+let tempStorage={};
+
 class AuthService {
   constructor() {}
   async getUserToken(userData) {
@@ -200,22 +202,26 @@ class AuthService {
           email: sequelizeUser.dataValues.email,
           nickname: sequelizeUser.dataValues.nickname,
         });
-        const refreshToken = jwt.sign(
-          refreshPayload,
-          process.env.JWT_REFRESH_SECRET
-        );
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          sameSite: 'None',
-          secure: true,
-        });
-        return res.redirect(`https://hapoom.life/auth/SocialSuccess`);
+        const refreshToken = jwt.sign(refreshPayload, process.env.JWT_REFRESH_SECRET);
+        const tempId = crypto.randomBytes(16).toString('hex');
+        tempStorage[tempId] = refreshToken;
+        res.redirect(`https://hapoom.life/auth/SocialSuccess?tempId=${tempId}`);
       } catch (error) {
         console.log(error);
         return res.redirect(`https://hapoom.life/auth/SignIn`);
       }
     })(req, res, next);
   };
+
+  async socialToken(req, res) {
+      const tempId = req.query.tempId;
+      if (!tempId || !tempStorage[tempId]) {
+        return res.status(400).send('Invalid Temp ID');
+      }
+      const token = tempStorage[tempId];
+      delete tempStorage[tempId];
+      res.json({ token });
+  }
 
   async login(req, res, user) {
     return new Promise((resolve, reject) => {
