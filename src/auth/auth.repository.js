@@ -28,6 +28,29 @@ class AuthRepository {
     return user;
   };
 
+  createSocialUser = async (email, password, nickname, userImage, method) => {
+    try {
+      console.log(method)
+      const user = await Users.create({
+        email,
+        password,
+        nickname,
+        userImage,
+        theme: 1,
+        preset: 5,
+        method,
+      });
+
+      return user;
+    } catch (error) {
+      // 에러를 콘솔에 출력합니다.
+      console.error('Error occurred while creating social user:', error);
+
+      // 에러를 더 상위로 전파하거나, 다른 처리를 수행하려면 아래의 코드를 사용합니다.
+      throw error;
+    }
+  };
+
   kakaoAuth = async (user, method) => {
     //console.log(user,method)
     let sequelizeUser = await Users.findOne({ where: { email: user._json.kakao_account.email,method } });
@@ -81,6 +104,10 @@ class AuthRepository {
 
   async findByEmail(userData) {
     return Users.findOne({ where: { email:userData.email } });
+  }
+
+  async findByEmailandMethod(userData) {
+    return Users.findOne({ where: { email:userData.email,method:userData.method } });
   }
 
   async findByEmailLikes(userData) {
