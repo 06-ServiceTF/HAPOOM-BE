@@ -208,7 +208,7 @@ class AuthService {
         );
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          sameSite: 'Lax',
           secure: true,
         });
         return res.redirect(`https://hapoom.life/auth/SocialSuccess`);
@@ -243,7 +243,7 @@ class AuthService {
         );
         req.res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
-          sameSite: 'None',
+          sameSite: 'Lax',
           secure: true,
         });
         const userResponse = user.get({ plain: true });
