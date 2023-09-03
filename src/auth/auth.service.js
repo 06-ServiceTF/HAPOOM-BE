@@ -211,10 +211,10 @@ class AuthService {
           sameSite: 'None',
           secure: true,
         });
-        return res.redirect(`${process.env.ORIGIN}/auth/SocialSuccess`);
+        return res.redirect(`https://hapoom.life/auth/SocialSuccess`);
       } catch (error) {
         console.log(error);
-        return res.redirect(`${process.env.ORIGIN}/auth/SignIn`);
+        return res.redirect(`https://hapoom.life/auth/SignIn`);
       }
     })(req, res, next);
   };
