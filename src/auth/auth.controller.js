@@ -41,6 +41,13 @@ class AuthController {
       next(error);
     }
   }
+  async socialToken(req, res, next) {
+    try {
+      const {token} = await authService.socialToken(req,res);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   async passwordAuth(req, res, next) {
     try {

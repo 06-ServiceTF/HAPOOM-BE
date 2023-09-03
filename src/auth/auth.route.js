@@ -17,6 +17,7 @@ router.post("/password", authController.passwordAuth);
 router.get("/refreshtoken",reauthMiddleware, authController.refreshToken);
 router.get("/logout", authController.logout);
 //router.post("/social", authController.social);
+router.get('/get-token',authController.socialToken)
 router.get("/kakao", passport.authenticate('kakao', { authType: 'reprompt' }));
 router.get('/kakao/callback', authController.kakaoLogin);
 router.get('/naver', passport.authenticate('naver', { authType: 'reprompt' }));
