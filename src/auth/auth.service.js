@@ -205,7 +205,7 @@ class AuthService {
         const refreshToken = jwt.sign(refreshPayload, process.env.JWT_REFRESH_SECRET);
         const tempId = crypto.randomBytes(16).toString('hex');
         tempStorage[tempId] = refreshToken;
-        res.redirect(`https://hapoom.life/auth/SocialSuccess?tempId=${tempId}`);
+        res.redirect(`http://localhost:3000/auth/SocialSuccess?tempId=${tempId}`);
       } catch (error) {
         console.log(error);
         return res.redirect(`https://hapoom.life/auth/SignIn`);
