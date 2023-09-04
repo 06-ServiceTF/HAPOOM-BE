@@ -69,7 +69,7 @@ class ProfileRepository {
   // 마이페이지 게시글 조회
   myPosts = async (email, method, page) => {
     const user = await Users.findOne({ where: { email, method } });
-    const limit = 12;
+    const limit = 18;
     const offset = (page - 1) * limit;
     const totalPosts = await Posts.count();
 
@@ -91,7 +91,7 @@ class ProfileRepository {
   // 마이페이지 좋아요 게시글 조회
   myLikedPosts = async (email, method, page) => {
     const user = await Users.findOne({ where: { email, method } });
-    const limit = 12;
+    const limit = 18;
     const offset = (page - 1) * limit;
     const totalPosts = await Posts.count();
 
@@ -159,7 +159,7 @@ class ProfileRepository {
 
   // 유저가 작성한 게시글 가져오기
   userPosts = async (userId, page) => {
-    const limit = 12;
+    const limit = 18;
     const offset = (page - 1) * limit;
     const totalPosts = await Posts.count();
 
@@ -183,7 +183,7 @@ class ProfileRepository {
 
   // 유저가 좋아요를 누른 게시글 가져오기
   userLikedPosts = async (userId, page) => {
-    const limit = 12;
+    const limit = 18;
     const offset = (page - 1) * limit;
     const totalPosts = await Posts.count();
 
