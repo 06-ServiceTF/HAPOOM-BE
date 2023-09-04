@@ -204,12 +204,16 @@ class AuthService {
           refreshPayload,
           process.env.JWT_REFRESH_SECRET
         );
+        const accessToken = jwt.sign(
+          refreshPayload,
+          process.env.JWT_SECRET
+        );
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           sameSite: 'None',
           secure: true,
         });
-        return res.redirect(`https://hapoom.life/auth/SocialSuccess`);
+        return res.redirect(`https://hapoom.life/auth/SocialSuccess?token=${accessToken}`);
       } catch (error) {
         console.log(error);
         return res.redirect(`https://hapoom.life/auth/SignIn`);
