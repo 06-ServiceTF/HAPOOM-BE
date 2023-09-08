@@ -13,7 +13,7 @@ const isIPBlocked = (req, res, next) => {
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20, // Limit to 20 requests within 1 minute
+  max: 50, // Limit to 50 requests within 1 minute
   handler: function (req, res) {
     const ip = req.ip;
     if (!blockedIPs.includes(ip)) {
