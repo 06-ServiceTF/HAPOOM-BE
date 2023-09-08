@@ -13,8 +13,8 @@ const upload = multerMiddleware.fields([
 // // 미들웨어를 라우터의 시작 부분에서 적용
 // router.use(isIPBlocked, limiter);
 
-router.post('', upload, postsController.createPost);
-router.get('/:postId', postsController.getPost);
+router.post('', upload,isIPBlocked, postlimiter, postsController.createPost);
+router.get('/:postId',isIPBlocked, limiter, postsController.getPost);
 router.put('/:postId', upload, postsController.updatePost);
 router.delete('/:postId', postsController.deletePost);
 
