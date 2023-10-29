@@ -12,7 +12,7 @@ const upload = multerMiddleware.fields([
 ]);
 
 router.post('', upload, isIPBlocked, postlimiter, authMiddleware, postsController.createPost);
-router.get('/:postId',isIPBlocked, limiter, authMiddleware, postsController.getPost);
+router.get('/:postId',isIPBlocked, limiter, postsController.getPost);
 router.put('/:postId', upload, authMiddleware, postsController.updatePost);
 router.delete('/:postId', authMiddleware, postsController.deletePost);
 
