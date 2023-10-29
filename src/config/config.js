@@ -7,7 +7,6 @@ const development = {
   host: process.env.MYSQL_HOST,
   dialect: 'mysql',
   timezone: 'Asia/Seoul',
-  logging:false,
   dialectOptions: {
     charset: 'utf8mb4',
     dateStrings: true,
