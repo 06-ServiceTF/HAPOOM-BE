@@ -4,7 +4,7 @@ const { Users,Likes,Posts,Subscription } = require("../models");
 class AuthRepository {
   constructor() {
   }
-  createUser = async (email, password,nickname, userImage) => {
+  createUser = async (email, password, nickname, userImage) => {
     const existUserEmail = await Users.findOne({ where: { email } });
     if (existUserEmail) {
       throw new Error("이미 존재하는 이메일 입니다.");
