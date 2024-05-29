@@ -61,10 +61,13 @@
 </div>
 
 ## 🎨 서비스 아키텍쳐
-![하품 아키텍처](file:///Users/eominkyu/Downloads/%E1%84%92%E1%85%A1%E1%84%91%E1%85%AE%E1%86%B7%20%E1%84%8B%E1%85%A1%E1%84%8F%E1%85%B5%E1%84%90%E1%85%A6%E1%86%A8%E1%84%8E%E1%85%A5.png)
+![하품 아키텍처](https://github.com/fish-minkyu/fish-minkyu/assets/128130163/07d89d89-9472-40d6-a387-fb1ef11c8218)
 
 ## 🔨 ERD 설계
 ![하품 ERD](https://hungry-mascara-804.notion.site/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fb0e17014-50cc-4bab-a272-404596999191%2FdrawSQL-hapoom-export-2023-08-29.png?table=block&id=e9f2704b-bc1c-46c8-9cf8-4b0a755c6d23&spaceId=ffd4dbd6-39dc-4f52-a9f7-7901f7bd9043&width=1900&userId=&cache=v2)
+
+## 📱 유저 플로우
+<img width="2422" alt="하품 유저 플로우" src="https://github.com/fish-minkyu/fish-minkyu/assets/128130163/c15735ab-1ab3-4b23-9d91-bded97c52bd4">
 
 ## 🔧 기술적 의사결정
 | 사용 기술 | 결정 사유                                                                                                                                                                                                    |
